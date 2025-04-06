@@ -79,34 +79,55 @@
             <div style="width: 555px; left: 84px; top: 261px; position: absolute; color: #333333; font-size: 28px; font-family: Sarabun; font-weight: 700; line-height: 45px; word-wrap: break-word">The following gives us insight about your performance throughout the experiment. Do you agree? (Feel free to use slider to adjust)</div>
         </div>
         <!-- Left side content (Radar Chart) -->
-            <div style="width: 659px; height: 870px; left: 100px; top: 77px; position: absolute; box-shadow: 0px 6px 40px rgba(56.52, 119.95, 178.50, 0.08); border-radius: 24px; background-color: #D9D9D9;">
-                <div style="width: 660px; height: 870px; left: 0px; top: 0px; position: absolute; background: #D9D9D9; border-radius: 24px; padding: 20px;">
-                    <h2 style="text-align: center; margin-bottom: 20px; color: #333;">Performance Radar Chart</h2>
-                    <canvas id="radarChart" width="600" height="400" style="display: block; margin: 0 auto;"></canvas>
+        <div style="width: 659px; height: 870px; left: 100px; top: 77px; position: absolute; box-shadow: 0px 6px 40px rgba(56.52, 119.95, 178.50, 0.08); border-radius: 24px; background-color: #D9D9D9; overflow: hidden; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box;">
+            <h2 style="text-align: center; margin: 0 0 15px 0; color: #333; font-size: 24px;">Performance Radar Chart</h2>
+
+                    <!-- Radar Chart Container -->
+                    <div style="flex: 1; min-height: 0; position: relative;">
+                        <canvas id="radarChart" style="width: 100%; height: 100%; display: block;"></canvas>
+                    </div>
+                    <!-- Control Panel -->
+                    <div style="margin-top: 20px; padding: 15px; background: rgba(255, 255, 255, 0.7); border-radius: 12px;">
 
                     <!-- Attribute Selection -->
-                    <div style="margin: 20px 0 15px; text-align: center;">
-                        <label style="display: block; margin-bottom: 5px; color: #555; font-weight: bold;">Select Attribute to Adjust:</label>
-                        <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
-                            <button type="button" onclick="showAttribute('Speed')" style="padding: 8px 15px; border: 1px solid #1B3360; background: #1B3360; color: white; cursor: pointer; border-radius: 4px;">Speed</button>
-                            <button type="button" onclick="showAttribute('Efficiency')" style="padding: 8px 15px; border: 1px solid #1B3360; background: #1B3360; color: white; cursor: pointer; border-radius: 4px;">Efficiency</button>
-                            <button type="button" onclick="showAttribute('Durability')" style="padding: 8px 15px; border: 1px solid #1B3360; background: #1B3360; color: white; cursor: pointer; border-radius: 4px;">Durability</button>
-                            <button type="button" onclick="showAttribute('Safety')" style="padding: 8px 15px; border: 1px solid #1B3360; background: #1B3360; color: white; cursor: pointer; border-radius: 4px;">Safety</button>
-                            <button type="button" onclick="showAttribute('Skill')" style="padding: 8px 15px; border: 1px solid #1B3360; background: #1B3360; color: white; cursor: pointer; border-radius: 4px;">Skill</button>
+                    <div style="margin-bottom: 15px; text-align: center;">
+                        <label style="display: block; margin-bottom: 8px; color: #333; font-weight: bold; font-size: 16px;">Select Attribute to Adjust:</label>
+                        <div style="display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;">
+                            <button type="button" onclick="showAttribute('Speed')" 
+                                style="padding: 6px 12px; border: 1px solid #1B3360; background: #1B3360; color: white; cursor: pointer; border-radius: 4px; font-size: 14px; transition: all 0.2s;">
+                                Speed
+                            </button>
+                            <button type="button" onclick="showAttribute('Efficiency')" 
+                                style="padding: 6px 12px; border: 1px solid #1B3360; background: #1B3360; color: white; cursor: pointer; border-radius: 4px; font-size: 14px; transition: all 0.2s;">
+                                Efficiency
+                            </button>
+                            <button type="button" onclick="showAttribute('Durability')" 
+                                style="padding: 6px 12px; border: 1px solid #1B3360; background: #1B3360; color: white; cursor: pointer; border-radius: 4px; font-size: 14px; transition: all 0.2s;">
+                                Durability
+                            </button>
+                            <button type="button" onclick="showAttribute('Safety')" 
+                                style="padding: 6px 12px; border: 1px solid #1B3360; background: #1B3360; color: white; cursor: pointer; border-radius: 4px; font-size: 14px; transition: all 0.2s;">
+                                Safety
+                            </button>
+                            <button type="button" onclick="showAttribute('Skill')" 
+                                style="padding: 6px 12px; border: 1px solid #1B3360; background: #1B3360; color: white; cursor: pointer; border-radius: 4px; font-size: 14px; transition: all 0.2s;">
+                                Skill
+                            </button>
                         </div>
                     </div>
 
-                    <!-- Single Slider for All Attributes -->
-                    <div style="margin: 30px 0 15px; text-align: center;">
-                        <label for="attributeSlider" style="display: block; margin-bottom: 5px; color: #555; font-weight: bold;" id="sliderLabel">Adjustment for Speed:</label>
-                        <div style="display: flex; justify-content: space-between; width: 80%; margin: 0 auto 5px;">
-                            <span style="width: 50px; text-align: left; color: #333;">-20%</span>
-                            <span style="width: 50px; text-align: center; color: #333;">0%</span>
-                            <span style="width: 50px; text-align: right; color: #333;">+20%</span>
+                    <!-- Slider Control -->
+                    <div style="margin: 20px 0 10px;">
+                        <label for="attributeSlider" style="display: block; margin-bottom: 5px; color: #333; font-weight: bold; font-size: 16px; text-align: center;" 
+                            id="sliderLabel">Adjustment for Speed: 0%</label>
+                        <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
+                            <span style="width: 50px; text-align: right; color: #333; font-size: 14px;">-20%</span>
+                            <input type="range" id="attributeSlider" name="attributeSlider" 
+                                min="-1" max="1" value="0" step="0.1"
+                                style="flex: 1; -webkit-appearance: none; height: 8px; background: linear-gradient(to right, #1B3360, #1B6048); border-radius: 4px; outline: none;">
+                            <span style="width: 50px; text-align: left; color: #333; font-size: 14px;">+20%</span>
                         </div>
-                        <input type="range" id="attributeSlider" name="attributeSlider" min="-1" max="1" value="0" style="width: 80%; margin: 0 auto 20px; display: block;" step="0.1">
                     </div>
-
                     <style>
                         /* Enhanced slider styles */
                         input[type="range"] {
