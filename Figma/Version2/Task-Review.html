@@ -82,149 +82,296 @@
             <div style="width: 659px; height: 870px; left: 100px; top: 77px; position: absolute; box-shadow: 0px 6px 40px rgba(56.52, 119.95, 178.50, 0.08); border-radius: 24px; background-color: #D9D9D9;">
                 <div style="width: 660px; height: 870px; left: 0px; top: 0px; position: absolute; background: #D9D9D9; border-radius: 24px; padding: 20px;">
                     <h2 style="text-align: center; margin-bottom: 20px; color: #333;">Performance Radar Chart</h2>
-                    <canvas id="radarChart" width="400" height="400"></canvas>
+                    <canvas id="radarChart" width="600" height="400" style="display: block; margin: 0 auto;"></canvas>
 
                     <!-- Attribute Selection -->
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 5px; color: #555;">Select Attribute:</label>
-                        <div style="display: flex; gap: 10px;">
-                            <button type="button" onclick="showAttribute('Speed')" style="padding: 5px 10px; border: 1px solid #ccc; cursor: pointer;">Speed</button>
-                            <button type="button" onclick="showAttribute('Efficiency')" style="padding: 5px 10px; border: 1px solid #ccc; cursor: pointer;">Efficiency</button>
-                            <button type="button" onclick="showAttribute('Durability')" style="padding: 5px 10px; border: 1px solid #ccc; cursor: pointer;">Durability</button>
-                            <button type="button" onclick="showAttribute('Safety')" style="padding: 5px 10px; border: 1px solid #ccc; cursor: pointer;">Safety</button>
-                            <button type="button" onclick="showAttribute('Skill')" style="padding: 5px 10px; border: 1px solid #ccc; cursor: pointer;">Skill</button>
+                    <div style="margin: 20px 0 15px; text-align: center;">
+                        <label style="display: block; margin-bottom: 5px; color: #555; font-weight: bold;">Select Attribute to Adjust:</label>
+                        <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
+                            <button type="button" onclick="showAttribute('Speed')" style="padding: 8px 15px; border: 1px solid #1B3360; background: #1B3360; color: white; cursor: pointer; border-radius: 4px;">Speed</button>
+                            <button type="button" onclick="showAttribute('Efficiency')" style="padding: 8px 15px; border: 1px solid #1B3360; background: #1B3360; color: white; cursor: pointer; border-radius: 4px;">Efficiency</button>
+                            <button type="button" onclick="showAttribute('Durability')" style="padding: 8px 15px; border: 1px solid #1B3360; background: #1B3360; color: white; cursor: pointer; border-radius: 4px;">Durability</button>
+                            <button type="button" onclick="showAttribute('Safety')" style="padding: 8px 15px; border: 1px solid #1B3360; background: #1B3360; color: white; cursor: pointer; border-radius: 4px;">Safety</button>
+                            <button type="button" onclick="showAttribute('Skill')" style="padding: 8px 15px; border: 1px solid #1B3360; background: #1B3360; color: white; cursor: pointer; border-radius: 4px;">Skill</button>
                         </div>
                     </div>
 
                     <!-- Single Slider for All Attributes -->
-                    <div style="margin-bottom: 15px;">
-                        <label for="attributeSlider" style="display: block; margin-bottom: 5px; color: #555;" id="sliderLabel">Pace:</label>
+                    <div style="margin: 30px 0 15px; text-align: center;">
+                        <label for="attributeSlider" style="display: block; margin-bottom: 5px; color: #555; font-weight: bold;" id="sliderLabel">Adjustment for Speed:</label>
+                        <div style="display: flex; justify-content: space-between; width: 80%; margin: 0 auto 5px;">
+                            <span style="width: 50px; text-align: left; color: #333;">-20%</span>
+                            <span style="width: 50px; text-align: center; color: #333;">0%</span>
+                            <span style="width: 50px; text-align: right; color: #333;">+20%</span>
+                        </div>
+                        <input type="range" id="attributeSlider" name="attributeSlider" min="-1" max="1" value="0" style="width: 80%; margin: 0 auto 20px; display: block;" step="0.1">
                     </div>
-                    <div style="display: flex; justify-content: space-between;">
-                        <span style="width: 50px; text-align: left;">Less</span>
-                        <span style="width: 50px; text-align: right;">More</span>
-                    </div>
-                    <input type="range" id="attributeSlider" name="attributeSlider" min="-1" max="1" value="0" style="width: 100%;" step="0.1">
 
                     <style>
-                        /* Style the slider track */
+                        /* Enhanced slider styles */
                         input[type="range"] {
                             -webkit-appearance: none;
-                            /* Override default CSS styles */
                             appearance: none;
                             width: 100%;
-                            /* Full width of the container */
-                            height: 15px;
-                            /* Height of the slider track */
-                            background: #30caf42c;
-                            /* Grey background */
+                            height: 10px;
+                            background: linear-gradient(to right, #1B3360, #1B6048);
                             outline: none;
-                            /* Remove outline */
                             opacity: 0.7;
-                            /* Set transparency (for mouse-over effects) */
                             -webkit-transition: .2s;
-                            /* 0.2 seconds transition on hover */
                             transition: opacity .2s;
-                            border-radius: 7.5px;
-                            /* Rounded corners */
+                            border-radius: 5px;
                         }
 
-                        /* Mouse-over effects */
                         input[type="range"]:hover {
                             opacity: 1;
-                            /* Fully visible on mouse-over */
                         }
 
-                        /* Style the slider thumb */
                         input[type="range"]::-webkit-slider-thumb {
                             -webkit-appearance: none;
                             appearance: none;
                             width: 25px;
-                            /* Set a fixed width for the thumb */
                             height: 25px;
-                            /* Set a fixed height for the thumb */
                             background: rgba(246.50, 31.84, 31.84, 0.77);
-                            /* Red background */
                             cursor: pointer;
-                            /* Cursor on hover */
                             border-radius: 50%;
-                            /* Make it circular */
-                            border: none;
-                            /* Remove border */
+                            border: 2px solid white;
+                            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                        }
+
+                        /* Button hover effects */
+                        button:hover {
+                            opacity: 0.9;
+                            transform: scale(1.02);
                         }
                     </style>
+                    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
                     <script>
-    // Load performance data
-    const performanceData = JSON.parse(localStorage.getItem('performanceData')) || {};
-    const attributes = ['Efficiency', 'Speed', 'Safety', 'Durability', 'Skill'];
-    
-    // Calculate averages
-    const averages = attributes.map(attr => {
-        const attrKey = attr.toLowerCase();
-        const lowVal = parseFloat(localStorage.getItem(`performance_${attrKey}_low`)) || 0;
-        const highVal = parseFloat(localStorage.getItem(`performance_${attrKey}_high`)) || 0;
-        return ((lowVal + highVal) / 2).toFixed(2);
-    });
+                        // Load performance data
+                        const performanceData = JSON.parse(localStorage.getItem('performanceData')) || {};
+                        const attributes = ['Efficiency', 'Speed', 'Safety', 'Durability', 'Skill'];
+                        let currentAttribute = 'Speed'; // Default selected attribute
+                        let sliderValue = 0; // Current slider value
+                        let radarChart; // Chart instance
 
-    // Initialize radar chart
-    const ctx = document.getElementById('radarChart').getContext('2d');
-    const radarChart = new Chart(ctx, {
-        type: 'radar',
-        data: {
-            labels: attributes,
-            datasets: [{
-                label: 'Your Average Performance',
-                data: averages,
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgb(54, 162, 235)',
-                pointBackgroundColor: 'rgb(54, 162, 235)',
-                pointBorderColor: '#fff',
-                pointHoverBackgroundColor: '#fff',
-                pointHoverBorderColor: 'rgb(54, 162, 235)'
-            }]
-        },
-        options: {
-            scales: {
-                r: {
-                    min: 0,
-                    max: 1,
-                    ticks: {
-                        stepSize: 0.2
-                    }
-                }
-            }
-        }
-    });
+                        // Calculate original averages for each role (without adjustments)
+                        const calculateOriginalAverages = (role) => {
+                            const lowStakeData = performanceData[role]?.low || [];
+                            const highStakeData = performanceData[role]?.high || [];
+                            
+                            return attributes.map(attr => {
+                                const attrIndex = attributes.indexOf(attr);
+                                
+                                const lowAvg = lowStakeData.length > 0 ? 
+                                    lowStakeData.reduce((sum, run) => sum + run.attributes[attrIndex], 0) / lowStakeData.length : 0;
+                                
+                                const highAvg = highStakeData.length > 0 ? 
+                                    highStakeData.reduce((sum, run) => sum + run.attributes[attrIndex], 0) / highStakeData.length : 0;
+                                
+                                return (lowAvg + highAvg) / 2;
+                            });
+                        };
 
-    // Download data function
-    function downloadData(buttonValue) {
-        const participantId = localStorage.getItem('participantId') || 'anonymous';
-        let csvContent = "ParticipantID,TaskType,Stake,Attribute,Value,Time,Earnings,Timestamp,Rating\n";
-        
-        Object.entries(performanceData).forEach(([taskType, stakes]) => {
-            Object.entries(stakes).forEach(([stake, runs]) => {
-                runs.forEach(run => {
-                    run.attributes.forEach((value, i) => {
-                        csvContent += `${participantId},${taskType},${stake},${attributes[i]},${value},${run.time},${run.earnings},${run.timestamp},${buttonValue}\n`;
-                    });
-                });
-            });
-        });
-        
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement("a");
-        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-        link.href = URL.createObjectURL(blob);
-        link.download = `performance-review-${timestamp}.csv`;
-        link.click();
-    }
+                        // Store original averages
+                        const originalDelivery = calculateOriginalAverages('Delivery');
+                        const originalInspection = calculateOriginalAverages('Inspection');
+                        const originalAssembling = calculateOriginalAverages('Assembling');
 
-    // Attribute selection buttons
-    function showAttribute(attribute) {
-        document.getElementById('sliderLabel').textContent = `${attribute}:`;
-        // You can add functionality to adjust the chart based on selected attribute
-    }
-    </script>
+                        // Initialize the radar chart
+                        function initRadarChart() {
+                            const ctx = document.getElementById('radarChart').getContext('2d');
+                            
+                            radarChart = new Chart(ctx, {
+                                type: 'radar',
+                                data: {
+                                    labels: attributes,
+                                    datasets: [
+                                        {
+                                            label: 'Delivery Role',
+                                            data: [...originalDelivery],
+                                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                            borderColor: 'rgb(255, 99, 132)',
+                                            pointBackgroundColor: 'rgb(255, 99, 132)',
+                                            pointBorderColor: '#fff',
+                                            pointHoverBackgroundColor: '#fff',
+                                            pointHoverBorderColor: 'rgb(255, 99, 132)',
+                                            borderWidth: 2
+                                        },
+                                        {
+                                            label: 'Inspection Role',
+                                            data: [...originalInspection],
+                                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                                            borderColor: 'rgb(54, 162, 235)',
+                                            pointBackgroundColor: 'rgb(54, 162, 235)',
+                                            pointBorderColor: '#fff',
+                                            pointHoverBackgroundColor: '#fff',
+                                            pointHoverBorderColor: 'rgb(54, 162, 235)',
+                                            borderWidth: 2
+                                        },
+                                        {
+                                            label: 'Assembling Role',
+                                            data: [...originalAssembling],
+                                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                            borderColor: 'rgb(75, 192, 192)',
+                                            pointBackgroundColor: 'rgb(75, 192, 192)',
+                                            pointBorderColor: '#fff',
+                                            pointHoverBackgroundColor: '#fff',
+                                            pointHoverBorderColor: 'rgb(75, 192, 192)',
+                                            borderWidth: 2
+                                        }
+                                    ]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    scales: {
+                                        r: {
+                                            min: 0,
+                                            max: 1,
+                                            ticks: {
+                                                stepSize: 0.2,
+                                                backdropColor: 'rgba  (0, 0, 0, 0)'
+                                            },
+                                            angleLines: {
+                                                color: 'rgba  (0, 0, 0, 0.1)'
+                                            },
+                                            grid: {
+                                                color: 'rgba  (0, 0, 0, 0.1)'
+                                            },
+                                            pointLabels: {
+                                                font: {
+                                                    size: 12,
+                                                    weight: 'bold'
+                                                }
+                                            }
+                                        }
+                                    },
+                                    plugins: {
+                                        legend: {
+                                            position: 'bottom',
+                                            labels: {
+                                                font: {
+                                                    size: 12,
+                                                    weight: 'bold'
+                                                },
+                                                padding: 20
+                                            }
+                                        },
+                                        tooltip: {
+                                            callbacks: {
+                                                label: function(context) {
+                                                    return context.dataset.label + ': ' + context.raw.toFixed  (2);
+                                                }
+                                            }
+                                        }
+                                    },
+                                    elements: {
+                                        line: {
+                                            tension: 0.1
+                                        }
+                                    }
+                                }
+                            });
+                        }
+
+                        // Function to update chart with slider adjustments                       
+                        function updateChartWithAdjustments() {
+                            const attributeIndex = attributes.indexOf(currentAttribute);
+                            const adjustmentFactor = sliderValue * 0.2; // Adjust by up to ±0.2 (20%)
+
+                            // Create adjusted datasets
+                            const adjustedDatasets = [
+                                {
+                                    ...radarChart.data.datasets[0],
+                                    data: originalDelivery.map((val, idx) => 
+                                        idx === attributeIndex ? 
+                                        Math.min(1, Math.max(0, val + adjustmentFactor)) : 
+                                        val
+                                    )
+                                },
+                                {
+                                    ...radarChart.data.datasets[1],
+                                    data: originalInspection.map((val, idx) => 
+                                        idx === attributeIndex ? 
+                                        Math.min(1, Math.max(0, val + adjustmentFactor)) : 
+                                        val
+                                    )
+                                },
+                                {
+                                    ...radarChart.data.datasets[2],
+                                    data: originalAssembling.map((val, idx) => 
+                                        idx === attributeIndex ? 
+                                        Math.min(1, Math.max(0, val + adjustmentFactor)) : 
+                                        val
+                                    )
+                                }
+                            ];
+
+                            // Update chart
+                            radarChart.data.datasets = adjustedDatasets;
+                            radarChart.update();
+                        }
+
+                        // Attribute selection buttons
+                        function showAttribute  (attribute) {
+                            currentAttribute = attribute;
+                            document.getElementById  ('sliderLabel').textContent = `Adjustment for ${  attribute  }  :  `  ;
+                            // Reset slider when changing attributes
+                            document.getElementById  ('attributeSlider').value = 0;
+                            sliderValue = 0;
+                            // Reset to original values
+                            radarChart.data.datasets  [0  ]  .data = [...originalDelivery  ]  ;
+                            radarChart.data.datasets  [1  ]  .data = [...originalInspection  ]  ;
+                            radarChart.data.datasets  [2  ]  .data = [...originalAssembling  ]  ;
+                            radarChart.update  ();
+                        }
+
+                        // Slider event listener
+                        document.getElementById  ('attributeSlider').addEventListener  ('input',  (e  )  =>  {
+                            sliderValue = parseFloat  (e  .target  .value  )  ;
+                            updateChartWithAdjustments  ()  ;
+                        }  )  ;
+
+                        // Download data function (using the ORIGINAL values, not adjusted ones)
+                        function downloadData(userRating) {
+                            const participantId = localStorage.getItem('participantId') || 'anonymous';
+                            const now = new Date();
+                            const dateTime = now.toISOString().replace(/[:.]/g, '-').split('T').join('_');
+                            
+                            let csvContent = "participantId,DateTime,Attribute,lowStakeValue,HighStakeValue,LowStakeTime,HighStakeTime,Average,UserRating,AdjustedValue,AdjustmentFactor\n";
+
+                            // Process each attribute
+                            attributes.forEach((attr, attrIndex) => {
+                                const attrKey = attr.toLowerCase();
+                                
+                                // Get original values
+                                const lowVal = parseFloat(localStorage.getItem(`performance_${attrKey}_low`)) || 0;
+                                const lowTime = parseFloat(localStorage.getItem(`time_${attrKey}_low`)) || 0;
+                                const highVal = parseFloat(localStorage.getItem(`performance_${attrKey}_high`)) || 0;
+                                const highTime = parseFloat(localStorage.getItem(`time_${attrKey}_high`)) || 0;
+                                const average = ((lowVal + highVal) / 2).toFixed(2);
+                                
+                                // Calculate adjusted value if this is the current attribute
+                                const isCurrentAttr = (attr === currentAttribute);
+                                const adjustment = isCurrentAttr ? (sliderValue * 0.2) : 0;
+                                const adjustedValue = isCurrentAttr ? 
+                                    Math.min(1, Math.max(0, parseFloat(average) + adjustment)).toFixed(2) : average;
+                                
+                                // Add to CSV
+                                csvContent += `${participantId},${dateTime},${attr},${lowVal},${highVal},${lowTime},${highTime},${average},${userRating},${adjustedValue},${isCurrentAttr ? adjustment : 0}\n`;
+                            });
+                            
+                            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                            const link = document.createElement("a");
+                            link.href = URL.createObjectURL(blob);
+                            link.download = `${dateTime}-${participantId}-Performance_Review.csv`;
+                            link.click();
+                        }
+
+                        // Initialize the chart when the page loads
+                        window  .  onload =  function  (  )  {
+                            initRadarChart  (  )  ;
+                        }  ;
+                    </script>
                 </div>
             </div>
         </div>
