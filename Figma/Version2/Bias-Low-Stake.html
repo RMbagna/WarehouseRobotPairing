@@ -1,0 +1,307 @@
+<div style="width: 100%; height: 100%; position: relative; background: white; overflow: hidden">
+    <!-- Navigation bar section -->
+    <div style="width: 1440px; height: 94px; padding-left: 100px; padding-right: 100px; left: 0px; top: 0px; position: absolute; justify-content: space-between; align-items: center; display: inline-flex">
+        <!-- Navigation links container -->
+        <div style="justify-content: flex-start; align-items: flex-start; gap: 52px; display: flex">
+            <!-- Home link -->
+            <a href="Home-Page.html" style="text-decoration: none;">
+            <div data-status="Off" style="padding-bottom: 4px; justify-content: flex-start; align-items: flex-start; gap: 10px; display: flex">
+            <div style="color: #333333; font-size: 20px; font-family: Sarabun; font-weight: 400; line-height: 32px; word-wrap: break-word">Home</div>
+            </div>
+            </a>
+            <!-- Background link -->
+            <a href="Background-Page.html" style="text-decoration: none;">
+            <div data-status="Off" style="padding-bottom: 4px; justify-content: flex-start; align-items: flex-start; gap: 10px; display: flex">
+            <div style="color: #333333; font-size: 20px; font-family: Sarabun; font-weight: 400; line-height: 32px; word-wrap: break-word">Background</div>
+            </div>
+            </a>
+            <!-- Contact Us link -->
+            <div data-status="Off" style="padding-bottom: 4px; justify-content: flex-start; align-items: flex-start; gap: 10px; display: flex">
+                <div style="color: #333333; font-size: 20px; font-family: Sarabun; font-weight: 400; line-height: 32px; word-wrap: break-word">Contact Us</div>
+            </div>
+                      <!-- Tracker link -->
+            <div data-status="Off" style="padding-bottom: 4px; justify-content: flex-start; align-items: flex-start; gap: 10px; display: flex">
+                <div id="tracker" style="color: #333333; font-size: 20px; font-family: Sarabun; font-weight: 400; line-height: 32px; word-wrap: break-word">Tracker: 1/10</div>
+            </div>
+        <script>
+            // Function to get the current count from localStorage
+            function getCount() {
+                let count = localStorage.getItem('count');
+                return count ? parseInt(count) : 1; // Initialize to 1 if not found
+            }
+
+            // Function to set the count in localStorage
+            function setCount(count) {
+                localStorage.setItem('count', count);
+            }
+
+            // Get the current count
+            let currentCount = getCount();
+
+            // Update the tracker display
+            document.getElementById('tracker').innerText = 'Tracker: ' + currentCount + '/10';
+
+            // Increment the count by 2
+            currentCount += 1;
+
+            // Check if the count exceeds 9
+            if (currentCount > 11) {
+                // Reset the count to 1
+                currentCount = 0;
+                setCount(currentCount);
+                //Redirect to Bias-Review.html
+                 window.location.href = 'Bias-Review.html';
+            } else {
+                // Update the count in localStorage
+                setCount(currentCount);
+            }
+        </script>
+            <!-- Time Elapse link -->
+            <div data-status="Off" style="padding-bottom: 4px; justify-content: flex-start; align-items: flex-start; gap: 10px; display: flex">
+                <div id="timer" style="color: #333333; font-size: 20px; font-family: Sarabun; font-weight: 400; line-height: 32px; word-wrap: break-word">Time Elapse: 0s</div>
+            </div>
+        <script>
+        let seconds = 0;
+        const timeElapsedDiv = document.getElementById('timer');
+
+        function incrementTime() {
+          seconds++;
+          timeElapsedDiv.textContent = `Time Elapsed: ${seconds}s`;
+        }
+
+        setInterval(incrementTime, 1000);
+        </script>
+        </div>
+    </div>
+    <!-- Main content area -->
+    <div style="width: 1440px; height: 1024px; left: 0px; top: 94px; position: absolute">
+        <!-- Right side content -->
+        <div style="width: 708px; height: 1024px; left: 732px; top: 0px; position: absolute">
+            <div style="width: 1036px; height: 1024px; left: -328px; top: 0px; position: absolute; background: rgba(48, 201.53, 244, 0.12)"></div>
+            <!-- Task description -->
+            <div style="width: 555px; left: 84px; top: 490px; position: absolute; color: #333333; font-size: 28px; font-family: Sarabun; font-weight: 400; line-height: 45px; word-wrap: break-word">Given [low-stake] task, use the slider to indicate your expectations for the robot’s performance compared to human operator regarding the displayed attribute. </div>
+            <!-- Stage description -->
+            <div style="width: 555px; left: 84px; top: 261px; position: absolute; color: #333333; font-size: 28px; font-family: Sarabun; font-weight: 700; line-height: 45px; word-wrap: break-word">At this stage, we would like to observe inherent biases towards working alone and expectation for robot assistant.</div>
+         <!-- Next button -->
+            <a href="Bias-High-Stake.html" style="text-decoration: none;">
+                <button style="width: 181px; height: 54px; padding-left: 24px; padding-right: 24px; left: 361px; top: 754px; position: absolute; background: #1B6048; border-radius: 32px; flex-direction: column; justify-content: center; align-items: center; display: inline-flex; border: none; cursor: pointer;">
+                    <div style="flex-direction: column; justify-content: center; align-items: center; display: flex">
+                        <div style="justify-content: flex-start; align-items: flex-start; gap: 8px; display: inline-flex">
+                            <div style="color: white; font-size: 16px; font-family: Sarabun; font-weight: 700; line-height: 24px; word-wrap: break-word">Next</div>
+                        </div>
+                    </div>
+                </button>
+            </a>
+            <!-- Switch button -->
+            <a href="Home-Page.html" style="text-decoration: none;">
+                <button style="width: 181px; height: 54px; padding-left: 24px; padding-right: 24px; left: 100px; top: 754px; position: absolute; background: #1B3360; border-radius: 32px; flex-direction: column; justify-content: center; align-items: center; display: inline-flex; border: none; cursor: pointer;">
+                    <div style="flex-direction: column; justify-content: center; align-items: center; display: flex">
+                        <div style="justify-content: flex-start; align-items: flex-start; gap: 8px; display: inline-flex">
+                            <div style="color: white; font-size: 16px; font-family: Sarabun; font-weight: 700; line-height: 24px; word-wrap: break-word">Switch</div>
+                        </div>
+                    </div>
+                </button>
+            </a>
+        </div>
+    </div>
+    <!-- Left side content (image and slider) -->
+    <div style="width: 659px; height: 870px; left: 100px; top: 171px; position: absolute; box-shadow: 0px 6px 40px rgba(56.52, 119.95, 178.50, 0.08); border-radius: 24px">
+        <div style="width: 659px; height: 870px; left: 0px; top: 0px; position: absolute; background: #D9D9D9; border-radius: 24px"></div>
+        <img id="scenarioImage" style="width: 659px; height: 600px; left: 0px; top: 0px; position: absolute; border-radius: 24px" src="" />
+        <div id="imageDescription" style="position: absolute; top: 0px; left: 0px; width: 94%; height: 560px; display: flex; justify-content: center; align-items: center; color: white; font-size: 24px; font-weight: bold; text-align: center; padding: 20px; border-radius: 24px; background: rgba(0, 0, 0, 0.5);">Image Description</div>
+
+        <!-- Slider with enhanced styling -->
+        <div style="width: 500px; margin-left: 79px; margin-top: 650px; position: absolute;">
+            <input type="range" min="-1" max="1" value="0" class="slider" id="biasSlider" style="width: 100%;" step="0.1">
+            <div id="slider-track" style="position: absolute; height: 15px; border-radius: 7.5px; left: 0%; width: 50%; background: rgba(246.50, 31.84, 31.84, 0.77);"></div>
+            <div id="slider-center" style="position: absolute; left: 50%; top: 50%; width: 2px; height: 8px; background-color: #333; transform: translate(-50%, -50%);"></div>
+        </div>
+
+        <!-- Slider Labels -->
+        <div style="width: 500px; display: flex; justify-content: space-between; margin-left: 79px; margin-top: 700px; position: absolute; color: #333333;">
+            <span style="width: 50px; text-align: left;">Self</span>
+            <span style="width: 50px; text-align: right;">Robot</span>
+        </div>
+
+        <style>
+            /* Style the slider track */
+            input[type="range"] {
+                -webkit-appearance: none;
+                /* Override default CSS styles */
+                appearance: none;
+                width: 100%;
+                /* Full width of the container */
+                height: 15px;
+                /* Height of the slider track */
+                background: #30caf42c;
+                /* Grey background */
+                outline: none;
+                /* Remove outline */
+                opacity: 0.7;
+                /* Set transparency (for mouse-over effects) */
+                -webkit-transition: .2s;
+                /* 0.2 seconds transition on hover */
+                transition: opacity .2s;
+                border-radius: 7.5px;
+                /* Rounded corners */
+            }
+
+            /* Mouse-over effects */
+            input[type="range"]:hover {
+                opacity: 1;
+                /* Fully visible on mouse-over */
+            }
+
+            /* Style the slider thumb */
+            input[type="range"]::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                appearance: none;
+                width: 25px;
+                /* Set a fixed width for the thumb */
+                height: 25px;
+                /* Set a fixed height for the thumb */
+                background: rgba(246.50, 31.84, 31.84, 0.77);
+                /* Red background */
+                cursor: pointer;
+                /* Cursor on hover */
+                border-radius: 50%;
+                /* Make it circular */
+                border: none;
+                /* Remove border */
+            }
+
+            input[type="range"]::-moz-range-thumb {
+                width: 25px;
+                /* Set a fixed width for the thumb */
+                height: 25px;
+                /* Set a fixed height for the thumb */
+                background: rgba(246.50, 31.84, 31.84, 0.77);
+                /* Red background */
+                cursor: pointer;
+                /* Cursor on hover */
+                border-radius: 50%;
+                /* Make it circular */
+                border: none;
+                /* Remove border */
+            }
+            /* Enhanced Slider Track Styles */
+            #slider-track {
+                position: absolute;
+                height: 15px;
+                border-radius: 7.5px;
+                left: 50%;
+                width: 50%;
+                background: rgba(246.50, 31.84, 31.84, 0.77);
+                pointer-events: none;
+                transition: width 0.1s ease, left 0.1s ease;
+            }
+
+            /* Center indicator */
+            #slider-center {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                width: 2px;
+                height: 20px;
+                background-color: #333;
+                transform: translate(-50%, -50%);
+                z-index: 2;
+            }
+        </style>
+    </div>
+
+    <script>
+       const scenarios = [{
+            image: "WarehouseRobotPic1.png",
+            description: "Energy conservation in a critical situation",
+            attribute: "energy"
+        },
+        {
+            image: "WarehouseRobotPic2.png",
+            description: "Maintaining pace during a time-sensitive operation",
+            attribute: "pace"
+        },
+        {
+            image: "WarehouseRobotPic3.jpg",
+            description: "Ensuring safety in a hazardous environment",
+            attribute: "safety"
+        },
+        {
+            image: "WarehouseRobotPic4.jpg",
+            description: "Guaranteeing reliability of performance under pressure",
+            attribute: "reliability"
+        },
+        {
+            image: "WarehouseRobotPic5.jpg",
+            description: "Demonstrating intelligent decision-making in complex scenarios",
+            attribute: "intelligence"
+        }];
+
+        // Function to get the current scenario index from localStorage
+        function getScenarioIndex() {
+            let scenarioIndex = localStorage.getItem('scenarioIndex');
+            return scenarioIndex ? parseInt(scenarioIndex) : 0; // Initialize to 0 if not found
+        }
+
+        // Function to set the scenario index in localStorage
+        function setScenarioIndex(scenarioIndex) {
+            localStorage.setItem('scenarioIndex', scenarioIndex);
+        }
+
+        // Get the current scenario index
+        var currentScenarioIndex = getScenarioIndex();
+        const scenarioImage = document.getElementById('scenarioImage');
+        const imageDescription = document.getElementById('imageDescription');
+        const biasSlider = document.getElementById('biasSlider');
+        const sliderTrack = document.getElementById('slider-track');
+
+        function updateScenario() {
+            const scenario = scenarios[currentScenarioIndex];
+            scenarioImage.src = scenario.image;
+            imageDescription.textContent = scenario.description;
+        }
+
+        // Initial scenario load
+        updateScenario();
+
+        // Update scenario on page load
+        window.onload = function() {
+            currentScenarioIndex = (currentScenarioIndex + 1) % scenarios.length;
+            setScenarioIndex(currentScenarioIndex);
+            updateScenario();
+        };
+
+        // Slider functionality with smooth animation and proper data storage
+        biasSlider.addEventListener('input', function() {
+            const value = parseFloat(biasSlider.value);
+            const min = parseFloat(biasSlider.min);
+            const max = parseFloat(biasSlider.max);
+            const scenario = scenarios[currentScenarioIndex];
+            const isHighStake = window.location.href.includes('High-Stake');
+
+            // Calculate the percentage for the track animation
+            const percentage = ((value - min) / (max - min)) * 100;
+
+            // Update the visual track
+            if (value >= 0) {
+                // Slider moving right (positive values)
+                sliderTrack.style.width = `${percentage}%`;
+                sliderTrack.style.left = '0%';
+                sliderTrack.style.backgroundColor = 'rgba(246.50, 31.84, 31.84, 0.77)';
+            } else {
+                // Slider moving left (negative values)
+                sliderTrack.style.width = `${100 - percentage}%`;
+                sliderTrack.style.left = `${percentage}%`;
+                sliderTrack.style.backgroundColor = 'rgba(48, 201.53, 244, 0.77)';
+            }
+
+            // Save data with both attribute-based and index-based keys
+            localStorage.setItem(`bias_${scenario.attribute}_${isHighStake ? 'high' : 'low'}`, value);
+            localStorage.setItem(`time_${scenario.attribute}_${isHighStake ? 'high' : 'low'}`, seconds);
+            
+            // Backward compatible storage
+            localStorage.setItem(`biasValue_${isHighStake ? 'high' : 'low'}_${currentScenarioIndex}`, value);
+            localStorage.setItem(`timeElapsed_${isHighStake ? 'high' : 'low'}_${currentScenarioIndex}`, seconds);
+        });
+    </script>
+</div>

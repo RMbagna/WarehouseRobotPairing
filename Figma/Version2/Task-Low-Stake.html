@@ -1,0 +1,261 @@
+\Task-High-Stake.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Selection - High Stake</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <div style="width: 100%; height: 100%; position: relative; background: white; overflow: hidden">
+        <!-- Navigation bar section -->
+        <div style="width: 1440px; height: 94px; padding-left: 100px; padding-right: 100px; left: 0px; top: 0px; position: absolute; justify-content: space-between; align-items: center; display: inline-flex">
+            <!-- Navigation links container -->
+            <div style="justify-content: flex-start; align-items: flex-start; gap: 52px; display: flex">
+                <!-- Home link -->
+                <a href="Home-Page.html" style="text-decoration: none;">
+                    <div data-status="Off" style="padding-bottom: 4px; justify-content: flex-start; align-items: flex-start; gap: 10px; display: flex">
+                        <div style="color: #333333; font-size: 20px; font-family: Sarabun; font-weight: 400; line-height: 32px; word-wrap: break-word">Home</div>
+                    </div>
+                </a>
+                <!-- Background link -->
+                <a href="Background-Page.html" style="text-decoration: none;">
+                    <div data-status="Off" style="padding-bottom: 4px; justify-content: flex-start; align-items: flex-start; gap: 10px; display: flex">
+                        <div style="color: #333333; font-size: 20px; font-family: Sarabun; font-weight: 400; line-height: 32px; word-wrap: break-word">Background</div>
+                    </div>
+                </a>
+                <!-- Contact Us link -->
+                <div data-status="Off" style="padding-bottom: 4px; justify-content: flex-start; align-items: flex-start; gap: 10px; display: flex">
+                    <div style="color: #333333; font-size: 20px; font-family: Sarabun; font-weight: 400; line-height: 32px; word-wrap: break-word">Contact Us</div>
+                </div>
+                <!-- Earnings display -->
+                <div data-status="Off" style="padding-bottom: 4px; justify-content: flex-start; align-items: flex-start; gap: 10px; display: flex">
+                    <div id="earnings" style="color: #333333; font-size: 20px; font-family: Sarabun; font-weight: 400; line-height: 32px; word-wrap: break-word">Earnings</div>
+                </div>
+                <!-- Time Elapse link -->
+                <div data-status="Off" style="padding-bottom: 4px; justify-content: flex-start; align-items: flex-start; gap: 10px; display: flex">
+                    <div id="timer" style="color: #333333; font-size: 20px; font-family: Sarabun; font-weight: 400; line-height: 32px; word-wrap: break-word">Time Elapse: 0s</div>
+                </div>
+            </div>
+        </div>
+        <!-- Main content area -->
+        <div style="width: 1440px; height: 1024px; left: 0px; top: 94px; position: absolute">
+            <!-- Right side content -->
+            <div style="width: 708px; height: 1024px; left: 732px; top: 0px; position: absolute">
+                <div style="width: 1036px; height: 1024px; left: -328px; top: 0px; position: absolute; background: rgba(100.27, 244, 48, 0.12)"></div>
+                <!-- Task description -->
+                <div style="width: 555px; left: 84px; top: 306px; position: absolute; color: #333333; font-size: 28px; font-family: Sarabun; font-weight: 400; line-height: 45px; word-wrap: break-word">Given the low stakes and potential revenue, choose your role / task at manufacturing warehouse.</div>
+                <!-- Stage description -->
+                <div style="width: 555px; left: 84px; top: 261px; position: absolute; color: #333333; font-size: 28px; font-family: Sarabun; font-weight: 700; line-height: 45px; word-wrap: break-word">At this stage, we observe task preference.</div>
+                <!-- Task selection options -->
+                <style>
+                    input[type="radio"] {
+                        width: 24px;
+                        height: 24px;
+                        appearance: none;
+                        outline: 1.50px #1B3360 solid;
+                        border-radius: 50%;
+                        position: relative;
+                        cursor: pointer;
+                    }
+
+                    input[type="radio"]:checked {
+                        background-color: #1B3360;
+                        /* Solid color when checked */
+                        border: none;
+                        /* Remove the border when checked */
+                    }
+                </style>
+                <div style="left: 84px; top: 643px; position: absolute;">
+                    <label style="display: flex; justify-content: flex-start; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="radio" name="robot" value="robot3" />
+                        <div style="color: #333333; font-size: 24px; font-family: Sarabun; font-weight: 400; line-height: 24px; word-wrap: break-word">Task 3</div>
+                    </label>
+                </div>
+                <div style="left: 84px; top: 559px; position: absolute;">
+                    <label style="display: flex; justify-content: flex-start; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="radio" name="robot" value="robot2" />
+                        <div style="color: #333333; font-size: 24px; font-family: Sarabun; font-weight: 400; line-height: 24px; word-wrap: break-word">Task 2</div>
+                    </label>
+                </div>
+                <div style="left: 84px; top: 488px; position: absolute;">
+                    <label style="display: flex; justify-content: flex-start; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="radio" name="robot" value="robot1" />
+                        <div style="color: #333333; font-size: 24px; font-family: Sarabun; font-weight: 400; line-height: 24px; word-wrap: break-word">Task 1</div>
+                    </label>
+                </div>
+                <!-- Next button -->
+                <a href="Task-High-Stake.html" style="text-decoration: none;">
+                    <button style="width: 181px; height: 54px; padding-left: 24px; padding-right: 24px; left: 361px; top: 754px; position: absolute; background: #1B6048; border-radius: 32px; flex-direction: column; justify-content: center; align-items: center; display: inline-flex; border: none; cursor: pointer;">
+                        <div style="flex-direction: column; justify-content: center; align-items: center; display: flex">
+                            <div style="justify-content: flex-start; align-items: flex-start; gap: 8px; display: inline-flex">
+                                <div style="color: white; font-size: 16px; font-family: Sarabun; font-weight: 700; line-height: 24px; word-wrap: break-word">Next</div>
+                            </div>
+                        </div>
+                    </button>
+                </a>
+                <!-- Switch button -->
+                <a href="Home-Page.html" style="text-decoration: none;">
+                    <button id="switchButton" style="width: 181px; height: 54px; padding-left: 24px; padding-right: 24px; left: 100px; top: 754px; position: absolute; background: #1B3360; border-radius: 32px; flex-direction: column; justify-content: center; align-items: center; display: inline-flex; border: none; cursor: pointer;">
+                        <div style="flex-direction: column; justify-content: center; align-items: center; display: flex">
+                            <div style="justify-content: flex-start; align-items: flex-start; gap: 8px; display: inline-flex">
+                                <div style="color: white; font-size: 16px; font-family: Sarabun; font-weight: 700; line-height: 24px; word-wrap: break-word">Switch</div>
+                            </div>
+                        </div>
+                    </button>
+                </a>
+            </div>
+            <!-- Radar chart container -->
+            <div style="width: 659px; height: 870px; left: 100px; top: 77px; position: absolute; box-shadow: 0px 6px 40px rgba(56.52, 119.95, 178.50, 0.08)">
+                <div style="width: 659px; height: 870px; left: 0px; top: 0px; position: absolute; background: #D9D9D9; border-radius: 24px"></div>
+                <canvas id="radarChart" style="width: 659px; height: 870px; left: 0px; top: 0px; position: absolute;"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Function to generate random values for the radar chart
+        function getRandomValues() {
+            return Array.from({
+                length: 5
+            }, () => (Math.random()).toFixed(2));
+        }
+
+        // Get the context of the canvas element
+        const ctx = document.getElementById('radarChart').getContext('2d');
+        // Data for the radar chart
+        const data = {
+            labels: ['Energy', 'Pace', 'Safety', 'Reliability', 'Intelligence'],
+            datasets: [{
+                    label: 'Task 1',
+                    data: getRandomValues(),
+                    fill: true,
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgb(255, 99, 132)',
+                    pointBackgroundColor: 'rgb(255, 99, 132)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgb(255, 99, 132)'
+                },
+                {
+                    label: 'Task 2',
+                    data: getRandomValues(),
+                    fill: true,
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgb(54, 162, 235)',
+                    pointBackgroundColor: 'rgb(54, 162, 235)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgb(54, 162, 235)'
+                },
+                {
+                    label: 'Task 3',
+                    data: getRandomValues(),
+                    fill: true,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgb(75, 192, 192)',
+                    pointBackgroundColor: 'rgb(75, 192, 192)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgb(75, 192, 192)'
+                }
+            ]
+        };
+
+        // Configuration options for the radar chart
+        const config = {
+            type: 'radar',
+            data: data,
+            options: {
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Robot Attributes Radar Chart',
+                        font: {
+                            size: 20
+                        }
+                    },
+                    legend: {
+                        display: true,
+                        position: 'bottom'
+                    }
+                },
+                scales: {
+                    r: {
+                        min: 0,
+                        max: 1,
+                        ticks: {
+                            stepSize: 0.5
+                        }
+                    }
+                },
+                elements: {
+                    line: {
+                        borderWidth: 3
+                    }
+                }
+            }
+        };
+
+        // Create a new radar chart
+        const radarChart = new Chart(ctx, config);
+
+        // Initialize earnings from localStorage or set to $5 if not present
+        let earnings = parseFloat(localStorage.getItem('earnings')) || 5;
+        document.getElementById('earnings').textContent = `Earnings: $${earnings.toFixed(2)}`;
+
+        // Function to update earnings based on selected robot
+        function updateEarnings() {
+            const selectedRobot = localStorage.getItem('selectedRobot');
+            if (selectedRobot) {
+                const robotIndex = selectedRobot.slice(-1) - 1;
+                const robotData = data.datasets[robotIndex].data;
+                const newEarnings = robotData.reduce((sum, value) => sum + parseFloat(value), 0);
+                earnings += newEarnings;
+                document.getElementById('earnings').textContent = `Earnings: $${earnings.toFixed(2)}`;
+                localStorage.setItem('earnings', earnings.toFixed(2));
+                localStorage.removeItem('selectedRobot'); // Clear the selection after updating earnings
+            }
+        }
+
+        // Add event listeners to radio buttons
+        document.querySelectorAll('input[name="robot"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                localStorage.setItem('selectedRobot', radio.value);
+            });
+        });
+
+        // Add event listener to the home button to reset earnings
+        document.querySelector('a[href="Home-Page.html"]').addEventListener('click', () => {
+            earnings = 5;
+            localStorage.setItem('earnings', earnings.toFixed(2));
+            document.getElementById('earnings').textContent = `Earnings: $${earnings.toFixed(2)}`;
+        });
+
+        // Add event listener to the switch button to reset earnings
+        document.getElementById('switchButton').addEventListener('click', () => {
+            earnings = 0;
+            localStorage.setItem('earnings', earnings.toFixed(2));
+            document.getElementById('earnings').textContent = `Earnings: $${earnings.toFixed(2)}`;
+        });
+
+        // Initial earnings update
+        updateEarnings();
+
+        // Timer script
+        let seconds = 0;
+        const timeElapsedDiv = document.getElementById('timer');
+
+        function incrementTime() {
+            seconds++;
+            timeElapsedDiv.textContent = `Time Elapsed: ${seconds}s`;
+        }
+
+        setInterval(incrementTime, 1000);
+    </script>
+</body>
+
+</html>

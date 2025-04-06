@@ -1,0 +1,255 @@
+<!-- Main container for the entire page -->
+<div style="width: 100%; height: 100%; position: relative; background: white; overflow: hidden">
+    <!-- Top navigation bar -->
+    <div style="width: 1440px; height: 94px; padding-left: 100px; padding-right: 100px; left: 0px; top: 0px; position: absolute; justify-content: space-between; align-items: center; display: inline-flex">
+        <!-- Navigation links container -->
+        <div style="justify-content: flex-start; align-items: flex-start; gap: 52px; display: flex">
+            <!-- Home link -->
+            <a href="Home-Page.html" style="text-decoration: none;">
+                <div data-status="Off" style="padding-bottom: 4px; justify-content: flex-start; align-items: flex-start; gap: 10px; display: flex">
+                    <div style="color: #333333; font-size: 20px; font-family: Sarabun; font-weight: 400; line-height: 32px; word-wrap: break-word">Home</div>
+                </div>
+            </a>
+            <!-- Background link -->
+            <a href="Background-Page.html" style="text-decoration: none;">
+                <div data-status="Off" style="padding-bottom: 4px; justify-content: flex-start; align-items: flex-start; gap: 10px; display: flex">
+                    <div style="color: #333333; font-size: 20px; font-family: Sarabun; font-weight: 400; line-height: 32px; word-wrap: break-word">Background</div>
+                </div>
+            </a>
+            <!-- Contact Us link -->
+            <div data-status="Off" style="padding-bottom: 4px; justify-content: flex-start; align-items: flex-start; gap: 10px; display: flex">
+                <div style="color: #333333; font-size: 20px; font-family: Sarabun; font-weight: 400; line-height: 32px; word-wrap: break-word">Contact Us</div>
+            </div>
+            <!-- Tracker link -->
+            <div data-status="Off" style="padding-bottom: 4px; justify-content: flex-start; align-items: flex-start; gap: 10px; display: flex">
+                <div id="tracker" style="color: #333333; font-size: 20px; font-family: Sarabun; font-weight: 400; line-height: 32px; word-wrap: break-word">Tracker: 1/30</div>
+            </div>
+            <script>
+                // Function to get the current count from localStorage
+                function getCount() {
+                    let count = localStorage.getItem('count');
+                    return count ? parseInt(count) : 1; // Initialize to 1 if not found
+                }
+
+                // Function to set the count in localStorage
+                function setCount(count) {
+                    localStorage.setItem('count', count);
+                }
+
+                // Get the current count
+                let currentCount = getCount();
+
+                // Update the tracker display
+                document.getElementById('tracker').innerText = 'Tracker: ' + currentCount + '/30';
+
+                // Increment the count by 2
+                currentCount += 1;
+
+                // Check if the count exceeds 30
+                if (currentCount > 30) {
+                    // Reset the count to 0
+                    currentCount = 0;
+                    setCount(currentCount);
+                    // Redirect to Bias-Review.html
+                    window.location.href = 'Pairing-High-Stake.html';
+                } else {
+                    // Update the count in localStorage
+                    setCount(currentCount);
+                }
+            </script>
+            <!-- Time Elapse link -->
+            <div data-status="Off" style="padding-bottom: 4px; justify-content: flex-start; align-items: flex-start; gap: 10px; display: flex">
+                <div id="timer" style="color: #333333; font-size: 20px; font-family: Sarabun; font-weight: 400; line-height: 32px; word-wrap: break-word">Time Elapse: 0s</div>
+            </div>
+            <script>
+                let seconds = 0;
+                const timeElapsedDiv = document.getElementById('timer');
+
+                function incrementTime() {
+                    seconds++;
+                    timeElapsedDiv.textContent = `Time Elapsed: ${seconds}s`;
+                }
+
+                setInterval(incrementTime, 1000);
+            </script>
+        </div>
+    </div>
+    <!-- Main content area below the navigation bar -->
+    <div style="width: 1440px; height: 1024px; left: 0px; top: 94px; position: absolute">
+        <!-- Right side content -->
+        <div style="width: 708px; height: 1024px; left: 732px; top: 0px; position: absolute">
+            <!-- Background color for the right side -->
+            <div style="width: 1036px; height: 1024px; left: -328px; top: 0px; position: absolute; background: rgba(244, 48, 119.87, 0.12)"></div>
+            <!-- Dissatisfied button -->
+                <a href="Home-Page.html" onclick="downloadData('Dissatisfied')" style="text-decoration:none;">
+                <div style="width: 376px; height: 54px; padding-left: 24px; padding-right: 24px; left: 166px; top: 744px; position: absolute; background: #1B3360; border-radius: 32px; flex-direction: column; justify-content: center; align-items: center; display: inline-flex">
+                    <div style="color: white; font-size: 16px; font-family: Sarabun; font-weight: 700; line-height: 24px; word-wrap: break-word">Dissatisfied, the model is not Human-Centric</div>
+                </div>
+            </a>
+            <!-- Marginally dissatisfied button -->
+            <!-- <a href="Home-Page.html" style="text-decoration:none;">
+                <div style="width: 376px; height: 54px; padding-left: 24px; padding-right: 24px; left: 166px; top: 663px; position: absolute; background: #1B3360; border-radius: 32px; flex-direction: column; justify-content: center; align-items: center; display: inline-flex">
+                    <div style="flex-direction: column; justify-content: center; align-items: center; display: flex">
+                        <div style="justify-content: flex-start; align-items: flex-start; gap: 8px; display: inline-flex">
+                            <div style="color: white; font-size: 16px; font-family: Sarabun; font-weight: 700; line-height: 24px; word-wrap: break-word">Marginally dissatisfied, slightly Human-Centric </div>
+                        </div>
+                    </div>
+                </div>
+            </a> -->
+               <a href="Home-Page.html" onclick="downloadData('Dissatisfied')" style="text-decoration:none;">
+                <div style="width: 376px; height: 54px; padding-left: 24px; padding-right: 24px; left: 166px; top: 744px; position: absolute; background: #1B3360; border-radius: 32px; flex-direction: column; justify-content: center; align-items: center; display: inline-flex">
+                    <div style="color: white; font-size: 16px; font-family: Sarabun; font-weight: 700; line-height: 24px; word-wrap: break-word">Marginally dissatisfied, slightly Human-Centric</div>
+                </div>
+            </a>
+            <!-- Marginally satisfied button -->
+            <!-- <a href="Home-Page.html" style="text-decoration:none;">
+                <div style="width: 376px; height: 54px; padding-left: 24px; padding-right: 24px; left: 166px; top: 582px; position: absolute; background: #1B3360; border-radius: 32px; flex-direction: column; justify-content: center; align-items: center; display: inline-flex">
+                    <div style="flex-direction: column; justify-content: center; align-items: center; display: flex">
+                        <div style="justify-content: flex-start; align-items: flex-start; gap: 8px; display: inline-flex">
+                            <div style="color: white; font-size: 16px; font-family: Sarabun; font-weight: 700; line-height: 24px; word-wrap: break-word">Marginally satisfied, almost Human-Centric</div>
+                        </div>
+                    </div>
+                </div>
+            </a> -->
+              <a href="Home-Page.html" onclick="downloadData('Dissatisfied')" style="text-decoration:none;">
+                <div style="width: 376px; height: 54px; padding-left: 24px; padding-right: 24px; left: 166px; top: 744px; position: absolute; background: #1B3360; border-radius: 32px; flex-direction: column; justify-content: center; align-items: center; display: inline-flex">
+                    <div style="color: white; font-size: 16px; font-family: Sarabun; font-weight: 700; line-height: 24px; word-wrap: break-word">Marginally satisfied, almost Human-Centric</div>
+                </div>
+            </a>
+            <!-- Satisfied button -->
+            <!-- <a href="Home-Page.html" style="text-decoration:none;">
+                <div style="width: 376px; height: 54px; padding-left: 24px; padding-right: 24px; left: 166px; top: 501px; position: absolute; background: #1B3360; border-radius: 32px; flex-direction: column; justify-content: center; align-items: center; display: inline-flex">
+                    <div style="flex-direction: column; justify-content: center; align-items: center; display: flex">
+                        <div style="justify-content: flex-start; align-items: flex-start; gap: 8px; display: inline-flex">
+                            <div style="color: white; font-size: 16px; font-family: Sarabun; font-weight: 700; line-height: 24px; word-wrap: break-word">Satisfied, the model is human-centric</div>
+                        </div>
+                    </div>
+                </div>
+            </a> -->
+              <a href="Home-Page.html" onclick="downloadData('Dissatisfied')" style="text-decoration:none;">
+                <div style="width: 376px; height: 54px; padding-left: 24px; padding-right: 24px; left: 166px; top: 744px; position: absolute; background: #1B3360; border-radius: 32px; flex-direction: column; justify-content: center; align-items: center; display: inline-flex">
+                    <div style="color: white; font-size: 16px; font-family: Sarabun; font-weight: 700; line-height: 24px; word-wrap: break-word">Satisfied, the model is human-centric</div>
+                </div>
+            </a>
+            <!-- Question text -->
+            <div style="width: 555px; left: 84px; top: 261px; position: absolute; color: #333333; font-size: 28px; font-family: Sarabun; font-weight: 700; line-height: 45px; word-wrap: break-word">The following gives us insight about the robot state that suits you the most, leading to your pairing. Do you agree?</div>
+        </div>
+        <!-- Left side content (Radar Chart) -->
+        <div style="width: 659px; height: 870px; left: 100px; top: 171px; position: absolute; box-shadow: 0px 6px 40px rgba(56.52, 119.95, 178.50, 0.08); border-radius: 24px; background-color: #D9D9D9;">
+            <div style="padding: 20px;">
+                <h2 style="text-align: center; margin-bottom: 20px; color: #333;">Pairing Attribute Radar Chart</h2>
+                <canvas id="radarChart" width="400" height="400"></canvas>
+
+    </div>
+</div>
+
+<!-- In Pairing-Review.html -->
+<div style="width: 100%; height: 100%; position: relative; background: white; overflow: hidden">
+    <!-- Loading message container (initially hidden) -->
+    <div id="loadingMessage" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+            background: rgba(0,0,0,0.8); color: white; padding: 20px; border-radius: 10px;
+            text-align: center; display: none;">
+        <h3>Generating your pairing report...</h3>
+        <p>Your CSV file will download automatically</p>
+    </div>
+
+    <!-- Your existing HTML content -->
+    <div style="width: 659px; height: 870px; left: 100px; top: 171px; position: absolute; 
+                box-shadow: 0px 6px 40px rgba(56.52, 119.95, 178.50, 0.08); 
+                border-radius: 24px; background-color: #D9D9D9;">
+        <!-- ... other content ... -->
+    </div>
+</div>
+
+<script>
+        // Initialize radar chart (similar to Bias-Review.html)
+        const ctx = document.getElementById('radarChart').getContext('2d');
+        const radarChart = new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: ['Energy', 'Pace', 'Safety', 'Reliability', 'Intelligence'],
+                datasets: [{
+                    label: 'Pairing Attributes',
+                    data: [0, 0, 0, 0, 0],
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        min: 0,
+                        max: 1,
+                        ticks: {
+                            stepSize: 0.25
+                        }
+                    }
+                }
+            }
+        });
+
+        // Update chart with stored data
+        function updateChartWithData() {
+            const storedData = JSON.parse(localStorage.getItem('pairing_data') || {});
+            if (storedData.robot1Attributes) {
+                // Calculate average of all robot attributes for display
+                const averages = storedData.robot1Attributes.map((val, i) => {
+                    return ((parseFloat(val) + 
+                            parseFloat(storedData.robot2Attributes[i]) + 
+                            parseFloat(storedData.robot3Attributes[i])) / 3);
+                });
+                radarChart.data.datasets[0].data = averages;
+                radarChart.update();
+            }
+        }
+
+        // Download function (similar to Bias-Review.html)
+        function downloadData(buttonValue) {
+            const storedData = JSON.parse(localStorage.getItem('pairing_data') || '{}');
+            const participantId = localStorage.getItem('participantId') || 
+                                Math.floor(Math.random() * 1000000).toString();
+            
+            const now = new Date();
+            const dateStr = now.toISOString().replace(/[-:]/g, '').split('T')[0];
+            const timeStr = now.toTimeString().replace(/:/g, '').split(' ')[0].substring(0, 6);
+
+            // Build CSV Content
+            let csvContent = "ParticipantID,DateTime,StakeType,Choice,TimeSpent,UserRating,";
+            csvContent += "Robot1Energy,Robot1Pace,Robot1Safety,Robot1Reliability,Robot1Intelligence,";
+            csvContent += "Robot2Energy,Robot2Pace,Robot2Safety,Robot2Reliability,Robot2Intelligence,";
+            csvContent += "Robot3Energy,Robot3Pace,Robot3Safety,Robot3Reliability,Robot3Intelligence\n";
+            
+            if (storedData.participantId) {
+                csvContent += `${participantId},${dateStr}${timeStr},${storedData.stakeType},`;
+                csvContent += `${storedData.choice},${storedData.timeSpent},${buttonValue},`;
+                csvContent += `${storedData.robot1Attributes.join(',')},`;
+                csvContent += `${storedData.robot2Attributes.join(',')},`;
+                csvContent += `${storedData.robot3Attributes.join(',')}\n`;
+            }
+
+            // Download CSV
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `${dateStr}-${timeStr}-${participantId}-Pairing_Review.csv`;
+            link.click();
+
+            // Clear stored data and redirect
+            localStorage.removeItem('pairing_data');
+            setTimeout(() => {
+                window.location.href = 'Home-Page.html';
+            }, 500);
+        }
+
+        // Initialize on load
+        window.onload = function() {
+            updateChartWithData();
+            // Initialize timer if needed
+        };
+    </script>
+
+</div>
+</div>
+
