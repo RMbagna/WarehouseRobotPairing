@@ -118,145 +118,142 @@
         </div>
     </div>
 
-    <script>
-        // Function to generate random values for the radar chart
+   <script>
+        // Initialize performance tracking
+        if (!localStorage.getItem('performanceData')) {
+            localStorage.setItem('performanceData', JSON.stringify({
+                Delivery: { low: [], high: [] },
+                Inspection: { low: [], high: [] },
+                Assembling: { low: [], high: [] }
+            }));
+        }
+        const stakeType = 'high';
+
+        // Function to generate random values
         function getRandomValues() {
-            return Array.from({
-                length: 5
-            }, () => (Math.random()).toFixed(2));
+            return Array.from({ length: 5 }, () => (Math.random()).toFixed(2));
         }
 
-        // Get the context of the canvas element
+        // Get canvas context
         const ctx = document.getElementById('radarChart').getContext('2d');
-        // Data for the radar chart
+        
+        // Chart data
         const data = {
             labels: ['Efficiency', 'Speed', 'Safety', 'Durability', 'Skill'],
-            datasets: [{
-                    label: 'Task 1 (Delivery)',
-                    data: getRandomValues(),
-                    fill: true,
-                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                    borderColor: 'rgb(255, 99, 132)',
-                    pointBackgroundColor: 'rgb(255, 99, 132)',
-                    pointBorderColor: '#fff',
-                    pointHoverBackgroundColor: '#fff',
-                    pointHoverBorderColor: 'rgb(255, 99, 132)'
-                },
-                {
-                    label: 'Task 2 (Inspection)',
-                    data: getRandomValues(),
-                    fill: true,
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                    borderColor: 'rgb(54, 162, 235)',
-                    pointBackgroundColor: 'rgb(54, 162, 235)',
-                    pointBorderColor: '#fff',
-                    pointHoverBackgroundColor: '#fff',
-                    pointHoverBorderColor: 'rgb(54, 162, 235)'
-                },
-                {
-                    label: 'Task 3 (Assembling)',
-                    data: getRandomValues(),
-                    fill: true,
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    borderColor: 'rgb(75, 192, 192)',
-                    pointBackgroundColor: 'rgb(75, 192, 192)',
-                    pointBorderColor: '#fff',
-                    pointHoverBackgroundColor: '#fff',
-                    pointHoverBorderColor: 'rgb(75, 192, 192)'
-                }
+            datasets: [
+                createDataset('Task 1 (Delivery)', 'rgba(255, 99, 132, 0.2)', 'rgb(255, 99, 132)'),
+                createDataset('Task 2 (Inspection)', 'rgba(54, 162, 235, 0.2)', 'rgb(54, 162, 235)'),
+                createDataset('Task 3 (Assembling)', 'rgba(75, 192, 192, 0.2)', 'rgb(75, 192, 192)')
             ]
         };
 
-        // Configuration options for the radar chart
+        function createDataset(label, bgColor, borderColor) {
+            return {
+                label,
+                data: getRandomValues(),
+                fill: true,
+                backgroundColor: bgColor,
+                borderColor,
+                pointBackgroundColor: borderColor,
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: borderColor
+            };
+        }
+
+        // Chart config
         const config = {
             type: 'radar',
             data: data,
             options: {
                 plugins: {
-                    title: {
-                        display: true,
-                        text: 'Task Performance Metric Radar Chart',
-                        font: {
-                            size: 20
-                        }
-                    },
-                    legend: {
-                        display: true,
-                        position: 'bottom'
-                    }
+                    title: { display: true, text: 'Task Performance Metric Radar Chart', font: { size: 20 } },
+                    legend: { display: true, position: 'bottom' }
                 },
-                scales: {
-                    r: {
-                        min: 0,
-                        max: 1,
-                        ticks: {
-                            stepSize: 0.5
-                        }
-                    }
-                },
-                elements: {
-                    line: {
-                        borderWidth: 3
-                    }
-                }
+                scales: { r: { min: 0, max: 1, ticks: { stepSize: 0.5 } } },
+                elements: { line: { borderWidth: 3 } }
             }
         };
 
-        // Create a new radar chart
+        // Create chart
         const radarChart = new Chart(ctx, config);
 
-        // Initialize earnings from localStorage or set to $5 if not present
+        // Initialize earnings
         let earnings = parseFloat(localStorage.getItem('earnings')) || 5;
         document.getElementById('earnings').textContent = `Earnings: $${earnings.toFixed(2)}`;
 
-        // Function to update earnings based on selected task
+        // Check earnings threshold
+        function checkEarningsThreshold() {
+            if (earnings >= 50) {
+                setTimeout(() => {
+                    localStorage.setItem('earnings', '0'); // Reset earnings
+                    window.location.href = "Task-Review.html";
+                }, 1000);
+            }
+        }
+
+        // Update earnings
         function updateEarnings() {
             const selectedTask = localStorage.getItem('selectedTask');
             if (selectedTask) {
                 const taskIndex = selectedTask.slice(-1) - 1;
                 const taskData = data.datasets[taskIndex].data;
+                const taskType = data.datasets[taskIndex].label.split(' ')[2].slice(1, -1);
                 const newEarnings = taskData.reduce((sum, value) => sum + parseFloat(value), 0);
+                
                 earnings += newEarnings;
                 document.getElementById('earnings').textContent = `Earnings: $${earnings.toFixed(2)}`;
                 localStorage.setItem('earnings', earnings.toFixed(2));
-                localStorage.removeItem('selectedTask'); // Clear the selection after updating earnings
+                
+                // Store performance data
+                const performanceData = JSON.parse(localStorage.getItem('performanceData'));
+                performanceData[taskType][stakeType].push({
+                    attributes: taskData.map(parseFloat),
+                    time: seconds,
+                    earnings: newEarnings,
+                    timestamp: new Date().toISOString()
+                });
+                localStorage.setItem('performanceData', JSON.stringify(performanceData));
+                
+                // Store individual attributes
+                data.labels.forEach((label, i) => {
+                    localStorage.setItem(`performance_${label.toLowerCase()}_${stakeType}`, taskData[i]);
+                    localStorage.setItem(`time_${label.toLowerCase()}_${stakeType}`, seconds);
+                });
+                
+                localStorage.removeItem('selectedTask');
+                checkEarningsThreshold();
             }
         }
 
-        // Add event listeners to radio buttons
+        // Event listeners
         document.querySelectorAll('input[name="task"]').forEach(radio => {
             radio.addEventListener('change', () => {
                 localStorage.setItem('selectedTask', radio.value);
             });
         });
 
-        // Add event listener to the home button to reset earnings
         document.querySelector('a[href="Home-Page.html"]').addEventListener('click', () => {
             earnings = 5;
             localStorage.setItem('earnings', earnings.toFixed(2));
-            document.getElementById('earnings').textContent = `Earnings: $${earnings.toFixed(2)}`;
         });
 
-        // Add event listener to the switch button to reset earnings
         document.getElementById('switchButton').addEventListener('click', () => {
             earnings = 0;
             localStorage.setItem('earnings', earnings.toFixed(2));
-            document.getElementById('earnings').textContent = `Earnings: $${earnings.toFixed(2)}`;
         });
 
-        // Initial earnings update
-        updateEarnings();
-
-        // Timer script
+        // Timer
         let seconds = 0;
         const timeElapsedDiv = document.getElementById('timer');
-
         function incrementTime() {
             seconds++;
             timeElapsedDiv.textContent = `Time Elapsed: ${seconds}s`;
         }
-
         setInterval(incrementTime, 1000);
+
+        // Initial update
+        updateEarnings();
     </script>
 </body>
 
