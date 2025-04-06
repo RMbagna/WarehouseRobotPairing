@@ -1,11 +1,11 @@
-\Task-High-Stake.html -->
+\Task-Low-Stake.html -->
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task Selection - High Stake</title>
+    <title>Task Selection - Low Stake</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
@@ -27,10 +27,12 @@
                         <div style="color: #333333; font-size: 20px; font-family: Sarabun; font-weight: 400; line-height: 32px; word-wrap: break-word">Background</div>
                     </div>
                 </a>
-                <!-- Contact Us link -->
-                <div data-status="Off" style="padding-bottom: 4px; justify-content: flex-start; align-items: flex-start; gap: 10px; display: flex">
-                    <div style="color: #333333; font-size: 20px; font-family: Sarabun; font-weight: 400; line-height: 32px; word-wrap: break-word">Contact Us</div>
+                <!-- About Us link -->
+                <a href="https://www.clemson.edu/cecas/departments/me/research/labs/i2r.html" style="text-decoration: none;">
+                    <div data-status="Off" style="padding-bottom: 4px; justify-content: flex-start; align-items: flex-start; gap: 10px; display: flex">
+                    <div style="color: #333333; font-size: 20px; font-family: Sarabun; font-weight: 400; line-height: 32px; word-wrap: break-word">About Us</div>
                 </div>
+                </a>
                 <!-- Earnings display -->
                 <div data-status="Off" style="padding-bottom: 4px; justify-content: flex-start; align-items: flex-start; gap: 10px; display: flex">
                     <div id="earnings" style="color: #333333; font-size: 20px; font-family: Sarabun; font-weight: 400; line-height: 32px; word-wrap: break-word">Earnings</div>
@@ -47,7 +49,7 @@
             <div style="width: 708px; height: 1024px; left: 732px; top: 0px; position: absolute">
                 <div style="width: 1036px; height: 1024px; left: -328px; top: 0px; position: absolute; background: rgba(100.27, 244, 48, 0.12)"></div>
                 <!-- Task description -->
-                <div style="width: 555px; left: 84px; top: 306px; position: absolute; color: #333333; font-size: 28px; font-family: Sarabun; font-weight: 400; line-height: 45px; word-wrap: break-word">Given the low stakes and potential revenue, choose your role / task at manufacturing warehouse.</div>
+                <div style="width: 555px; left: 84px; top: 306px; position: absolute; color: #333333; font-size: 28px; font-family: Sarabun; font-weight: 400; line-height: 45px; word-wrap: break-word">Low stakes: Producing 100 parts in a 30 days<br/>(Earnings = Base pay + Performance Bonus)<br/>Which role best fits your productivity?</div>
                 <!-- Stage description -->
                 <div style="width: 555px; left: 84px; top: 261px; position: absolute; color: #333333; font-size: 28px; font-family: Sarabun; font-weight: 700; line-height: 45px; word-wrap: break-word">At this stage, we observe task preference.</div>
                 <!-- Task selection options -->
@@ -71,20 +73,20 @@
                 </style>
                 <div style="left: 84px; top: 643px; position: absolute;">
                     <label style="display: flex; justify-content: flex-start; align-items: center; gap: 10px; cursor: pointer;">
-                        <input type="radio" name="robot" value="robot3" />
-                        <div style="color: #333333; font-size: 24px; font-family: Sarabun; font-weight: 400; line-height: 24px; word-wrap: break-word">Task 3</div>
+                        <input type="radio" name="task" value="task3" />
+                        <div style="color: #333333; font-size: 24px; font-family: Sarabun; font-weight: 400; line-height: 24px; word-wrap: break-word">Task 3: Assembling Role (Base Pay = $4.00)</div>
                     </label>
                 </div>
                 <div style="left: 84px; top: 559px; position: absolute;">
                     <label style="display: flex; justify-content: flex-start; align-items: center; gap: 10px; cursor: pointer;">
-                        <input type="radio" name="robot" value="robot2" />
-                        <div style="color: #333333; font-size: 24px; font-family: Sarabun; font-weight: 400; line-height: 24px; word-wrap: break-word">Task 2</div>
+                        <input type="radio" name="task" value="task2" />
+                        <div style="color: #333333; font-size: 24px; font-family: Sarabun; font-weight: 400; line-height: 24px; word-wrap: break-word">Task 2: Inspection Role (Base Pay = $3.00)</div>
                     </label>
                 </div>
                 <div style="left: 84px; top: 488px; position: absolute;">
                     <label style="display: flex; justify-content: flex-start; align-items: center; gap: 10px; cursor: pointer;">
-                        <input type="radio" name="robot" value="robot1" />
-                        <div style="color: #333333; font-size: 24px; font-family: Sarabun; font-weight: 400; line-height: 24px; word-wrap: break-word">Task 1</div>
+                        <input type="radio" name="task" value="task1" />
+                        <div style="color: #333333; font-size: 24px; font-family: Sarabun; font-weight: 400; line-height: 24px; word-wrap: break-word">Task 1: Delivery Role (Base Pay = $2.00)</div>
                     </label>
                 </div>
                 <!-- Next button -->
@@ -128,9 +130,9 @@
         const ctx = document.getElementById('radarChart').getContext('2d');
         // Data for the radar chart
         const data = {
-            labels: ['Energy', 'Pace', 'Safety', 'Reliability', 'Intelligence'],
+            labels: ['Efficiency', 'Speed', 'Safety', 'Durability', 'Skill'],
             datasets: [{
-                    label: 'Task 1',
+                    label: 'Task 1 (Delivery)',
                     data: getRandomValues(),
                     fill: true,
                     backgroundColor: 'rgba(255, 99, 132, 0.2)',
@@ -141,7 +143,7 @@
                     pointHoverBorderColor: 'rgb(255, 99, 132)'
                 },
                 {
-                    label: 'Task 2',
+                    label: 'Task 2 (Inspection)',
                     data: getRandomValues(),
                     fill: true,
                     backgroundColor: 'rgba(54, 162, 235, 0.2)',
@@ -152,7 +154,7 @@
                     pointHoverBorderColor: 'rgb(54, 162, 235)'
                 },
                 {
-                    label: 'Task 3',
+                    label: 'Task 3 (Assembling)',
                     data: getRandomValues(),
                     fill: true,
                     backgroundColor: 'rgba(75, 192, 192, 0.2)',
@@ -173,7 +175,7 @@
                 plugins: {
                     title: {
                         display: true,
-                        text: 'Robot Attributes Radar Chart',
+                        text: 'Task Performance Metric Radar Chart',
                         font: {
                             size: 20
                         }
@@ -207,24 +209,24 @@
         let earnings = parseFloat(localStorage.getItem('earnings')) || 5;
         document.getElementById('earnings').textContent = `Earnings: $${earnings.toFixed(2)}`;
 
-        // Function to update earnings based on selected robot
+        // Function to update earnings based on selected task
         function updateEarnings() {
-            const selectedRobot = localStorage.getItem('selectedRobot');
-            if (selectedRobot) {
-                const robotIndex = selectedRobot.slice(-1) - 1;
-                const robotData = data.datasets[robotIndex].data;
-                const newEarnings = robotData.reduce((sum, value) => sum + parseFloat(value), 0);
+            const selectedTask = localStorage.getItem('selectedTask');
+            if (selectedTask) {
+                const taskIndex = selectedTask.slice(-1) - 1;
+                const taskData = data.datasets[taskIndex].data;
+                const newEarnings = taskData.reduce((sum, value) => sum + parseFloat(value), 0);
                 earnings += newEarnings;
                 document.getElementById('earnings').textContent = `Earnings: $${earnings.toFixed(2)}`;
                 localStorage.setItem('earnings', earnings.toFixed(2));
-                localStorage.removeItem('selectedRobot'); // Clear the selection after updating earnings
+                localStorage.removeItem('selectedTask'); // Clear the selection after updating earnings
             }
         }
 
         // Add event listeners to radio buttons
-        document.querySelectorAll('input[name="robot"]').forEach(radio => {
+        document.querySelectorAll('input[name="task"]').forEach(radio => {
             radio.addEventListener('change', () => {
-                localStorage.setItem('selectedRobot', radio.value);
+                localStorage.setItem('selectedTask', radio.value);
             });
         });
 

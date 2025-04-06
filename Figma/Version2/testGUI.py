@@ -1,66 +1,70 @@
 import tkinter as tk
-from tkinter import ttk
-from PIL import Image, ImageTk
-import requests
-from io import BytesIO
+from math import pi
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-# Scenario data
-scenarios = [
-    {"image": "banner-composite-duo.jpg", "description": "Energy conservation in a critical situation"},
-    {"image": "banner-composite-duo.jpg", "description": "Maintaining pace during a time-sensitive operation"},
-    {"image": "banner-composite-duo.jpg", "description": "Ensuring safety in a hazardous environment"},
-    {"image": "banner-composite-duo.jpg", "description": "Guaranteeing reliability of performance under pressure"},
-    {"image": "banner-composite-duo.jpg", "description": "Demonstrating intelligent decision-making in complex scenarios"}
-]
+# Data for Robot States and Task Roles
+data = {
+    "robot_states": {"Energy": 0.8, "Pace": 0.6, "Safety": 0.9, "Reliability": 0.7, "Intelligence": 0.8},
+    "task_roles": {
+        "Delivery": {"Energy": 0.6, "Pace": 0.8, "Safety": 0.5, "Reliability": 0.7, "Intelligence": 0.6},
+        "Inspection": {"Energy": 0.4, "Pace": 0.5, "Safety": 0.9, "Reliability": 0.6, "Intelligence": 0.8},
+        "Assembling": {"Energy": 0.7, "Pace": 0.6, "Safety": 0.6, "Reliability": 0.8, "Intelligence": 0.9}
+    }
+}
 
-class ScenarioGUI:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("Scenario Viewer")
-        self.root.geometry("800x900")
-        self.root.configure(bg="#D9D9D9")
-        
-        self.current_scenario_index = 0
-        
-        # Frame for content
-        self.frame = tk.Frame(root, width=659, height=870, bg="#D9D9D9")
-        self.frame.place(x=100, y=50)
-        
-        # Image label
-        self.image_label = tk.Label(self.frame)
-        self.image_label.place(x=0, y=0, width=659, height=600)
-        
-        # Slider
-        self.slider = tk.Scale(self.frame, from_=-5, to=5, orient="horizontal", length=500)
-        self.slider.place(x=79, y=650)
-        
-        # Slider labels
-        self.label_self = tk.Label(self.frame, text="Self", bg="#D9D9D9", fg="#333333")
-        self.label_self.place(x=79, y=700)
-        
-        self.label_robot = tk.Label(self.frame, text="Robot", bg="#D9D9D9", fg="#333333")
-        self.label_robot.place(x=550, y=700)
-        
-        # Button to switch scenarios
-        self.next_button = ttk.Button(self.frame, text="Next Scenario", command=self.next_scenario)
-        self.next_button.place(x=250, y=750)
-        
-        # Load initial scenario
-        self.update_scenario()
-    
-    def update_scenario(self):
-        scenario = scenarios[self.current_scenario_index]
-        response = requests.get(scenario["image"])
-        image_data = Image.open(BytesIO(response.content))
-        image_resized = image_data.resize((659, 600), Image.ANTIALIAS)
-        self.tk_image = ImageTk.PhotoImage(image_resized)
-        self.image_label.config(image=self.tk_image)
-    
-    def next_scenario(self):
-        self.current_scenario_index = (self.current_scenario_index + 1) % len(scenarios)
-        self.update_scenario()
+# Function to Plot the Radar Chart
+def plot_radar_chart():
+    robot_states = list(data["robot_states"].values())
+    roles = data["task_roles"]
+    labels = list(data["robot_states"].keys())
+
+    # Radar chart setup
+    angles = [n / float(len(labels)) * 2 * pi for n in range(len(labels))]
+    angles += angles[:1]  # Close the circle
+
+    fig, ax = plt.subplots(figsize=(6, 6), subplot_kw=dict(polar=True))
+
+    # Plot robot states (fixed)
+    ax.plot(angles, robot_states + [robot_states[0]], linewidth=2, label="Robot States")
+    ax.fill(angles, robot_states + [robot_states[0]], alpha=0.25)
+
+    # Overlay task roles
+    for role, scores in roles.items():
+        role_states = list(scores.values())
+        ax.plot(angles, role_states + [role_states[0]], linewidth=1.5, linestyle="--", label=f"{role}")
+        ax.fill(angles, role_states + [role_states[0]], alpha=0.15)
+
+    # Add labels
+    ax.set_yticks([])
+    ax.set_xticks(angles[:-1])
+    ax.set_xticklabels(labels)
+    ax.legend(loc="upper right", bbox_to_anchor=(1.2, 1.2))
+    return fig
+
+# Update Chart in GUI
+def update_chart():
+    fig = plot_radar_chart()
+
+    # Clear previous chart
+    for widget in chart_frame.winfo_children():
+        widget.destroy()
+
+    # Embed the matplotlib figure in Tkinter
+    canvas = FigureCanvasTkAgg(fig, master=chart_frame)
+    canvas.draw()
+    canvas.get_tk_widget().pack()
+
+# Create GUI Window
+root = tk.Tk()
+root.title("Radar Chart: All Task Roles")
+
+# Frame for Chart Display
+chart_frame = tk.Frame(root)
+chart_frame.pack(padx=10, pady=10)
+
+# Display Initial Chart
+update_chart()
 
 # Run the GUI
-root = tk.Tk()
-app = ScenarioGUI(root)
 root.mainloop()
