@@ -428,12 +428,12 @@
         link.click();
         document.body.removeChild(link);
         
-        // Clear the stored data
-        localStorage.removeItem('allPairingData');
-        localStorage.removeItem('selectedRobot');
+        // // Clear the stored data
+        // localStorage.removeItem('allPairingData');
+        // localStorage.removeItem('selectedRobot');
     }
 
-    function updateTracker() {
+        function updateTracker() {
         currentCount += 1;
         localStorage.setItem('pairingCount', currentCount);
         document.getElementById('tracker').innerText = 'Tracker: ' + currentCount + '/30';
@@ -449,14 +449,10 @@
             // Download all accumulated data
             downloadAllPairingData();
             
-            // Redirect to Pairing Review page
-            window.location.href = 'Pairing-Review.html';
-
-            // Redirect to Home page
-            // setTimeout(() => {
-            //     window.location.href = 'Home-Page.html';
-            // }, 500);
+            // Return false to prevent default navigation
+            return false;
         }
+        return true;
     }
     // ====== NEW TRACKER-RELATED CODE ENDS HERE ======
 
@@ -482,7 +478,10 @@
             e.preventDefault();
             alert('Please select a robot before proceeding');
         } else {
-            updateTracker();
+            if (!updateTracker()) {
+                e.preventDefault();
+                window.location.href = 'Pairing-Review.html';
+            }
         }
     });
     </script>

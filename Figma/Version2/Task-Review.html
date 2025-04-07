@@ -167,232 +167,217 @@
                     </style>
                     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
                     <script>
-                        // Load performance data
-                        const performanceData = JSON.parse(localStorage.getItem('performanceData')) || {};
-                        const attributes = ['Efficiency', 'Speed', 'Safety', 'Durability', 'Skill'];
-                        let currentAttribute = 'Speed'; // Default selected attribute
-                        let sliderValue = 0; // Current slider value
-                        let radarChart; // Chart instance
+                    // Load pairing data from localStorage
+                    const allPairingData = JSON.parse(localStorage.getItem('allPairingData')) || [];
+                    const participantId = localStorage.getItem('participantId') || 'anonymous';
+                    const attributes = ['Energy', 'Pace', 'Safety', 'Reliability', 'Intelligence'];
+                    let currentAttribute = 'Energy';
+                    let sliderValue = 0;
+                    let radarChart;
 
-                        // Calculate original averages for each role (without adjustments)
-                        const calculateOriginalAverages = (role) => {
-                            const lowStakeData = performanceData[role]?.low || [];
-                            const highStakeData = performanceData[role]?.high || [];
-                            
-                            return attributes.map(attr => {
-                                const attrIndex = attributes.indexOf(attr);
-                                
-                                const lowAvg = lowStakeData.length > 0 ? 
-                                    lowStakeData.reduce((sum, run) => sum + run.attributes[attrIndex], 0) / lowStakeData.length : 0;
-                                
-                                const highAvg = highStakeData.length > 0 ? 
-                                    highStakeData.reduce((sum, run) => sum + run.attributes[attrIndex], 0) / highStakeData.length : 0;
-                                
-                                return (lowAvg + highAvg) / 2;
-                            });
-                        };
+                    // Calculate average robot attributes for each role
+                    const calculateRoleAverages = (role) => {
+                        const roleData = allPairingData.filter(trial => 
+                            trial.role === role && trial.choice && trial.robot1Attributes
+                        );
+                        
+                        if (roleData.length === 0) return Array(attributes.length).fill(0.5);
+                        
+                        return attributes.map((_, attrIndex) => {
+                            const sum = roleData.reduce((total, trial) => {
+                                return total + trial[`robot${trial.choice}Attributes`][attrIndex];
+                            }, 0);
+                            return sum / roleData.length;
+                        });
+                    };
 
-                        // Store original averages
-                        const originalDelivery = calculateOriginalAverages('Delivery');
-                        const originalInspection = calculateOriginalAverages('Inspection');
-                        const originalAssembling = calculateOriginalAverages('Assembling');
+                    // Store original averages
+                    const originalDelivery = calculateRoleAverages('Delivery');
+                    const originalInspection = calculateRoleAverages('Inspection');
+                    const originalAssembling = calculateRoleAverages('Assembling');
 
-                        // Initialize the radar chart
-                        function initRadarChart() {
-                            const ctx = document.getElementById('radarChart').getContext('2d');
-                            
-                            radarChart = new Chart(ctx, {
-                                type: 'radar',
-                                data: {
-                                    labels: attributes,
-                                    datasets: [
-                                        {
-                                            label: 'Delivery Role',
-                                            data: [...originalDelivery],
-                                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                                            borderColor: 'rgb(255, 99, 132)',
-                                            pointBackgroundColor: 'rgb(255, 99, 132)',
-                                            pointBorderColor: '#fff',
-                                            pointHoverBackgroundColor: '#fff',
-                                            pointHoverBorderColor: 'rgb(255, 99, 132)',
-                                            borderWidth: 2
-                                        },
-                                        {
-                                            label: 'Inspection Role',
-                                            data: [...originalInspection],
-                                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                                            borderColor: 'rgb(54, 162, 235)',
-                                            pointBackgroundColor: 'rgb(54, 162, 235)',
-                                            pointBorderColor: '#fff',
-                                            pointHoverBackgroundColor: '#fff',
-                                            pointHoverBorderColor: 'rgb(54, 162, 235)',
-                                            borderWidth: 2
-                                        },
-                                        {
-                                            label: 'Assembling Role',
-                                            data: [...originalAssembling],
-                                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                                            borderColor: 'rgb(75, 192, 192)',
-                                            pointBackgroundColor: 'rgb(75, 192, 192)',
-                                            pointBorderColor: '#fff',
-                                            pointHoverBackgroundColor: '#fff',
-                                            pointHoverBorderColor: 'rgb(75, 192, 192)',
-                                            borderWidth: 2
-                                        }
-                                    ]
-                                },
-                                options: {
-                                    responsive: true,
-                                    maintainAspectRatio: false,
-                                    scales: {
-                                        r: {
-                                            min: 0,
-                                            max: 1,
-                                            ticks: {
-                                                stepSize: 0.2,
-                                                backdropColor: 'rgba  (0, 0, 0, 0)'
-                                            },
-                                            angleLines: {
-                                                color: 'rgba  (0, 0, 0, 0.1)'
-                                            },
-                                            grid: {
-                                                color: 'rgba  (0, 0, 0, 0.1)'
-                                            },
-                                            pointLabels: {
-                                                font: {
-                                                    size: 12,
-                                                    weight: 'bold'
-                                                }
-                                            }
-                                        }
+                    // Initialize the radar chart
+                    function initRadarChart() {
+                        const ctx = document.getElementById('radarChart').getContext('2d');
+                        
+                        // Check if canvas is properly accessible
+                        if (!ctx) {
+                            console.error('Could not get canvas context');
+                            return;
+                        }
+
+                        radarChart = new Chart(ctx, {
+                            type: 'radar',
+                            data: {
+                                labels: attributes,
+                                datasets: [
+                                    {
+                                        label: 'Delivery Role',
+                                        data: originalDelivery,
+                                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                        borderColor: 'rgb(255, 99, 132)',
+                                        pointBackgroundColor: 'rgb(255, 99, 132)',
+                                        pointBorderColor: '#fff',
+                                        pointHoverBackgroundColor: '#fff',
+                                        pointHoverBorderColor: 'rgb(255, 99, 132)',
+                                        borderWidth: 2
                                     },
-                                    plugins: {
-                                        legend: {
-                                            position: 'bottom',
-                                            labels: {
-                                                font: {
-                                                    size: 12,
-                                                    weight: 'bold'
-                                                },
-                                                padding: 20
-                                            }
-                                        },
-                                        tooltip: {
-                                            callbacks: {
-                                                label: function(context) {
-                                                    return context.dataset.label + ': ' + context.raw.toFixed  (2);
-                                                }
-                                            }
-                                        }
+                                    {
+                                        label: 'Inspection Role',
+                                        data: originalInspection,
+                                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                                        borderColor: 'rgb(54, 162, 235)',
+                                        pointBackgroundColor: 'rgb(54, 162, 235)',
+                                        pointBorderColor: '#fff',
+                                        pointHoverBackgroundColor: '#fff',
+                                        pointHoverBorderColor: 'rgb(54, 162, 235)',
+                                        borderWidth: 2
                                     },
-                                    elements: {
-                                        line: {
-                                            tension: 0.1
+                                    {
+                                        label: 'Assembling Role',
+                                        data: originalAssembling,
+                                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                        borderColor: 'rgb(75, 192, 192)',
+                                        pointBackgroundColor: 'rgb(75, 192, 192)',
+                                        pointBorderColor: '#fff',
+                                        pointHoverBackgroundColor: '#fff',
+                                        pointHoverBorderColor: 'rgb(75, 192, 192)',
+                                        borderWidth: 2
+                                    }
+                                ]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                scales: {
+                                    r: {
+                                        min: 0,
+                                        max: 1,
+                                        ticks: {
+                                            stepSize: 0.2,
+                                            backdropColor: 'rgba(0, 0, 0, 0)'
+                                        },
+                                        angleLines: {
+                                            color: 'rgba(0, 0, 0, 0.1)'
+                                        },
+                                        grid: {
+                                            color: 'rgba(0, 0, 0, 0.1)'
+                                        },
+                                        pointLabels: {
+                                            font: {
+                                                size: 12,
+                                                weight: 'bold'
+                                            }
                                         }
                                     }
-                                }
-                            });
-                        }
-
-                        // Function to update chart with slider adjustments                       
-                        function updateChartWithAdjustments() {
-                            const attributeIndex = attributes.indexOf(currentAttribute);
-                            const adjustmentFactor = sliderValue * 0.2; // Adjust by up to ±0.2 (20%)
-
-                            // Create adjusted datasets
-                            const adjustedDatasets = [
-                                {
-                                    ...radarChart.data.datasets[0],
-                                    data: originalDelivery.map((val, idx) => 
-                                        idx === attributeIndex ? 
-                                        Math.min(1, Math.max(0, val + adjustmentFactor)) : 
-                                        val
-                                    )
                                 },
-                                {
-                                    ...radarChart.data.datasets[1],
-                                    data: originalInspection.map((val, idx) => 
-                                        idx === attributeIndex ? 
-                                        Math.min(1, Math.max(0, val + adjustmentFactor)) : 
-                                        val
-                                    )
+                                plugins: {
+                                    legend: {
+                                        position: 'bottom',
+                                        labels: {
+                                            font: {
+                                                size: 12,
+                                                weight: 'bold'
+                                            },
+                                            padding: 20
+                                        }
+                                    },
+                                    tooltip: {
+                                        callbacks: {
+                                            label: function(context) {
+                                                return context.dataset.label + ': ' + context.raw.toFixed(2);
+                                            }
+                                        }
+                                    }
                                 },
-                                {
-                                    ...radarChart.data.datasets[2],
-                                    data: originalAssembling.map((val, idx) => 
-                                        idx === attributeIndex ? 
-                                        Math.min(1, Math.max(0, val + adjustmentFactor)) : 
-                                        val
-                                    )
+                                elements: {
+                                    line: {
+                                        tension: 0.1
+                                    }
                                 }
-                            ];
+                            }
+                        });
+                    }
 
-                            // Update chart
-                            radarChart.data.datasets = adjustedDatasets;
-                            radarChart.update();
-                        }
+                    function updateChartWithAdjustments() {
+                        const attributeIndex = attributes.indexOf(currentAttribute);
+                        const adjustmentFactor = sliderValue * 0.2;
 
-                        // Attribute selection buttons
-                        function showAttribute  (attribute) {
-                            currentAttribute = attribute;
-                            document.getElementById  ('sliderLabel').textContent = `Adjustment for ${  attribute  }  :  `  ;
-                            // Reset slider when changing attributes
-                            document.getElementById  ('attributeSlider').value = 0;
-                            sliderValue = 0;
-                            // Reset to original values
-                            radarChart.data.datasets  [0  ]  .data = [...originalDelivery  ]  ;
-                            radarChart.data.datasets  [1  ]  .data = [...originalInspection  ]  ;
-                            radarChart.data.datasets  [2  ]  .data = [...originalAssembling  ]  ;
-                            radarChart.update  ();
-                        }
+                        const adjustedDatasets = [
+                            {
+                                ...radarChart.data.datasets[0],
+                                data: originalDelivery.map((val, idx) => 
+                                    idx === attributeIndex ? 
+                                    Math.min(1, Math.max(0, val + adjustmentFactor)) : 
+                                    val
+                                )
+                            },
+                            {
+                                ...radarChart.data.datasets[1],
+                                data: originalInspection.map((val, idx) => 
+                                    idx === attributeIndex ? 
+                                    Math.min(1, Math.max(0, val + adjustmentFactor)) : 
+                                    val
+                                )
+                            },
+                            {
+                                ...radarChart.data.datasets[2],
+                                data: originalAssembling.map((val, idx) => 
+                                    idx === attributeIndex ? 
+                                    Math.min(1, Math.max(0, val + adjustmentFactor)) : 
+                                    val
+                                )
+                            }
+                        ];
 
-                        // Slider event listener
-                        document.getElementById  ('attributeSlider').addEventListener  ('input',  (e  )  =>  {
-                            sliderValue = parseFloat  (e  .target  .value  )  ;
-                            updateChartWithAdjustments  ()  ;
-                        }  )  ;
+                        radarChart.data.datasets = adjustedDatasets;
+                        radarChart.update();
+                    }
 
-                        // Download data function (using the ORIGINAL values, not adjusted ones)
-                        function downloadData(userRating) {
-                            const participantId = localStorage.getItem('participantId') || 'anonymous';
-                            const now = new Date();
-                            const dateTime = now.toISOString().replace(/[:.]/g, '-').split('T').join('_');
-                            
-                            let csvContent = "participantId,DateTime,Attribute,lowStakeValue,HighStakeValue,LowStakeTime,HighStakeTime,Average,UserRating,AdjustedValue,AdjustmentFactor\n";
+                    function showAttribute(attribute) {
+                        currentAttribute = attribute;
+                        document.getElementById('sliderLabel').textContent = `Adjustment for ${attribute}: 0%`;
+                        document.getElementById('attributeSlider').value = 0;
+                        sliderValue = 0;
+                        
+                        // Reset to original values
+                        radarChart.data.datasets[0].data = [...originalDelivery];
+                        radarChart.data.datasets[1].data = [...originalInspection];
+                        radarChart.data.datasets[2].data = [...originalAssembling];
+                        radarChart.update();
+                    }
 
-                            // Process each attribute
-                            attributes.forEach((attr, attrIndex) => {
-                                const attrKey = attr.toLowerCase();
-                                
-                                // Get original values
-                                const lowVal = parseFloat(localStorage.getItem(`performance_${attrKey}_low`)) || 0;
-                                const lowTime = parseFloat(localStorage.getItem(`time_${attrKey}_low`)) || 0;
-                                const highVal = parseFloat(localStorage.getItem(`performance_${attrKey}_high`)) || 0;
-                                const highTime = parseFloat(localStorage.getItem(`time_${attrKey}_high`)) || 0;
-                                const average = ((lowVal + highVal) / 2).toFixed(2);
-                                
-                                // Calculate adjusted value if this is the current attribute
-                                const isCurrentAttr = (attr === currentAttribute);
-                                const adjustment = isCurrentAttr ? (sliderValue * 0.2) : 0;
-                                const adjustedValue = isCurrentAttr ? 
-                                    Math.min(1, Math.max(0, parseFloat(average) + adjustment)).toFixed(2) : average;
-                                
-                                // Add to CSV
-                                csvContent += `${participantId},${dateTime},${attr},${lowVal},${highVal},${lowTime},${highTime},${average},${userRating},${adjustedValue},${isCurrentAttr ? adjustment : 0}\n`;
+                    document.getElementById('attributeSlider').addEventListener('input', (e) => {
+                        sliderValue = parseFloat(e.target.value);
+                        updateChartWithAdjustments();
+                    });
+
+                    function downloadData(userRating) {
+                        const now = new Date();
+                        const dateTime = now.toISOString().replace(/[:.]/g, '-').split('T').join('_');
+                        
+                        let csvContent = "Role,Attribute,AverageValue,UserRating\n";
+
+                        // Add data for each role and attribute
+                        ['Delivery', 'Inspection', 'Assembling'].forEach(role => {
+                            const averages = calculateRoleAverages(role);
+                            averages.forEach((value, index) => {
+                                csvContent += `"${role}","${attributes[index]}",${value},"${userRating}"\n`;
                             });
-                            
-                            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                            const link = document.createElement("a");
-                            link.href = URL.createObjectURL(blob);
-                            link.download = `${dateTime}-${participantId}-Performance_Review.csv`;
-                            link.click();
-                        }
+                        });
+                        
+                        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                        const link = document.createElement("a");
+                        link.href = URL.createObjectURL(blob);
+                        link.download = `${dateTime}-${participantId}-PairingReview.csv`;
+                        link.click();
+                    }
 
-                        // Initialize the chart when the page loads
-                        window  .  onload =  function  (  )  {
-                            initRadarChart  (  )  ;
-                        }  ;
-                    </script>
+                    // Initialize the chart when the page loads
+                    document.addEventListener('DOMContentLoaded', function() {
+                        initRadarChart();
+                    });
+                </script>
                 </div>
             </div>
         </div>

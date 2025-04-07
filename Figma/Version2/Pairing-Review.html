@@ -86,7 +86,7 @@
 
         <!-- Left side content (Radar Chart) -->
         <div style="width: 659px; height: 870px; left: 100px; top: 77px; position: absolute; box-shadow: 0px 6px 40px rgba(56.52, 119.95, 178.50, 0.08); border-radius: 24px; background-color: #D9D9D9; overflow: hidden; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box;">
-            <h2 style="text-align: center; margin: 0 0 15px 0; color: #333; font-size: 24px;">Performance Radar Chart</h2>
+            <h2 style="text-align: center; margin: 0 0 15px 0; color: #333; font-size: 24px;">Robot Attribute Radar Chart</h2>
 
                     <!-- Radar Chart Container -->
                     <div style="flex: 1; min-height: 0; position: relative;">
@@ -173,28 +173,39 @@
                     </style>
                     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
                     <script>
-                        // Load performance data
-                        const performanceData = JSON.parse(localStorage.getItem('performanceData')) || {};
-                        const attributes = ['Efficiency', 'Speed', 'Safety', 'Durability', 'Skill'];
-                        let currentAttribute = 'Speed'; // Default selected attribute
-                        let sliderValue = 0; // Current slider value
-                        let radarChart; // Chart instance
+                        // Load pairing data from localStorage
+                        const allPairingData = JSON.parse(localStorage.getItem('allPairingData')) || [];
+                        const roles = ['Delivery', 'Inspection', 'Assembling'];
+                        const attributes = ['Energy', 'Pace', 'Safety', 'Reliability', 'Intelligence'];
+                        let currentAttribute = 'Energy';
+                        let sliderValue = 0;
+                        let radarChart;
 
-                        // Calculate original averages for each role (without adjustments)
-                        const calculateOriginalAverages = (role) => {
-                            const lowStakeData = performanceData[role]?.low || [];
-                            const highStakeData = performanceData[role]?.high || [];
+                        // Group robot choices by role
+                        const roleRobotChoices = {
+                            Delivery: [],
+                            Inspection: [],
+                            Assembling: []
+                        };
+
+                        // Process all pairing data to group choices by role
+                        allPairingData.forEach(trial => {
+                            if (trial.choice && trial.role) {
+                                const robotAttrs = trial[`robot${trial.choice}Attributes`];
+                                if (robotAttrs) {
+                                    roleRobotChoices[trial.role].push(robotAttrs);
+                                }
+                            }
+                        });
+
+                        // Calculate average robot attributes for each role
+                        const calculateAverages = (role) => {
+                            const roleData = roleRobotChoices[role];
+                            if (roleData.length === 0) return Array(attributes.length).fill(0.5);
                             
-                            return attributes.map(attr => {
-                                const attrIndex = attributes.indexOf(attr);
-                                
-                                const lowAvg = lowStakeData.length > 0 ? 
-                                    lowStakeData.reduce((sum, run) => sum + run.attributes[attrIndex], 0) / lowStakeData.length : 0;
-                                
-                                const highAvg = highStakeData.length > 0 ? 
-                                    highStakeData.reduce((sum, run) => sum + run.attributes[attrIndex], 0) / highStakeData.length : 0;
-                                
-                                return (lowAvg + highAvg) / 2;
+                            return attributes.map((_, attrIndex) => {
+                                const sum = roleData.reduce((total, robot) => total + robot[attrIndex], 0);
+                                return sum / roleData.length;
                             });
                         };
 
@@ -213,7 +224,7 @@
                                     labels: attributes,
                                     datasets: [
                                         {
-                                            label: 'Delivery Role',
+                                            label: 'Robot Delivery',
                                             data: [...originalDelivery],
                                             backgroundColor: 'rgba(255, 99, 132, 0.2)',
                                             borderColor: 'rgb(255, 99, 132)',
@@ -224,7 +235,7 @@
                                             borderWidth: 2
                                         },
                                         {
-                                            label: 'Inspection Role',
+                                            label: 'Robot Inspection',
                                             data: [...originalInspection],
                                             backgroundColor: 'rgba(54, 162, 235, 0.2)',
                                             borderColor: 'rgb(54, 162, 235)',
@@ -235,7 +246,7 @@
                                             borderWidth: 2
                                         },
                                         {
-                                            label: 'Assembling Role',
+                                            label: 'Robot Assembling',
                                             data: [...originalAssembling],
                                             backgroundColor: 'rgba(75, 192, 192, 0.2)',
                                             borderColor: 'rgb(75, 192, 192)',
@@ -395,9 +406,9 @@
                         }
 
                         // Initialize the chart when the page loads
-                        window  .  onload =  function  (  )  {
-                            initRadarChart  (  )  ;
-                        }  ;
+                        window.addEventListener('load', function() {
+                            initRadarChart();
+                        });
                     </script>
                 </div>
             </div>
