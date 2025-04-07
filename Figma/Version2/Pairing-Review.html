@@ -210,9 +210,9 @@
                         };
 
                         // Store original averages
-                        const originalDelivery = calculateOriginalAverages('Delivery');
-                        const originalInspection = calculateOriginalAverages('Inspection');
-                        const originalAssembling = calculateOriginalAverages('Assembling');
+                        const originalDelivery = calculateAverages('Delivery');
+                        const originalInspection = calculateAverages('Inspection');
+                        const originalAssembling = calculateAverages('Assembling');
 
                         // Initialize the radar chart
                         function initRadarChart() {
