@@ -347,7 +347,7 @@
     // Update the task description to mention the current role and robot type
     const robotType = robotTypes[currentRole]; // Get the corresponding robot type
     document.querySelector('.task-description').textContent = 
-        `Given [${window.location.href.includes('High') ? 'high: Producing 100 parts in a 1 day' : 'low: : Producing 100 parts in a 30 day'}-stake] ${currentRole.toLowerCase()} task, which ${robotType} should assist you?`;
+        `Given [${window.location.href.includes('High') ? 'high-stake: Producing 100 parts in a 1 day' : 'low-stake: : Producing 100 parts in a 30 day'}] ${currentRole.toLowerCase()} task, which ${robotType} should assist you?`;
 
     // Time elapsed counter
     let seconds = 0;

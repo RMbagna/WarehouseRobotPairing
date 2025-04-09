@@ -50,7 +50,7 @@
             <div style="width: 708px; height: 1024px; left: 732px; top: 0px; position: absolute">
                 <div style="width: 1036px; height: 1024px; left: -328px; top: 0px; position: absolute; background: rgba(244, 48, 119.87, 0.12)"></div>
                 <!-- Task description -->
-                <div style="width: 555px; height: 148px; left: 84px; top: 306px; position: absolute; color: #333333; font-size: 28px; font-family: Sarabun; font-weight: 400; line-height: 45px; word-wrap: break-word">Low stakes: Producing 100 parts in a 30 days<br/>Which robot is the best teammate for completing the task?</div>
+                <div class="task-description" style="width: 555px; height: 148px; left: 84px; top: 306px; position: absolute; color: #333333; font-size: 28px; font-family: Sarabun; font-weight: 400; line-height: 45px; word-wrap: break-word">Low stakes: Producing 100 parts in a 30 days<br/>Which robot is the best teammate for completing the task?</div>
                  <!-- Stage description -->
                 <div style="width: 555px; left: 84px; top: 261px; position: absolute; color: #333333; font-size: 28px; font-family: Sarabun; font-weight: 700; line-height: 45px; word-wrap: break-word">At this stage, we observe robot pairing.</div>
                 <!-- Robot selection options -->
@@ -132,6 +132,11 @@
     </div>
 
     <script>
+    const robotTypes = {
+    Delivery: 'Mobile Robot (AGV/AMR)',
+    Inspection: 'Sortation Robot',
+    Assembling: 'Robotic Arm (Manipulator)'
+    };
     // Function to get user's performance data for a specific role
     function getUserPerformanceData(role) {
         const performanceData = JSON.parse(localStorage.getItem('performanceData')) || {};
@@ -337,9 +342,10 @@
     // Initialize the chart
     const radarChart = new Chart(ctx, config);
 
-    // // Update the task description to mention the current role
-    // document.querySelector('.task-description').textContent = 
-    //     `Given [${window.location.href.includes('High') ? 'high' : 'low'}-stake] ${currentRole.toLowerCase()} task, which robot should assist you?`;
+    // Update the task description to mention the current role and robot type
+    const robotType = robotTypes[currentRole]; // Get the corresponding robot type
+    document.querySelector('.task-description').textContent = 
+        `Given [${window.location.href.includes('low') ? 'high-stake: Producing 100 parts in a 1 day' : 'low-stake: Producing 100 parts in a 30 day'}] ${currentRole.toLowerCase()} task, which ${robotType} should assist you?`;
 
     // Time elapsed counter
     let seconds = 0;
