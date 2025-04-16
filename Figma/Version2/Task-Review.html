@@ -93,25 +93,25 @@
                     <div style="margin-bottom: 15px; text-align: center;">
                         <label style="display: block; margin-bottom: 8px; color: #333; font-weight: bold; font-size: 16px;">Select Attribute to Adjust:</label>
                         <div style="display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;">
-                            <button type="button" onclick="showAttribute('Speed')" 
+                            <button type="button" onclick="showAttribute('Pace')" 
                                 style="padding: 6px 12px; border: 1px solid #1B3360; background: #1B3360; color: white; cursor: pointer; border-radius: 4px; font-size: 14px; transition: all 0.2s;">
-                                Speed
+                                Pace
                             </button>
-                            <button type="button" onclick="showAttribute('Efficiency')" 
+                            <button type="button" onclick="showAttribute('Energy')" 
                                 style="padding: 6px 12px; border: 1px solid #1B3360; background: #1B3360; color: white; cursor: pointer; border-radius: 4px; font-size: 14px; transition: all 0.2s;">
-                                Efficiency
+                                Energy
                             </button>
-                            <button type="button" onclick="showAttribute('Durability')" 
+                            <button type="button" onclick="showAttribute('Reliability')" 
                                 style="padding: 6px 12px; border: 1px solid #1B3360; background: #1B3360; color: white; cursor: pointer; border-radius: 4px; font-size: 14px; transition: all 0.2s;">
-                                Durability
+                                Reliability
                             </button>
                             <button type="button" onclick="showAttribute('Safety')" 
                                 style="padding: 6px 12px; border: 1px solid #1B3360; background: #1B3360; color: white; cursor: pointer; border-radius: 4px; font-size: 14px; transition: all 0.2s;">
                                 Safety
                             </button>
-                            <button type="button" onclick="showAttribute('Skill')" 
+                            <button type="button" onclick="showAttribute('Intelligence')" 
                                 style="padding: 6px 12px; border: 1px solid #1B3360; background: #1B3360; color: white; cursor: pointer; border-radius: 4px; font-size: 14px; transition: all 0.2s;">
-                                Skill
+                                Intelligence
                             </button>
                         </div>
                     </div>
@@ -336,7 +336,7 @@
 
                     function showAttribute(attribute) {
                         currentAttribute = attribute;
-                        document.getElementById('sliderLabel').textContent = `Adjustment for ${attribute}: 0%`;
+                        document.getElementById('sliderLabel').textContent = `Adjustment for ${attribute}: `;
                         document.getElementById('attributeSlider').value = 0;
                         sliderValue = 0;
                         
