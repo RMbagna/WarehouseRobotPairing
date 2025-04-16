@@ -200,19 +200,30 @@
 
                         // Calculate average robot attributes for each role
                         const calculateRoleAverages = (role) => {
+                            // Filter trials for the current role and where a choice was made
                             const roleData = allPairingData.filter(trial => 
-                                trial.role === role && trial.choice && trial.robot1Attributes
+                                trial.role === role && 
+                                trial.choice && 
+                                trial[`robot${trial.choice}Attributes`]
                             );
-                                // Log how many valid trials were found for this role
-                                console.log(`${role}: ${roleData.length} trials`);
-
-                            if (roleData.length === 0) return Array(attributes.length).fill(0.5);
-
+                            
+                            console.log(`Found ${roleData.length} trials for ${role} role`);
+                            
+                            if (roleData.length === 0) {
+                                console.log(`No data for ${role}, returning default values`);
+                                return Array(attributes.length).fill(0.5);
+                            }
+                            
+                            // Calculate average for each attribute
                             return attributes.map((_, attrIndex) => {
                                 const sum = roleData.reduce((total, trial) => {
-                                    return total + trial[`robot${trial.choice}Attributes`][attrIndex];
+                                    const robotAttrs = trial[`robot${trial.choice}Attributes`];
+                                    return total + (robotAttrs ? robotAttrs[attrIndex] : 0);
                                 }, 0);
-                                return sum / roleData.length;
+                                
+                                const average = sum / roleData.length;
+                                console.log(`Average for ${role} attribute ${attributes[attrIndex]}: ${average}`);
+                                return average;
                             });
                         };
 
@@ -224,6 +235,16 @@
                         // Initialize the radar chart
                         function initRadarChart() {
                             const ctx = document.getElementById('radarChart').getContext('2d');
+
+                            // Calculate averages for each role
+                            const deliveryAverages = calculateRoleAverages('Delivery');
+                            const inspectionAverages = calculateRoleAverages('Inspection');
+                            const assemblingAverages = calculateRoleAverages('Assembling');
+                            
+                            // Store original values for adjustment functionality
+                            originalDelivery = [...deliveryAverages];
+                            originalInspection = [...inspectionAverages];
+                            originalAssembling = [...assemblingAverages];
                             
                             radarChart = new Chart(ctx, {
                                 type: 'radar',
@@ -232,7 +253,7 @@
                                     datasets: [
                                         {
                                             label: 'Robot Delivery',
-                                            data: [...originalDelivery],
+                                            data: deliveryAverages,
                                             backgroundColor: 'rgba(255, 99, 132, 0.2)',
                                             borderColor: 'rgb(255, 99, 132)',
                                             pointBackgroundColor: 'rgb(255, 99, 132)',
@@ -243,7 +264,7 @@
                                         },
                                         {
                                             label: 'Robot Inspection',
-                                            data: [...originalInspection],
+                                            data: inspectionAverages,
                                             backgroundColor: 'rgba(54, 162, 235, 0.2)',
                                             borderColor: 'rgb(54, 162, 235)',
                                             pointBackgroundColor: 'rgb(54, 162, 235)',
@@ -254,7 +275,7 @@
                                         },
                                         {
                                             label: 'Robot Assembling',
-                                            data: [...originalAssembling],
+                                            data: assemblingAverages,
                                             backgroundColor: 'rgba(75, 192, 192, 0.2)',
                                             borderColor: 'rgb(75, 192, 192)',
                                             pointBackgroundColor: 'rgb(75, 192, 192)',

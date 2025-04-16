@@ -387,22 +387,19 @@
             participantId: participantId,
             date: dateStr,
             time: timeStr,
+            role: currentRole, // Add this line to store the current role
             choice: localStorage.getItem('selectedRobot') ? 
                 parseInt(localStorage.getItem('selectedRobot').slice(-1)) : '',
             timeSpent: seconds,
-            robot1Attributes: radarChart.data.datasets[0].data,
-            robot2Attributes: radarChart.data.datasets[1].data,
-            robot3Attributes: radarChart.data.datasets[2].data,
+            robot1Attributes: radarChart.data.datasets[1].data, // Robot 1 data
+            robot2Attributes: radarChart.data.datasets[2].data, // Robot 2 data
+            robot3Attributes: radarChart.data.datasets[3].data, // Robot 3 data
             stakeType: window.location.href.includes('High') ? 'high' : 'low'
         };
         
-        // Get existing data or initialize empty array
+      
         let allPairingData = JSON.parse(localStorage.getItem('allPairingData') || '[]');
-        
-        // Add current trial data
         allPairingData.push(currentData);
-        
-        // Save back to localStorage
         localStorage.setItem('allPairingData', JSON.stringify(allPairingData));
     }
 
