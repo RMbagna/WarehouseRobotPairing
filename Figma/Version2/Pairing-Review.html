@@ -99,25 +99,25 @@
                     <div style="margin-bottom: 15px; text-align: center;">
                         <label style="display: block; margin-bottom: 8px; color: #333; font-weight: bold; font-size: 16px;">Select Attribute to Adjust:</label>
                         <div style="display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;">
-                            <button type="button" onclick="showAttribute('Speed')" 
+                            <button type="button" onclick="showAttribute('Energy')" 
                                 style="padding: 6px 12px; border: 1px solid #1B3360; background: #1B3360; color: white; cursor: pointer; border-radius: 4px; font-size: 14px; transition: all 0.2s;">
-                                Speed
+                                Energy
                             </button>
-                            <button type="button" onclick="showAttribute('Efficiency')" 
+                            <button type="button" onclick="showAttribute('Pace')" 
                                 style="padding: 6px 12px; border: 1px solid #1B3360; background: #1B3360; color: white; cursor: pointer; border-radius: 4px; font-size: 14px; transition: all 0.2s;">
-                                Efficiency
+                                Pace
                             </button>
-                            <button type="button" onclick="showAttribute('Durability')" 
+                            <button type="button" onclick="showAttribute('Reliability')" 
                                 style="padding: 6px 12px; border: 1px solid #1B3360; background: #1B3360; color: white; cursor: pointer; border-radius: 4px; font-size: 14px; transition: all 0.2s;">
-                                Durability
+                                Reliability
                             </button>
                             <button type="button" onclick="showAttribute('Safety')" 
                                 style="padding: 6px 12px; border: 1px solid #1B3360; background: #1B3360; color: white; cursor: pointer; border-radius: 4px; font-size: 14px; transition: all 0.2s;">
                                 Safety
                             </button>
-                            <button type="button" onclick="showAttribute('Skill')" 
+                            <button type="button" onclick="showAttribute('Intelligence')" 
                                 style="padding: 6px 12px; border: 1px solid #1B3360; background: #1B3360; color: white; cursor: pointer; border-radius: 4px; font-size: 14px; transition: all 0.2s;">
-                                Skill
+                                Intelligence
                             </button>
                         </div>
                     </div>
@@ -125,7 +125,7 @@
                     <!-- Slider Control -->
                     <div style="margin: 20px 0 10px;">
                         <label for="attributeSlider" style="display: block; margin-bottom: 5px; color: #333; font-weight: bold; font-size: 16px; text-align: center;" 
-                            id="sliderLabel">Adjustment for Speed: 0%</label>
+                            id="sliderLabel">Adjustment for Speed: </label>
                         <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
                             <span style="width: 50px; text-align: right; color: #333; font-size: 14px;">-20%</span>
                             <input type="range" id="attributeSlider" name="attributeSlider" 
@@ -173,6 +173,15 @@
                     </style>
                     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
                     <script>
+                                             
+                        // Load pairing data from localStorage
+                        const allPairingData = JSON.parse(localStorage.getItem('allPairingData')) || [];
+                        const roles = ['Delivery', 'Inspection', 'Assembling'];
+                        const attributes = ['Energy', 'Pace', 'Safety', 'Reliability', 'Intelligence'];
+                        let currentAttribute = 'Energy';
+                        let sliderValue = 0;
+                        let radarChart;
+                        
                         console.log('All pairing data from localStorage:', allPairingData);
 
                         // Verify the data structure of saved trials
@@ -185,14 +194,6 @@
                                 robot3Attrs: trial.robot3Attributes
                             });
                         });
-                        
-                        // Load pairing data from localStorage
-                        const allPairingData = JSON.parse(localStorage.getItem('allPairingData')) || [];
-                        const roles = ['Delivery', 'Inspection', 'Assembling'];
-                        const attributes = ['Energy', 'Pace', 'Safety', 'Reliability', 'Intelligence'];
-                        let currentAttribute = 'Energy';
-                        let sliderValue = 0;
-                        let radarChart;
 
                         // Group robot choices by role
                         const roleRobotChoices = {
@@ -259,9 +260,9 @@
                             const assemblingAverages = calculateRoleAverages('Assembling');
                             
                             // Store original values for adjustment functionality
-                            originalDelivery = [...deliveryAverages];
-                            originalInspection = [...inspectionAverages];
-                            originalAssembling = [...assemblingAverages];
+                            originalDelivery = deliveryAverages;
+                            originalInspection = inspectionAverages;
+                            originalAssembling = assemblingAverages;
 
                             // Destroy previous chart if it exists
                             if (radarChart) {
@@ -407,14 +408,14 @@
                         // Attribute selection buttons
                         function showAttribute  (attribute) {
                             currentAttribute = attribute;
-                            document.getElementById  ('sliderLabel').textContent = `Adjustment for ${  attribute  }  :  `  ;
+                            document.getElementById  ('sliderLabel').textContent = `Adjustment for ${  attribute  }  :  0%`  ;
                             // Reset slider when changing attributes
                             document.getElementById  ('attributeSlider').value = 0;
                             sliderValue = 0;
                             // Reset to original values
-                            radarChart.data.datasets  [0  ]  .data = [...originalDelivery  ]  ;
-                            radarChart.data.datasets  [1  ]  .data = [...originalInspection  ]  ;
-                            radarChart.data.datasets  [2  ]  .data = [...originalAssembling  ]  ;
+                            radarChart.data.datasets  [0]  .data = [...originalDelivery  ]  ;
+                            radarChart.data.datasets  [1]  .data = [...originalInspection  ]  ;
+                            radarChart.data.datasets  [2]  .data = [...originalAssembling  ]  ;
                             radarChart.update  ();
                         }
 
@@ -427,43 +428,76 @@
                         // Download data function (using the ORIGINAL values, not adjusted ones)
                         function downloadData(userRating) {
                             const participantId = localStorage.getItem('participantId') || 'anonymous';
+                            const allPairingData = JSON.parse(localStorage.getItem('allPairingData') || '[]');
                             const now = new Date();
                             const dateTime = now.toISOString().replace(/[:.]/g, '-').split('T').join('_');
-                            
-                            let csvContent = "participantId,DateTime,Attribute,lowStakeValue,HighStakeValue,LowStakeTime,HighStakeTime,Average,UserRating,AdjustedValue,AdjustmentFactor\n";
 
-                            // Process each attribute
-                            attributes.forEach((attr, attrIndex) => {
-                                const attrKey = attr.toLowerCase();
-                                
-                                // Get original values
-                                const lowVal = parseFloat(localStorage.getItem(`performance_${attrKey}_low`)) || 0;
-                                const lowTime = parseFloat(localStorage.getItem(`time_${attrKey}_low`)) || 0;
-                                const highVal = parseFloat(localStorage.getItem(`performance_${attrKey}_high`)) || 0;
-                                const highTime = parseFloat(localStorage.getItem(`time_${attrKey}_high`)) || 0;
-                                const average = ((lowVal + highVal) / 2).toFixed(2);
-                                
-                                // Calculate adjusted value if this is the current attribute
-                                const isCurrentAttr = (attr === currentAttribute);
-                                const adjustment = isCurrentAttr ? (sliderValue * 0.2) : 0;
-                                const adjustedValue = isCurrentAttr ? 
-                                    Math.min(1, Math.max(0, parseFloat(average) + adjustment)).toFixed(2) : average;
-                                
-                                // Add to CSV
-                                csvContent += `${participantId},${dateTime},${attr},${lowVal},${highVal},${lowTime},${highTime},${average},${userRating},${adjustedValue},${isCurrentAttr ? adjustment : 0}\n`;
+                            const attributes = ['Energy', 'Pace', 'Safety', 'Reliability', 'Intelligence'];
+                            const roles = ['Delivery', 'Inspection', 'Assembling'];
+
+                            let csvContent = "participantId,DateTime,Role,Attribute,lowStakeValue,HighStakeValue,LowStakeTime,HighStakeTime,Average,UserRating,AdjustedValue,AdjustmentFactor\n";
+
+                            // Helper: aggregate by stake and role
+                            const getRoleAttributeByStake = (role, stakeType, attrIndex) => {
+                                const trials = allPairingData.filter(
+                                    trial => trial.role === role && trial.stakeType === stakeType && trial.choice
+                                );
+
+                                const values = trials.map(t => {
+                                    const attrs = t[`robot${t.choice}Attributes`];
+                                    return attrs ? parseFloat(attrs[attrIndex]) : null;
+                                }).filter(v => v !== null);
+
+                                const timeVals = trials.map(t => parseFloat(t.timeSpent)).filter(v => !isNaN(v));
+                                const value = values.length > 0 ? (values.reduce((a, b) => a + b) / values.length).toFixed(2) : '';
+                                const time = timeVals.length > 0 ? (timeVals.reduce((a, b) => a + b) / timeVals.length).toFixed(2) : '';
+
+                                return { value, time };
+                            };
+
+                            roles.forEach((role, roleIndex) => {
+                                const adjusted = radarChart.data.datasets[roleIndex].data;
+
+                                attributes.forEach((attr, attrIndex) => {
+                                    const low = getRoleAttributeByStake(role, 'low', attrIndex);
+                                    const high = getRoleAttributeByStake(role, 'high', attrIndex);
+                                    const avg = ((parseFloat(low.value || 0) + parseFloat(high.value || 0)) / 2).toFixed(2);
+                                    const adjustedVal = adjusted[attrIndex].toFixed(2);
+                                    const adjustment = (adjustedVal - avg).toFixed(2);
+
+                                    csvContent += `${participantId},${dateTime},${role},${attr},${low.value},${high.value},${low.time},${high.time},${avg},${userRating},${adjustedVal},${adjustment}\n`;
+                                });
                             });
-                            
+
                             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
                             const link = document.createElement("a");
                             link.href = URL.createObjectURL(blob);
-                            link.download = `${dateTime}-${participantId}-Performance_Review.csv`;
+                            link.download = `RobotChoice-${dateTime}-${participantId}.csv`;
+                            document.body.appendChild(link);
                             link.click();
+                            document.body.removeChild(link);
                         }
 
                         // Initialize the chart when the page loads
                         window.addEventListener('load', function() {
                             initRadarChart();
                         });
+
+                    //     window.addEventListener('load', () => {
+                    //     // Wait for everything to render
+                    //     setTimeout(() => {
+                    //         if (localStorage.getItem('cleanupAfterReview') === 'true') {
+                    //             // Cleanup after chart has rendered
+                    //             localStorage.removeItem('allPairingData');
+                    //             localStorage.removeItem('selectedRobot');
+                    //             localStorage.removeItem('pairingCount');
+                    //             localStorage.removeItem('roleCycleCount');
+                    //             localStorage.removeItem('cleanupAfterReview');
+
+                    //             console.log("✅ Cleared all pairing data after radar chart was generated.");
+                    //         }
+                    //     }, 2000); // slight delay to ensure full chart render
+                    // });
                     </script>
                 </div>
             </div>

@@ -103,15 +103,17 @@
                     </label>
                 </div>
                 <!-- Next button -->
-                <a href="Pairing-High-Stake.html" style="text-decoration: none;">
-                    <button style="width: 181px; height: 54px; padding-left: 24px; padding-right: 24px; left: 361px; top: 754px; position: absolute; background: #1B6048; border-radius: 32px; flex-direction: column; justify-content: center; align-items: center; display: inline-flex; border: none; cursor: pointer;">
-                        <div style="flex-direction: column; justify-content: center; align-items: center; display: flex">
-                            <div style="justify-content: flex-start; align-items: flex-start; gap: 8px; display: inline-flex">
-                                <div style="color: white; font-size: 16px; font-family: Sarabun; font-weight: 700; line-height: 24px; word-wrap: break-word">Next</div>
+                <button onclick="handleNext()" 
+                        style="width: 181px; height: 54px; padding-left: 24px; padding-right: 24px; left: 361px; top: 754px; position: absolute; background: #1B6048; border-radius: 32px; flex-direction: column; justify-content: center; align-items: center; display: inline-flex; border: none; cursor: pointer;">
+                    <div style="flex-direction: column; justify-content: center; align-items: center; display: flex">
+                        <div style="justify-content: flex-start; align-items: flex-start; gap: 8px; display: inline-flex">
+                            <div style="color: white; font-size: 16px; font-family: Sarabun; font-weight: 700; line-height: 24px; word-wrap: break-word">
+                                Next
                             </div>
                         </div>
-                    </button>
-                </a>
+                    </div>
+                </button>
+                
                 <!-- Switch button -->
                 <a href="Home-Page.html" style="text-decoration: none;">
                     <button id="switchButton" style="width: 181px; height: 54px; padding-left: 24px; padding-right: 24px; left: 100px; top: 754px; position: absolute; background: #1B3360; border-radius: 32px; flex-direction: column; justify-content: center; align-items: center; display: inline-flex; border: none; cursor: pointer;">
@@ -431,9 +433,9 @@
         document.body.removeChild(link);
         
         // // Clear the stored data
-        // localStorage.removeItem('allPairingData');
-        // localStorage.removeItem('selectedRobot');
-    }
+        localStorage.removeItem('allPairingData');
+        localStorage.removeItem('selectedRobot');
+        }
 
         function updateTracker() {
         currentCount += 1;
@@ -450,7 +452,13 @@
             
             // Download all accumulated data
             downloadAllPairingData();
-            
+
+            // //Tells Pairing-Review to clean up after it's done rendering
+            //     localStorage.setItem('cleanupAfterReview', 'true');
+
+            // // Navigates to review page
+            //     window.location.href = 'Pairing-Review.html';
+
             // Return false to prevent default navigation
             return false;
         }
@@ -486,6 +494,31 @@
             }
         }
     });
+    function handleNext() {
+        if (!document.querySelector('input[name="robot"]:checked')) {
+            alert('Please select a robot before proceeding');
+            return;
+        }
+
+        const shouldContinue = updateTracker();
+
+        if (shouldContinue) {
+            const nextPage = window.location.href.includes("High") 
+                ? "Pairing-Low-Stake.html" 
+                : "Pairing-High-Stake.html";
+            window.location.href = nextPage;
+        } else {
+            // Tracker hit 30 — go to review
+            window.location.href = "Pairing-Review.html";
+        }
+    }
+     // Listen for robot selection
+        document.querySelectorAll('input[name="robot"]').forEach(input => {
+            input.addEventListener('change', () => {
+                localStorage.setItem('selectedRobot', input.value); // e.g., robot1
+            });
+        });
+
     </script>
 </body>
 
