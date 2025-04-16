@@ -199,20 +199,27 @@
                         });
 
                         // Calculate average robot attributes for each role
-                        const calculateAverages = (role) => {
-                            const roleData = roleRobotChoices[role];
+                        const calculateRoleAverages = (role) => {
+                            const roleData = allPairingData.filter(trial => 
+                                trial.role === role && trial.choice && trial.robot1Attributes
+                            );
+                                // Log how many valid trials were found for this role
+                                console.log(`${role}: ${roleData.length} trials`);
+
                             if (roleData.length === 0) return Array(attributes.length).fill(0.5);
-                            
+
                             return attributes.map((_, attrIndex) => {
-                                const sum = roleData.reduce((total, robot) => total + robot[attrIndex], 0);
+                                const sum = roleData.reduce((total, trial) => {
+                                    return total + trial[`robot${trial.choice}Attributes`][attrIndex];
+                                }, 0);
                                 return sum / roleData.length;
                             });
                         };
 
                         // Store original averages
-                        const originalDelivery = calculateAverages('Delivery');
-                        const originalInspection = calculateAverages('Inspection');
-                        const originalAssembling = calculateAverages('Assembling');
+                        const originalDelivery = calculateRoleAverages('Delivery');
+                        const originalInspection = calculateRoleAverages('Inspection');
+                        const originalAssembling = calculateRoleAverages('Assembling');
 
                         // Initialize the radar chart
                         function initRadarChart() {
@@ -300,6 +307,11 @@
                                                     return context.dataset.label + ': ' + context.raw.toFixed  (2);
                                                 }
                                             }
+                                        },
+                                        title: {
+                                            display: true,
+                                            text: 'Averaged Robot Attributes Based on Your Choices',
+                                            font: { size: 18 }
                                         }
                                     },
                                     elements: {
