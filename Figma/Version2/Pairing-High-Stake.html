@@ -383,19 +383,21 @@
         const dateStr = now.toISOString().split('T')[0].replace(/-/g, '');
         const timeStr = now.toTimeString().substring(0, 8).replace(/:/g, '');
         
-        const currentData = {
+       const currentData = {
             participantId: participantId,
             date: dateStr,
             time: timeStr,
-            role: currentRole, // Add this line to store the current role
+            role: currentRole,
             choice: localStorage.getItem('selectedRobot') ? 
-                parseInt(localStorage.getItem('selectedRobot').slice(-1)) : '',
+                parseInt(localStorage.getItem('selectedRobot').slice(-1)) : null,
             timeSpent: seconds,
-            robot1Attributes: radarChart.data.datasets[1].data, // Robot 1 data
-            robot2Attributes: radarChart.data.datasets[2].data, // Robot 2 data
-            robot3Attributes: radarChart.data.datasets[3].data, // Robot 3 data
+            robot1Attributes: radarChart.data.datasets[1].data.map(Number), // Ensure numbers
+            robot2Attributes: radarChart.data.datasets[2].data.map(Number), // Ensure numbers
+            robot3Attributes: radarChart.data.datasets[3].data.map(Number), // Ensure numbers
             stakeType: window.location.href.includes('High') ? 'high' : 'low'
         };
+        
+        console.log('Saving trial data:', currentData);
         
       
         let allPairingData = JSON.parse(localStorage.getItem('allPairingData') || '[]');
@@ -434,7 +436,7 @@
         document.body.removeChild(link);
         
         // // Clear the stored data
-        // localStorage.removeItem('allPairingData');
+         localStorage.removeItem('allPairingData');
         // localStorage.removeItem('selectedRobot');
     }
 

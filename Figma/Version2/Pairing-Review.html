@@ -173,6 +173,19 @@
                     </style>
                     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
                     <script>
+                        console.log('All pairing data from localStorage:', allPairingData);
+
+                        // Verify the data structure of saved trials
+                        allPairingData.forEach((trial, index) => {
+                            console.log(`Trial ${index + 1}:`, {
+                                role: trial.role,
+                                choice: trial.choice,
+                                robot1Attrs: trial.robot1Attributes,
+                                robot2Attrs: trial.robot2Attributes,
+                                robot3Attrs: trial.robot3Attributes
+                            });
+                        });
+                        
                         // Load pairing data from localStorage
                         const allPairingData = JSON.parse(localStorage.getItem('allPairingData')) || [];
                         const roles = ['Delivery', 'Inspection', 'Assembling'];
@@ -208,6 +221,7 @@
                             );
                             
                             console.log(`Found ${roleData.length} trials for ${role} role`);
+                            console.log('Sample trial data:', roleData.length > 0 ? roleData[0] : 'No data');
                             
                             if (roleData.length === 0) {
                                 console.log(`No data for ${role}, returning default values`);
@@ -218,7 +232,10 @@
                             return attributes.map((_, attrIndex) => {
                                 const sum = roleData.reduce((total, trial) => {
                                     const robotAttrs = trial[`robot${trial.choice}Attributes`];
-                                    return total + (robotAttrs ? robotAttrs[attrIndex] : 0);
+                                    // Ensure the attribute exists and is a number
+                                    const attrValue = typeof robotAttrs[attrIndex] === 'number' ? 
+                                        robotAttrs[attrIndex] : 0;
+                                    return total + attrValue;
                                 }, 0);
                                 
                                 const average = sum / roleData.length;
@@ -227,11 +244,11 @@
                             });
                         };
 
-                        // Store original averages
-                        const originalDelivery = calculateRoleAverages('Delivery');
-                        const originalInspection = calculateRoleAverages('Inspection');
-                        const originalAssembling = calculateRoleAverages('Assembling');
-
+                        // Change from const to let for these variables since we reassign them
+                        let originalDelivery = [];
+                        let originalInspection = [];
+                        let originalAssembling = [];
+                        
                         // Initialize the radar chart
                         function initRadarChart() {
                             const ctx = document.getElementById('radarChart').getContext('2d');
@@ -245,6 +262,11 @@
                             originalDelivery = [...deliveryAverages];
                             originalInspection = [...inspectionAverages];
                             originalAssembling = [...assemblingAverages];
+
+                            // Destroy previous chart if it exists
+                            if (radarChart) {
+                                radarChart.destroy();
+                            }
                             
                             radarChart = new Chart(ctx, {
                                 type: 'radar',
