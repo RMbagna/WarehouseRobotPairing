@@ -1,6 +1,7 @@
 import pandas as pd
 import subprocess
 import os
+import json  # Add this import
 
 def estimate_parameters(csv_path, r_script_path="DFT_Resource_Allocation.R", output_dir="output"):
     """
@@ -34,4 +35,6 @@ def estimate_parameters(csv_path, r_script_path="DFT_Resource_Allocation.R", out
         else:
             raise KeyError(f"Parameter {name} not found in Apollo output.")
 
+    # At the end of the function, BEFORE return:
+    print(json.dumps(params))  # Add this line
     return params  # Dictionary: {'phi1': ..., 'phi2': ..., 'timesteps': ..., 'error_sd': ...}

@@ -27,8 +27,7 @@
 % states x_i to respond to uncertain human feedback and achieve optimal 
 % resource allocation across the system.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-clc;
-clear all;
+
 
 %% Step 1: Import CSV Data
 % (reference apolloMain_5 amd apolloMain_6 as example for data manipulation)
@@ -36,97 +35,40 @@ clear all;
 % disp('User bias data imported successfully.');
 % taskChoice_Data = readtable('user_choices.csv'); % Replace with the path to your data file
 % disp('User task choice data imported successfully.');
-robotChoice_Data = readtable('G:\\My Drive\\myResearch\\Research Experimentation\\Apollo\\apollo\\data\\WarehouseRobot_Pairing_Data\\test_pairing_data.csv'); % Replace with the path to your data file
+robotChoice_Data = readtable('G:\My Drive\myResearch\Research Experimentation\Apollo\apollo\data\WarehouseRobot_Pairing_Data\test_pairing_data.csv'); % Replace with the path to your data file
 disp('User robot choice data imported successfully.');
 
 % Extract relevant data (modify based on your CSV structure)
-% task_attributes = data{:, {'efficiency', 'speed', 'safety', 'durability', 'skill'}};
+robot_states = robotChoice_Data{:, {'energy', 'pace', 'safety', 'reliability', 'computational_load'}};
+%task_attributes = data{:, {'efficiency', 'speed', 'safety', 'durability', 'skill'}};
 
-% Extract and organize robot states for all three alternatives
-robot_states = struct();
+%% Step 2: Python Bridge to Apollo for Parameter Estimation
+disp('Initializing Python bridge to Apollo...');
+py.importlib.import_module('apollo_Bridge');  % Ensure this matches the filename exactly
 
-% For Robot 1
-robot_states.robot1.energy = robotChoice_Data.robot1energy;
-robot_states.robot1.pace = robotChoice_Data.robot1pace;
-robot_states.robot1.safety = robotChoice_Data.robot1safety;
-robot_states.robot1.reliability = robotChoice_Data.robot1reliability;
-robot_states.robot1.intelligence = robotChoice_Data.robot1intelligence;
+% Convert MATLAB table to file
+writetable(robotChoice_Data, 'testTrial_Bounding_Overwatch.csv');
+disp('Data written to testTrial_Bounding_Overwatch.csv');
 
-% For Robot 2
-robot_states.robot2.energy = robotChoice_Data.robot2energy;
-robot_states.robot2.pace = robotChoice_Data.robot2pace;
-robot_states.robot2.safety = robotChoice_Data.robot2safety;
-robot_states.robot2.reliability = robotChoice_Data.robot2reliability;
-robot_states.robot2.intelligence = robotChoice_Data.robot2intelligence;
+% Call Apollo estimation via Python
+params = py.apollo_Bridge.estimate_parameters('testTrial_Bounding_Overwatch.csv');
 
-% For Robot 3
-robot_states.robot3.energy = robotChoice_Data.robot3energy;
-robot_states.robot3.pace = robotChoice_Data.robot3pace;
-robot_states.robot3.safety = robotChoice_Data.robot3safety;
-robot_states.robot3.reliability = robotChoice_Data.robot3reliability;
-robot_states.robot3.intelligence = robotChoice_Data.robot3intelligence;
+% Extract estimated values
+phi1    = double(params{'phi1'});
+phi2    = double(params{'phi2'});
+tau     = 1 + exp(double(params{'timesteps'})); % from DFT spec
+error   = double(params{'error_sd'});
 
-% Extract choice data and other metadata
-choices = robotChoice_Data.choice;
-participant_ids = robotChoice_Data.participantid;
-trial_numbers = robotChoice_Data.trial;
-stake_types = robotChoice_Data.staketype;
-time_spent = robotChoice_Data.timespent;
-
-%% Step 2: Alternative Python Bridge Implementation
-disp('Initializing Python bridge (alternative approach)...');
-
-% 1. Configure paths
-pythonExe = 'C:\\Users\\Ryan\\AppData\\Local\\Programs\\Python\\Python311\\python.exe'; % MUST UPDATE TO YOUR PATH
-pythonScript = 'apollo_Bridge.py';
-csvFile = 'testTrial_Resource_Allocation_AllPairing.csv';
-
-% 2. Verify files exist
-if ~isfile(pythonExe)
-    error('Python executable not found at: %s', pythonExe);
-end
-if ~isfile(pythonScript)
-    error('Python script not found: %s', pythonScript);
-end
-
-% 3. Prepare data file
-writetable(robotChoice_Data, csvFile);
-
-% 4. Execute Python
-try
-    cmd = sprintf('"%s" "%s" "%s"', pythonExe, pythonScript, csvFile);
-    [status, result] = system(cmd);
-    
-    if status == 0
-        % Parse JSON output
-        params = jsondecode(result);
-        
-        % Your original parameter extraction
-        phi1    = params.phi1;
-        phi2    = params.phi2;
-        tau     = 1 + exp(params.timesteps);
-        error   = params.error_sd;
-
-        disp('Estimated Static Parameters:');
-        disp(['phi1 = ', num2str(phi1), ', phi2 = ', num2str(phi2), ...
-              ', tau = ', num2str(tau), ', error_sd = ', num2str(error)]);
-    else
-        error('Python execution failed: %s', result);
-    end
-    
-catch ME
-    disp('Error during Python execution:');
-    disp(getReport(ME, 'basic'));
-    
-    % Fallback to example parameters
-    phi1 = 0.5;
-    phi2 = 0.8;
-    tau = 10;
-    error = 0.1;
-    warning('Using default parameters due to Python error');
-end
+disp('Estimated Static Parameters:');
+disp(['phi1 = ', num2str(phi1), ', phi2 = ', num2str(phi2), ...
+      ', tau = ', num2str(tau), ', error_sd = ', num2str(error)]);
 %% Step 3: MDFT Formulation to Calculate Preference Dynamics
 % (MDFT calculations based on estimated parameters)
+% Example parameters
+phi1 = 0.5;       % Sensitivity parameter
+phi2 = 0.8;       % Memory decay
+tau = 10;         %# Time steps
+epsilon = 0.1;    % Noise
 
 % Define 4 alternatives × 2 attributes (e.g., efficiency, safety)
 M = [5.0, 1.0;    % Alt 1: High efficiency, low safety
