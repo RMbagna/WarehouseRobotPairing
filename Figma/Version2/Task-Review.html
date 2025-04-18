@@ -93,25 +93,25 @@
                     <div style="margin-bottom: 15px; text-align: center;">
                         <label style="display: block; margin-bottom: 8px; color: #333; font-weight: bold; font-size: 16px;">Select Attribute to Adjust:</label>
                         <div style="display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;">
-                            <button type="button" onclick="showAttribute('Pace')" 
+                            <button type="button" onclick="showAttribute('Speed')" 
                                 style="padding: 6px 12px; border: 1px solid #1B3360; background: #1B3360; color: white; cursor: pointer; border-radius: 4px; font-size: 14px; transition: all 0.2s;">
-                                Pace
+                                Speed
                             </button>
-                            <button type="button" onclick="showAttribute('Energy')" 
+                            <button type="button" onclick="showAttribute('Efficiency')" 
                                 style="padding: 6px 12px; border: 1px solid #1B3360; background: #1B3360; color: white; cursor: pointer; border-radius: 4px; font-size: 14px; transition: all 0.2s;">
-                                Energy
+                                Efficiency
                             </button>
-                            <button type="button" onclick="showAttribute('Reliability')" 
+                            <button type="button" onclick="showAttribute('Durability')" 
                                 style="padding: 6px 12px; border: 1px solid #1B3360; background: #1B3360; color: white; cursor: pointer; border-radius: 4px; font-size: 14px; transition: all 0.2s;">
-                                Reliability
+                                Durability
                             </button>
                             <button type="button" onclick="showAttribute('Safety')" 
                                 style="padding: 6px 12px; border: 1px solid #1B3360; background: #1B3360; color: white; cursor: pointer; border-radius: 4px; font-size: 14px; transition: all 0.2s;">
                                 Safety
                             </button>
-                            <button type="button" onclick="showAttribute('Intelligence')" 
+                            <button type="button" onclick="showAttribute('Skill')" 
                                 style="padding: 6px 12px; border: 1px solid #1B3360; background: #1B3360; color: white; cursor: pointer; border-radius: 4px; font-size: 14px; transition: all 0.2s;">
-                                Intelligence
+                                Skill
                             </button>
                         </div>
                     </div>
@@ -168,26 +168,40 @@
                     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
                     <script>
                     // Load pairing data from localStorage
-                    const allPairingData = JSON.parse(localStorage.getItem('allPairingData')) || [];
+                    const performanceData = JSON.parse(localStorage.getItem('performanceData')) || {
+                        Delivery: { low: [], high: [] },
+                        Inspection: { low: [], high: [] },
+                        Assembling: { low: [], high: [] }
+                    };
                     const participantId = localStorage.getItem('participantId') || 'anonymous';
-                    const attributes = ['Energy', 'Pace', 'Safety', 'Reliability', 'Intelligence'];
-                    let currentAttribute = 'Energy';
+                    const attributes = ['Efficiency', 'Speed', 'Safety', 'Durability', 'Skill'];
+                    let currentAttribute = 'Safety';
                     let sliderValue = 0;
                     let radarChart;
 
                     // Calculate average robot attributes for each role
                     const calculateRoleAverages = (role) => {
-                        const roleData = allPairingData.filter(trial => 
-                            trial.role === role && trial.choice && trial.robot1Attributes
-                        );
+                        const data = performanceData[role] || { low: [], high: [] };
+                        const trials = [...(data.low || []), ...(data.high || [])];
                         
-                        if (roleData.length === 0) return Array(attributes.length).fill(0.5);
-                        
+                        if (trials.length === 0) {
+                            console.warn(`No performance data found for ${role}, using default values`);
+                            return Array(attributes.length).fill(0.5); // Default values
+                        }
+
                         return attributes.map((_, attrIndex) => {
-                            const sum = roleData.reduce((total, trial) => {
-                                return total + trial[`robot${trial.choice}Attributes`][attrIndex];
-                            }, 0);
-                            return sum / roleData.length;
+                            const vals = trials.map(trial => {
+                                // Handle both array and object formats
+                                if (Array.isArray(trial)) {
+                                    return parseFloat(trial[attrIndex]) || 0;
+                                } else if (trial.attributes && Array.isArray(trial.attributes)) {
+                                    return parseFloat(trial.attributes[attrIndex]) || 0;
+                                }
+                                return 0;
+                            }).filter(v => !isNaN(v));
+                            
+                            const avg = vals.reduce((a, b) => a + b, 0) / (vals.length || 1);
+                            return isNaN(avg) ? 0.5 : avg;
                         });
                     };
 
@@ -288,6 +302,16 @@
                                                 return context.dataset.label + ': ' + context.raw.toFixed(2);
                                             }
                                         }
+                                    },
+                                    title: {
+                                        display: true,
+                                        text: 'Your Task Performance Metrics',  // Updated title
+                                        font: { size: 18 }
+                                    }
+                                },
+                                elements: {
+                                    line: {
+                                        tension: 0.1
                                     }
                                 },
                                 elements: {
@@ -353,25 +377,62 @@
                     });
 
                     function downloadData(userRating) {
-                        const now = new Date();
-                        const dateTime = now.toISOString().replace(/[:.]/g, '-').split('T').join('_');
-                        
-                        let csvContent = "Role,Attribute,AverageValue,UserRating\n";
+                    const now = new Date();
+                    const dateTime = now.toISOString().replace(/[:.]/g, '-').replace('T', '_');
+                    const participantId = localStorage.getItem('participantId') || 'anonymous';
+                    const performanceData = JSON.parse(localStorage.getItem('performanceData')) || {};
+                    const roles = ['Delivery', 'Inspection', 'Assembling'];
+                    const attributes = radarChart.data.labels;
 
-                        // Add data for each role and attribute
-                        ['Delivery', 'Inspection', 'Assembling'].forEach(role => {
-                            const averages = calculateRoleAverages(role);
-                            averages.forEach((value, index) => {
-                                csvContent += `"${role}","${attributes[index]}",${value},"${userRating}"\n`;
-                            });
+                    let csvContent = "participantId,DateTime,Role,Attribute,lowStakeValue,HighStakeValue,LowStakeTime,HighStakeTime,Average,UserRating,AdjustedValue,AdjustmentFactor\n";
+
+                    roles.forEach((role, roleIndex) => {
+                        const data = performanceData[role] || {};
+                        const lowTrials = data.low || [];
+                        const highTrials = data.high || [];
+                        const adjusted = radarChart.data.datasets[roleIndex].data;
+
+                        attributes.forEach((attr, attrIndex) => {
+                            // Extract values safely from trials
+                            const extractValues = (trials) => trials.map(t => {
+                                if (Array.isArray(t)) return parseFloat(t[attrIndex]);
+                                if (t.attributes && Array.isArray(t.attributes)) return parseFloat(t.attributes[attrIndex]);
+                                return NaN;
+                            }).filter(v => !isNaN(v));
+
+                            const extractTimes = (trials) => trials.map(t => parseFloat(t.time)).filter(v => !isNaN(v));
+
+                            const lowVals = extractValues(lowTrials);
+                            const highVals = extractValues(highTrials);
+
+                            const lowStakeVal = lowVals.length ? (lowVals.reduce((a, b) => a + b) / lowVals.length) : '';
+                            const highStakeVal = highVals.length ? (highVals.reduce((a, b) => a + b) / highVals.length) : '';
+
+                            const lowTimes = extractTimes(lowTrials);
+                            const highTimes = extractTimes(highTrials);
+
+                            const lowStakeTime = lowTimes.length ? (lowTimes.reduce((a, b) => a + b) / lowTimes.length) : '';
+                            const highStakeTime = highTimes.length ? (highTimes.reduce((a, b) => a + b) / highTimes.length) : '';
+
+                            const avgValues = [lowStakeVal, highStakeVal].filter(v => v !== '');
+                            const avg = avgValues.length ? (avgValues.reduce((a, b) => parseFloat(a) + parseFloat(b)) / avgValues.length).toFixed(2) : '';
+
+                            const adjustedVal = adjusted[attrIndex].toFixed(2);
+                            const adjustment = avg ? (adjusted[attrIndex] - avg).toFixed(2) : '';
+
+                            csvContent += `${participantId},${dateTime},${role},${attr},${lowStakeVal ? lowStakeVal.toFixed(2) : ''},${highStakeVal ? highStakeVal.toFixed(2) : ''},${lowStakeTime ? lowStakeTime.toFixed(2) : ''},${highStakeTime ? highStakeTime.toFixed(2) : ''},${avg},${userRating},${adjustedVal},${adjustment}\n`;
                         });
-                        
-                        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                        const link = document.createElement("a");
-                        link.href = URL.createObjectURL(blob);
-                        link.download = `${dateTime}-${participantId}-PairingReview.csv`;
-                        link.click();
-                    }
+                    });
+
+                    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                    const link = document.createElement("a");
+                    link.href = URL.createObjectURL(blob);
+                    link.setAttribute("download", `PerformanceData_${participantId}_${dateTime}.csv`);
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
+
 
                     // Initialize the chart when the page loads
                     document.addEventListener('DOMContentLoaded', function() {

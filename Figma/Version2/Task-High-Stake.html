@@ -127,7 +127,14 @@
                 Assembling: { low: [], high: [] }
             }));
         }
-        const stakeType = 'high';
+        
+        if (!localStorage.getItem('allTaskData')) {
+            localStorage.setItem('allTaskData', '[]');
+        }
+        
+        const stakeType = 'high'; // or 'low' for the low stake version
+        const participantId = localStorage.getItem('participantId') || Math.floor(Math.random() * 1000000).toString();
+        localStorage.setItem('participantId', participantId);
 
         // Function to generate random values
         function getRandomValues() {
@@ -182,10 +189,116 @@
         let earnings = parseFloat(localStorage.getItem('earnings')) || 5;
         document.getElementById('earnings').textContent = `Earnings: $${earnings.toFixed(2)}`;
 
+        // Initialize or get the current trial count
+        function initializeTracker() {
+            let count = localStorage.getItem('taskCount');
+            if (count === null) {
+                count = 1;
+                localStorage.setItem('taskCount', count);
+            }
+            return parseInt(count);
+        }
+
+        let currentTrial = initializeTracker();
+
+        // Save task selection data
+        function saveTaskData() {
+            const now = new Date();
+            const dateStr = now.toISOString().split('T')[0].replace(/-/g, '');
+            const timeStr = now.toTimeString().substring(0, 8).replace(/:/g, '');
+            
+            const selectedTask = localStorage.getItem('selectedTask');
+            const taskChoice = selectedTask ? parseInt(selectedTask.slice(-1)) : null; // 1, 2, or 3
+            
+            // Get all attributes for all roles
+            const deliveryAttrs = data.datasets[0].data.map(Number);
+            const inspectionAttrs = data.datasets[1].data.map(Number);
+            const assemblingAttrs = data.datasets[2].data.map(Number);
+            
+            const currentData = {
+                trial: currentTrial,
+                participantId: participantId,
+                date: dateStr,
+                time: timeStr,
+                stakeType: stakeType,
+                choice: taskChoice, // Now saving as number (1, 2, or 3)
+                timeSpent: seconds,
+                earnings: earnings,
+                // All attributes for all roles
+                Delivery_Efficiency: deliveryAttrs[0],
+                Delivery_Speed: deliveryAttrs[1],
+                Delivery_Safety: deliveryAttrs[2],
+                Delivery_Durability: deliveryAttrs[3],
+                Delivery_Skill: deliveryAttrs[4],
+                Inspection_Efficiency: inspectionAttrs[0],
+                Inspection_Speed: inspectionAttrs[1],
+                Inspection_Safety: inspectionAttrs[2],
+                Inspection_Durability: inspectionAttrs[3],
+                Inspection_Skill: inspectionAttrs[4],
+                Assembly_Efficiency: assemblingAttrs[0],
+                Assembly_Speed: assemblingAttrs[1],
+                Assembly_Safety: assemblingAttrs[2],
+                Assembly_Durability: assemblingAttrs[3],
+                Assembly_Skill: assemblingAttrs[4]
+            };
+            
+            let allTaskData = JSON.parse(localStorage.getItem('allTaskData'));
+            allTaskData.push(currentData);
+            localStorage.setItem('allTaskData', JSON.stringify(allTaskData));
+            
+            // Increment trial counter
+            currentTrial++;
+            localStorage.setItem('taskCount', currentTrial);
+        }
+
+        // Download all task data as CSV
+        function downloadAllTaskData() {
+            const allTaskData = JSON.parse(localStorage.getItem('allTaskData'));
+            const participantId = localStorage.getItem('participantId') || 'unknown';
+            
+            if (allTaskData.length === 0) return;
+            
+            // Build CSV header
+            let csvContent = "Trial,ParticipantID,DateTime,StakeType,Choice,TimeSpent,Earnings,";
+            csvContent += "Delivery_Efficiency,Delivery_Speed,Delivery_Safety,Delivery_Durability,Delivery_Skill,";
+            csvContent += "Inspection_Efficiency,Inspection_Speed,Inspection_Safety,Inspection_Durability,Inspection_Skill,";
+            csvContent += "Assembly_Efficiency,Assembly_Speed,Assembly_Safety,Assembly_Durability,Assembly_Skill\n";
+            
+            // Add each trial's data
+            allTaskData.forEach((trialData) => {
+                csvContent += `${trialData.trial},${trialData.participantId},${trialData.date}${trialData.time},`;
+                csvContent += `${trialData.stakeType},${trialData.choice},${trialData.timeSpent},${trialData.earnings},`;
+                // Delivery attributes
+                csvContent += `${trialData.Delivery_Efficiency},${trialData.Delivery_Speed},${trialData.Delivery_Safety},`;
+                csvContent += `${trialData.Delivery_Durability},${trialData.Delivery_Skill},`;
+                // Inspection attributes
+                csvContent += `${trialData.Inspection_Efficiency},${trialData.Inspection_Speed},${trialData.Inspection_Safety},`;
+                csvContent += `${trialData.Inspection_Durability},${trialData.Inspection_Skill},`;
+                // Assembly attributes
+                csvContent += `${trialData.Assembly_Efficiency},${trialData.Assembly_Speed},${trialData.Assembly_Safety},`;
+                csvContent += `${trialData.Assembly_Durability},${trialData.Assembly_Skill}\n`;
+            });
+
+            // Download CSV
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `${allTaskData[0].date}-${participantId}-All_Performance_Data.csv`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // Clear the stored data
+            localStorage.removeItem('allTaskData');
+            localStorage.removeItem('taskCount');
+        }
+
         // Check earnings threshold
         function checkEarningsThreshold() {
             if (earnings >= 50) {
                 setTimeout(() => {
+                    saveTaskData(); // Save the final trial data
+                    downloadAllTaskData(); // Download all accumulated data
                     localStorage.setItem('earnings', '0'); // Reset earnings
                     window.location.href = "Task-Review.html";
                 }, 1000);
@@ -206,13 +319,20 @@
                 localStorage.setItem('earnings', earnings.toFixed(2));
                 
                 // Store performance data
-                const performanceData = JSON.parse(localStorage.getItem('performanceData'));
+                const performanceData = JSON.parse(localStorage.getItem('performanceData')) || {
+                    Delivery: { low: [], high: [] },
+                    Inspection: { low: [], high: [] },
+                    Assembling: { low: [], high: [] }
+                };
+
+                // When saving performance data:
                 performanceData[taskType][stakeType].push({
                     attributes: taskData.map(parseFloat),
                     time: seconds,
                     earnings: newEarnings,
                     timestamp: new Date().toISOString()
                 });
+
                 localStorage.setItem('performanceData', JSON.stringify(performanceData));
                 
                 // Store individual attributes
@@ -221,11 +341,15 @@
                     localStorage.setItem(`time_${label.toLowerCase()}_${stakeType}`, seconds);
                 });
                 
+                // Save the task selection data
+                saveTaskData();
+                
                 localStorage.removeItem('selectedTask');
                 checkEarningsThreshold();
             }
         }
 
+        // [Rest of the event listeners and timer code remains the same]
         // Event listeners
         document.querySelectorAll('input[name="task"]').forEach(radio => {
             radio.addEventListener('change', () => {

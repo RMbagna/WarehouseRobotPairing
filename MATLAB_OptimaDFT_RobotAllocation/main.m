@@ -43,22 +43,25 @@ robot_states = data{:, {'energy', 'pace', 'safety', 'reliability', 'computationa
 task_attributes = data{:, {'efficiency', 'speed', 'safety', 'durability', 'skill'}};
 
 %% Step 2: Python Bridge to Apollo for Parameter Estimation
-% (reference apolloMain_4 as backup for parameter estimation; reference apolloMain_3 as backup for ploting preference dynamics and choice probability)
 disp('Initializing Python bridge to Apollo...');
-py.importlib.import_module('apollo_bridge'); % Import the Apollo Python script
+py.importlib.import_module('apollo_Bridge');  % Ensure this matches the filename exactly
 
-% Prepare data for Python
-csv_file_path = robotChoice_Data; % Path to the same CSV file
-params = py.apollo_bridge.estimate_parameters(csv_file_path); % Call Apollo estimation function
-disp('Static parameters estimated:');
-disp(params);
+% Convert MATLAB table to file
+writetable(robotChoice_Data, 'testTrial_Bounding_Overwatch.csv');
+disp('Data written to testTrial_Bounding_Overwatch.csv');
 
-% Extract returned parameters (ensure consistent format)
-phi1 = double(params{1});
-phi2 = double(params{2});
-tau = double(params{3});
-error = double(params{4});
+% Call Apollo estimation via Python
+params = py.apollo_Bridge.estimate_parameters('testTrial_Bounding_Overwatch.csv');
 
+% Extract estimated values
+phi1    = double(params{'phi1'});
+phi2    = double(params{'phi2'});
+tau     = 1 + exp(double(params{'timesteps'})); % from DFT spec
+error   = double(params{'error_sd'});
+
+disp('Estimated Static Parameters:');
+disp(['phi1 = ', num2str(phi1), ', phi2 = ', num2str(phi2), ...
+      ', tau = ', num2str(tau), ', error_sd = ', num2str(error)]);
 %% Step 3: MDFT Formulation to Calculate Preference Dynamics
 % (MDFT calculations based on estimated parameters)
 % Example parameters
