@@ -128,6 +128,6 @@ solutions = struct();
 solutions.P_final = double([sol.x1; sol.x2; sol.x3; sol.x4; sol.x5; 
                           sol.x6; sol.x7; sol.x8; sol.x9; sol.x10]);
 solutions.E_P_eq = double([sol.lambda1; sol.lambda2; sol.lambda3; sol.lambda4]);
-solutions.V_P_eq = double([sol.mu_vec1; sol.mu_vec2; sol.mu_vec3; sol.mu_vec4]);
+solutions.V_P_eq = diag(double([sol.mu_vec1; sol.mu_vec2; sol.mu_vec3; sol.mu_vec4]));
 
 end

@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Main Simulation Script with R Integration
+% Main Simulation Script for Resource Allocation Project with R Integration
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clc;
 clear all;
@@ -39,7 +39,7 @@ disp('Initializing R bridge...');
 % Configure paths
 rscript_path = 'C:\Program Files\R\R-4.4.2\bin\x64\Rscript.exe';
 r_script = 'G:\My Drive\myResearch\Research Experimentation\Apollo\apollo\example\DFT_Resource_Allocation.R';
-csvFile = 'G:\My Drive\myResearch\Research Experimentation\Apollo\apollo\data\WarehouseRobot_Pairing_Data\20250407-50951-All_Pairing_Data (4).csv';
+csvFile = 'G:\My Drive\myResearch\Research Experimentation\Apollo\apollo\data\WarehouseRobot_Pairing_Data\test_pairing_data.csv';
 outputDir = 'G:\My Drive\myResearch\Research Experimentation\Apollo\apollo\ResourceAllocation_Output';
 
 % Verify installations
@@ -207,7 +207,7 @@ end
 disp('=== Equilibrium Results ===');
 disp(['Final Preferences (P_final): ', num2str(P_final')]);
 disp(['Expected Preferences (E_P_eq): ', num2str(E_P_eq')]);
-disp(['Preference Variance (V_P_eq diagonal): ', num2str(diag(V_P_eq)')]);
+disp(['Preference Variance (V_P_eq diagonal): ', num2str(V_P_eq')]);
 
 %% Step 5: Output Results
 disp('Saving results to CSV...');
