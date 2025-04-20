@@ -1,91 +1,114 @@
-function [E_P, V_P, choice_probs] = calculateDFTdynamics(phi1, phi2, tau, epsilon, beta, M, initial_P)
+function [E_P, V_P, choice_probs, P_tau] = calculateDFTdynamics(phi1, phi2, tau, epsilon, beta, M, initial_P, w)
     % Inputs:
     % phi1 - sensitivity parameter
     % phi2 - memory parameter
     % tau - number of preference updating steps
-    % epsilon - noise parameter (standard deviation)
-    % beta - vector of attribute scaling coefficients [β1, β2, β3, ...]
-    % M - matrix of attribute values (alternatives × attributes)
-    % initial_P - initial preference vector (default zeros if not provided)
-    % Fixed Matrix Dimension Mismatch: Created I_Z (identity matrix matching Z's dimensions) instead of using I which might have been the wrong size.
-    % Simplified Probability Calculation: Replaced the multivariate normal CDF with a softmax approximation which is more numerically stable and doesn't require the Statistics Toolbox.
-    % Better Numerical Stability: Added scaling to the softmax calculation to prevent numerical overflow.
-    % Clearer Variable Naming: Used I_J for the J×J identity matrix to distinguish it from I_Z.
-    % Removed Complex L Matrix Construction: Simplified the choice probability calculation since the MVN approach was problematic.
-        
-    %% Setup and Initialization
-    [J, K] = size(M); % J alternatives, K attributes
+    % epsilon - noise parameter standard deviation (σ_ε)
+    % beta - vector of attribute scaling coefficients [β1, β2, ..., βK]
+    % M - matrix of attribute values [J alternatives × K attributes]
+    % initial_P - initial preference vector [J×1] (optional, default zeros)
+    % w - attention weights vector [K×1] (optional, default uniform)
     
-    % Validate beta dimensions
-    if numel(beta) ~= K
-        error('Number of beta coefficients (%d) must match number of attributes (%d) in M', numel(beta), K);
-    end
-    beta = beta(:)'; % Ensure beta is a row vector
+    %% Initialization and Validation
+   tau = max(1, round(tau));  % ensure tau is integer
+
+    [J, K] = size(M);
+    beta = beta(:)'; % Ensure beta is row vector
     
-    % Set default initial preferences if not provided
     if nargin < 7 || isempty(initial_P)
-        initial_P = zeros(J, 1);
+        initial_P = zeros(J, 1); % Default zero initial preferences
     end
     
-    % Attribute weights (assuming equal probability if not estimated)
-    w = ones(K, 1) / K; % Equal weights for each attribute
+    if nargin < 8 || isempty(w)
+        w = ones(K, 1)/K; % Uniform attention weights if not provided
+    else
+        w = w(:)/sum(w); % Ensure normalization
+    end
     
-    %% Scale the attribute matrix with beta coefficients
-    M_scaled = M .* repmat(beta, J, 1); % Scale each attribute by its beta
+    %% Core DFT Calculations
     
-    %% Calculate Contrast Matrix C
+    % 1. Scale attributes by beta coefficients
+    M_scaled = M .* beta;
+    
+    % 2. Create contrast matrix C (J×J)
     C = eye(J) - ones(J)/J;
     
-    %% Calculate Distance Matrix D and Feedback Matrix S
-    D = zeros(J, J);
+    % 3. Calculate distance matrix D (J×J)
+    D = zeros(J);
     for i = 1:J
         for j = 1:J
-            D(i,j) = sum((M_scaled(i,:) - M_scaled(j,:)).^2);
+            D(i,j) = sqrt(sum((M_scaled(i,:) - M_scaled(j,:)).^2));
         end
     end
     
-    S = eye(J) - phi2 * exp(-phi1 * D);
-    
-    %% Calculate Mean Valence μ
+    % 4. Compute feedback matrix S (J×J)
+    S = eye(J) - phi2 * exp(-phi1 * (D.^2));
+      
+    % 5. Calculate mean valence μ (J×1)
     mu = C * M_scaled * w;
     
-    %% Calculate Covariance of Valence Φ
-    Psi = diag(w) - w * w';
-    Phi = C * M_scaled * Psi * M_scaled' * C' + epsilon^2 * eye(J);
+    % 6. Compute valence covariance Φ (J×J)
+    Psi = diag(w) - w*w'; % K×K matrix
+    Phi_part = C * M_scaled * (beta' .* Psi); % J×K * K×K = J×K
+    Phi = Phi_part * (M_scaled' * C') + (epsilon^2 * eye(J));
     
-    %% Calculate Expected Preference E[P_tau] = ξ
-    I_J = eye(J); % Identity matrix of size J×J
-    if phi2 == 0
+    %% Preference State Evolution
+    
+    % 7. Expected preference after τ steps (ξ)
+    I = eye(J);
+    if phi2 == 0 % No memory case
         E_P = tau * mu + initial_P;
+        V_P = tau * Phi;
     else
-        E_P = (I_J - S) \ (I_J - S^tau) * mu + S^tau * initial_P;
+        E_P = (I - S) \ (I - S^tau) * mu + S^tau * initial_P;
+        
+        % 8. Preference covariance (Ω)
+        V_P = zeros(J);
+        for r = 0:(tau-1)
+            V_P = V_P + (S^r) * Phi * (S')^r;
+        end
     end
     
-    %% Calculate Covariance of Preference Cov[P_tau] = Ω
-    Phi_vec = reshape(Phi, J^2, 1);
-    Z = kron(S, S);
-    
-    % Create identity matrix of appropriate size for Z
-    I_Z = eye(size(Z));
-    
-    if phi2 == 0
-        V_P_vec = tau * Phi_vec;
-    else
-        % More robust calculation with proper matrix sizes
-        V_P_vec = (I_Z - Z) \ (I_Z - Z^tau) * Phi_vec;
+    % 9. Simulate full preference state evolution
+    P_tau = zeros(J, tau+1);
+    P_tau(:,1) = initial_P;
+    for step = 1:tau
+        % Random attention (one-hot vector)
+        att = zeros(K,1);
+        att(randsample(K,1,true,w)) = 1;
+        
+        % Valence vector with noise
+        V = C * M_scaled * att + epsilon*randn(J,1);
+        
+        % Update preference state
+        P_tau(:,step+1) = S * P_tau(:,step) + V;
     end
     
-    V_P = reshape(V_P_vec, J, J);
+    %% Choice Probability Calculation
     
-    %% Calculate Choice Probabilities (simplified implementation)
-    choice_probs = zeros(J, 1);
+    % 10. Softmax approximation (for J < 5)
+    if J <= 4
+        % Simple softmax for small J
+        scaled_E = (E_P - mean(E_P))/(epsilon + eps);
+        choice_probs = exp(scaled_E)/sum(exp(scaled_E));
+    else
+        % MVN integration for larger J (requires stats toolbox)
+        try
+            R = chol(V_P); % Cholesky decomposition
+            Z = repmat(E_P,1,1e5) + R'*randn(J,1e5);
+            [~,maxIdx] = max(Z);
+            choice_probs = histcounts(maxIdx,1:J+1)'/1e5;
+        catch
+            warning('MVN integration failed, using simple softmax');
+            choice_probs = softmax(E_P/epsilon);
+        end
+    end
     
-    % Calculate using softmax approximation (more stable than MVN for small J)
-    % This avoids the need for mvncdf which can be numerically unstable
-    scaled_E = E_P - max(E_P); % For numerical stability
-    exp_E = exp(scaled_E);
-    choice_probs = exp_E / sum(exp_E);
-    
-    % Ensure probabilities sum to 1 (handle potential numerical issues)
-    choice_probs = choice_probs / sum(choice_probs);
+    % Ensure probabilities sum to 1
+    choice_probs = choice_probs/sum(choice_probs);
+end
+
+function s = softmax(x)
+    e = exp(x - max(x));
+    s = e/sum(e);
 end

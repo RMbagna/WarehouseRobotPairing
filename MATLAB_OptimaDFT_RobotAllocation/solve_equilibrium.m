@@ -78,7 +78,10 @@ function solutions = solve_equilibrium(Ep_mins, Varp_mins, x_mins)
 
     gradF_x = F_x(x);
     gradF_x_plus = F_x(x_plus);
-    gradG_r = G_r(y);
+    
+    % Evaluate y at current x to get numeric values for gradG_r calculation
+    y_value = y(x);
+    gradG_r = G_r(y_value);
 
     % === Human preference uncertainty ===
     Sigma_y = Varp_mins;
@@ -88,7 +91,13 @@ function solutions = solve_equilibrium(Ep_mins, Varp_mins, x_mins)
     D_tau = [D_const; zeros(nx+ny-1,1)];
     D_tau1 = D_tau;
 
-    y_prev = [P1; P2];
+    y_prev = @(x) [P1(x); P2(x)];  % Single function handle that evaluates both
+
+    % Evaluate y_prev at current x
+    y_prev_evaluated = y_prev(x);
+
+    % Evaluate y at current x (y is h(x))
+    y_evaluated = y(x);
 
     % === ∇L multiplier block ===
     block_top = [barA; zeros(nx, ny)']';
@@ -101,11 +110,11 @@ function solutions = solve_equilibrium(Ep_mins, Varp_mins, x_mins)
           [barA; zeros(nx, ny)']' * mu_vec);
     eq3 = -(barL' * lambda);
     eq4 = -(barL' * mu_vec);
-    eq5 = [barA * x; barB * y_prev] + barL * alpha_vec + D_tau;
-    eq6 = [barA * x_plus; barB * y] + barL * beta_vec + D_tau1;
+    eq5 = [barA * x; barB * y_prev_evaluated] + barL * alpha_vec + D_tau;
+    eq6 = [barA * x_plus; barB * y_evaluated] + barL * beta_vec + D_tau1;
 
     % === Solve ===
-    solutions = solve([eq1 == 0;
+    sol = solve([eq1 == 0;
                        eq2 == 0;
                        eq3 == 0;
                        eq4 == 0;
@@ -113,4 +122,12 @@ function solutions = solve_equilibrium(Ep_mins, Varp_mins, x_mins)
                        eq6 == 0], ...
                        [x; x_plus; alpha_vec; beta_vec; lambda; mu_vec], ...
                        'Real', true);
+
+% Convert symbolic solutions to numeric
+solutions = struct();
+solutions.P_final = double([sol.x1; sol.x2; sol.x3; sol.x4; sol.x5; 
+                          sol.x6; sol.x7; sol.x8; sol.x9; sol.x10]);
+solutions.E_P_eq = double([sol.lambda1; sol.lambda2; sol.lambda3; sol.lambda4]);
+solutions.V_P_eq = double([sol.mu_vec1; sol.mu_vec2; sol.mu_vec3; sol.mu_vec4]);
+
 end

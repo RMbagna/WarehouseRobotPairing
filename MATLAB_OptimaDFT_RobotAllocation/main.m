@@ -1,31 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Simulation Setup:
-%
-% This script reads  data from robot allocation experiment as CSV file.
-% This then references python bridge to apollo to estimate static
-% parameters for dataset. Using the parameters, we formulate DFT Preference
-% dynamic and determine, E(P), V(P), with respect to robot states (x_i). We
-% then reference 'solve_equilibrium' function to predict human choice for
-% component produced.
-%
-% - The autonomous agents are responsible for producing component types 1 and 2;
-% - The human agents are responsible for producing component types 3 and 4.
-%
-% At each macro-level time step τ, the human preference state P_tau evolves 
-% slowly over time and is modeled internally using Decision Field Theory (DFT).
-% At a given τ, we assume the following human response statistics are available:
-%
-%   - E[y_k] = r_k(P_{kc,τ}), representing the expected behavioral response
-%     of the human agent based on their internal preference state;
-%   - Var[y_k] = σ_k², representing the uncertainty in the human response.
-%
-% During the continuous-time interval from τ to τ+1, we assume P_tau remains 
-% fixed—that is, human preferences do not change during this interval.
-%
-% Under this setting, we simulate the optimization process of the autonomous 
-% agents over [τ, τ+1], during which they continuously update their production 
-% states x_i to respond to uncertain human feedback and achieve optimal 
-% resource allocation across the system.
+% Main Simulation Script with R Integration
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clc;
 clear all;
@@ -36,7 +10,7 @@ clear all;
 % disp('User bias data imported successfully.');
 % taskChoice_Data = readtable('user_choices.csv'); % Replace with the path to your data file
 % disp('User task choice data imported successfully.');
-robotChoice_Data = readtable('G:\\My Drive\\myResearch\\Research Experimentation\\Apollo\\apollo\\data\\WarehouseRobot_Pairing_Data\\test_pairing_data.csv'); % Replace with the path to your data file
+robotChoice_Data = readtable('G:\My Drive\myResearch\Research Experimentation\Apollo\apollo\data\WarehouseRobot_Pairing_Data\20250407-50951-All_Pairing_Data (4).csv');
 disp('User robot choice data imported successfully.');
 
 % Extract relevant data (modify based on your CSV structure)
@@ -44,27 +18,13 @@ disp('User robot choice data imported successfully.');
 
 % Extract and organize robot states for all three alternatives
 robot_states = struct();
-
-% For Robot 1
-robot_states.robot1.energy = robotChoice_Data.robot1energy;
-robot_states.robot1.pace = robotChoice_Data.robot1pace;
-robot_states.robot1.safety = robotChoice_Data.robot1safety;
-robot_states.robot1.reliability = robotChoice_Data.robot1reliability;
-robot_states.robot1.intelligence = robotChoice_Data.robot1intelligence;
-
-% For Robot 2
-robot_states.robot2.energy = robotChoice_Data.robot2energy;
-robot_states.robot2.pace = robotChoice_Data.robot2pace;
-robot_states.robot2.safety = robotChoice_Data.robot2safety;
-robot_states.robot2.reliability = robotChoice_Data.robot2reliability;
-robot_states.robot2.intelligence = robotChoice_Data.robot2intelligence;
-
-% For Robot 3
-robot_states.robot3.energy = robotChoice_Data.robot3energy;
-robot_states.robot3.pace = robotChoice_Data.robot3pace;
-robot_states.robot3.safety = robotChoice_Data.robot3safety;
-robot_states.robot3.reliability = robotChoice_Data.robot3reliability;
-robot_states.robot3.intelligence = robotChoice_Data.robot3intelligence;
+attributes = {'energy','pace','safety','reliability','intelligence'};
+for i = 1:3
+    for attr = attributes
+        robot_states.(['robot' num2str(i)]).(attr{1}) = ...
+            robotChoice_Data.(['robot' num2str(i) attr{1}]);
+    end
+end
 
 % Extract choice data and other metadata
 choices = robotChoice_Data.choice;
@@ -73,97 +33,175 @@ trial_numbers = robotChoice_Data.trial;
 stake_types = robotChoice_Data.staketype;
 time_spent = robotChoice_Data.timespent;
 
-%% Step 2: Alternative Python Bridge Implementation
-disp('Initializing Python bridge (alternative approach)...');
+%% Step 2: R Bridge Implementation
+disp('Initializing R bridge...');
 
-% 1. Configure paths
-pythonExe = 'C:\\Users\\Ryan\\AppData\\Local\\Programs\\Python\\Python311\\python.exe'; % MUST UPDATE TO YOUR PATH
-pythonScript = 'apollo_Bridge.py';
-csvFile = 'testTrial_Resource_Allocation_AllPairing.csv';
+% Configure paths
+rscript_path = 'C:\Program Files\R\R-4.4.2\bin\x64\Rscript.exe';
+r_script = 'G:\My Drive\myResearch\Research Experimentation\Apollo\apollo\example\DFT_Resource_Allocation.R';
+csvFile = 'G:\My Drive\myResearch\Research Experimentation\Apollo\apollo\data\WarehouseRobot_Pairing_Data\20250407-50951-All_Pairing_Data (4).csv';
+outputDir = 'G:\My Drive\myResearch\Research Experimentation\Apollo\apollo\ResourceAllocation_Output';
 
-% 2. Verify files exist
-if ~isfile(pythonExe)
-    error('Python executable not found at: %s', pythonExe);
+% Verify installations
+if ~isfile(rscript_path)
+    error('Rscript.exe not found at: %s', rscript_path); 
+elseif ~isfile(r_script)
+    error('R script not found at: %s', r_script);
+elseif ~isfile(csvFile)
+    error('Input CSV not found at: %s', csvFile);
+elseif ~isfolder(outputDir)
+    warning('Output folder does not exist, creating: %s', outputDir);
+    mkdir(outputDir);
 end
-if ~isfile(pythonScript)
-    error('Python script not found: %s', pythonScript);
-end
 
-% 3. Prepare data file
-writetable(robotChoice_Data, csvFile);
-
-% 4. Execute Python
+% Execute R with JSON output
 try
-    cmd = sprintf('"%s" "%s" "%s"', pythonExe, pythonScript, csvFile);
-    [status, result] = system(cmd);
+    % Use proper argument formatting
+    cmd = sprintf(['"%s" "%s" ', ...
+               '-i "%s" -o "%s"'], ...
+               rscript_path, r_script, csvFile, outputDir);
+
+[status,result] = system(cmd);
     
     if status == 0
-        % Parse JSON output
-        params = jsondecode(result);
+        % Handle output path (whether directory or file)
+        if isfolder(outputDir)
+            jsonFile = fullfile(outputDir, 'DFT_output.json');
+        else
+            jsonFile = outputDir;
+        end
         
-        % Your original parameter extraction
-        phi1    = params.phi1;
-        phi2    = params.phi2;
-        tau     = 1 + exp(params.timesteps);
-        error   = params.error_sd;
-
-        disp('Estimated Static Parameters:');
-        disp(['phi1 = ', num2str(phi1), ', phi2 = ', num2str(phi2), ...
-              ', tau = ', num2str(tau), ', error_sd = ', num2str(error)]);
+        % Parse JSON output
+        if exist(jsonFile, 'file')
+            jsonText = fileread(jsonFile);
+            params = jsondecode(jsonText);
+            
+            % Extract parameters with validation
+            phi1 = validateParam(params, 'phi1', 0.5);
+            phi2 = validateParam(params, 'phi2', 0.8);
+            tau = 1 + exp(validateParam(params, 'timesteps', 0.5));
+            error_sd = validateParam(params, 'error_sd', 0.1);
+            
+            % Extract attribute weights
+            beta_weights = [
+                params.b_energy;
+                params.b_pace;
+                params.b_safety;
+                params.b_reliability;
+                params.b_intelligence
+            ];
+            
+            % Get initial preferences from ASCs
+            initial_P = [
+                params.asc_1;
+                params.asc_2;
+                params.asc_3;
+                0  % Neutral alternative has 0 initial preference
+            ];
+            
+            disp('Estimated Parameters:');
+            disp(['phi1: ', num2str(phi1)]);
+            disp(['phi2: ', num2str(phi2)]);
+            disp(['tau: ', num2str(tau)]);
+            disp(['error_sd: ', num2str(error_sd)]);
+            disp('Initial Preferences (from ASCs):');
+            disp(initial_P');
+        else
+            error('R output file not found');
+        end
     else
-        error('Python execution failed: %s', result);
+        error('R execution failed: %s', result);
     end
-    
 catch ME
-    disp('Error during Python execution:');
-    disp(getReport(ME, 'basic'));
-    
-    % Fallback to example parameters
-    phi1 = 0.5;
-    phi2 = 0.8;
-    tau = 10;
-    error = 0.1;
-    warning('Using default parameters due to Python error');
+    disp('Error during R execution:');
+    disp(getReport(ME, 'extended'));
+    [phi1, phi2, tau, error_sd] = getFallbackParams();
+    beta_weights = [0.3; 0.2; 0.4; 0; 0.5]; % Default weights
+    initial_P = zeros(4,1); % Neutral initial preferences
 end
+
 %% Step 3: MDFT Formulation to Calculate Preference Dynamics
 % (MDFT calculations based on estimated parameters)
+current_trial = 1; % Analyze first trial (can be looped later)
 
-% Define 4 alternatives × 2 attributes (e.g., efficiency, safety)
-M = [5.0, 1.0;    % Alt 1: High efficiency, low safety
-     3.0, 4.0;    % Alt 2: Balanced
-     1.0, 5.0;    % Alt 3: Low efficiency, high safety
-     2.0, 2.0];   % Alt 4: Neutral
+% Create M matrix from current trial's attributes
+M = [
+    robotChoice_Data.robot1energy(current_trial), ...
+    robotChoice_Data.robot1pace(current_trial), ...
+    robotChoice_Data.robot1safety(current_trial), ...
+    robotChoice_Data.robot1reliability(current_trial), ...
+    robotChoice_Data.robot1intelligence(current_trial);
+    
+    robotChoice_Data.robot2energy(current_trial), ...
+    robotChoice_Data.robot2pace(current_trial), ...
+    robotChoice_Data.robot2safety(current_trial), ...
+    robotChoice_Data.robot2reliability(current_trial), ...
+    robotChoice_Data.robot2intelligence(current_trial);
+    
+    robotChoice_Data.robot3energy(current_trial), ...
+    robotChoice_Data.robot3pace(current_trial), ...
+    robotChoice_Data.robot3safety(current_trial), ...
+    robotChoice_Data.robot3reliability(current_trial), ...
+    robotChoice_Data.robot3intelligence(current_trial);
+    
+    0.5*ones(1,5) % Neutral alternative
+];
 
-beta = [1.2; 0.8]; % Attribute weights (2×1)
+% Normalize beta weights
+beta = beta_weights ./ sum(abs(beta_weights));
 
-% Calculate DFT dynamics (outputs E_P 4×1, V_P 4×4)
-[E_P, V_P, probs] = calculateDFTdynamics(phi1, phi2, tau, epsilon, beta, M);
+% Calculate DFT dynamics with initial preferences
+[E_P, V_P, probs, P_tau] = calculateDFTdynamics(...
+    phi1, phi2, tau, error_sd, beta, M, initial_P);
 
-disp('E_P (4×1):'); disp(E_P');
-disp('V_P (4×4):'); disp(V_P);
-disp('Choice probs:'); disp(probs');
+% Display results
+disp('=== Current Trial Analysis ===');
+disp(['Trial: ', num2str(current_trial)]);
+disp(['Participant: ', num2str(participant_ids(current_trial))]);
+disp(['Actual Choice: Robot ', num2str(choices(current_trial))]);
+
+disp('M matrix (alternatives × attributes):');
+disp(array2table(M, ...
+    'RowNames', {'Robot1','Robot2','Robot3','Neutral'}, ...
+    'VariableNames', attributes));
+
+disp('DFT Results:');
+disp(['E_P: ', num2str(E_P')]);
+disp(['Choice probabilities: ', num2str(probs')]);
+disp(['Actual choice: Robot ', num2str(choices(current_trial))]);
+
+% Plot preference evolution
+figure;
+plot(0:tau, P_tau);
+xlabel('Preference Step (\tau)');
+ylabel('Preference Strength');
+legend({'Robot1','Robot2','Robot3','Neutral'});
+title(sprintf('Preference Evolution (Trial %d)', current_trial));
+grid on;
 
 %% Step 4: Solve Equilibrium Function
-% Example robot states (10-dimensional vector, nx=10)
-% Format: [x1, x2, ..., x10] where each xi ∈ [0,1]
-robot_states = [0.2;  % x1: Robot 1's energy allocation
-                0.1;  % x2: Robot 2's pace adjustment
-                0.5;  % x3: Robot 3's safety level
-                0.1;  % x4: Robot 4's reliability
-                0.6;  % x5: Robot 5's computational load
-                0.4;  % x6: Robot 6's efficiency
-                0.7;  % x7: Robot 7's speed
-                0.1;  % x8: Robot 8's durability
-                0.9;  % x9: Shared battery usage
-                0.2]; % x10: Shared network bandwidth
+% Example robot states (10-dimensional vector, nx=10) where each xi ∈ [0,1]
 
 % Use DFT outputs for equilibrium calculation
 Ep_mins = E_P;       % 4×1 expected preferences from DFT
 Varp_mins = V_P;     % 4×4 preference covariance from DFT
-x_mins = robot_states; % 10×1 robot state vector
+x_mins = robot_states.robot2.intelligence; % 10×1 robot state vector
 
 % Call equilibrium solver
-[P_final, E_P_eq, V_P_eq] = solve_equilibrium(Ep_mins, Varp_mins, x_mins);
+solutions = solve_equilibrium(Ep_mins, Varp_mins, x_mins);
+
+% Extract solutions (works with both old and new versions)
+if isfield(solutions, 'x')
+    % Old version field names
+    P_final = solutions.x;
+    E_P_eq = solutions.lambda;
+    V_P_eq = solutions.mu_vec;
+else
+    % New version field names
+    P_final = solutions.P_final;
+    E_P_eq = solutions.E_P_eq;
+    V_P_eq = solutions.V_P_eq;
+end
 
 % Display results
 disp('=== Equilibrium Results ===');
@@ -177,3 +215,20 @@ output_table = table(E_P, V_P, P_final, ...
                      'VariableNames', {'ExpectedPreference', 'VariancePreference', 'FinalPreferences'});
 writetable(output_table, 'results.csv');
 disp('Results saved successfully!');
+%% Helper Functions
+function param = validateParam(params, name, default)
+    if isfield(params, name) && isnumeric(params.(name))
+        param = params.(name);
+    else
+        warning('Using default for %s', name);
+        param = default;
+    end
+end
+
+function [phi1, phi2, tau, error_sd] = getFallbackParams()
+    phi1 = 0.5 + 0.1*randn();
+    phi2 = 0.8 + 0.1*randn();
+    tau = 10 + randi(5);
+    error_sd = 0.1 + 0.05*rand();
+    warning('Using randomized default parameters');
+end
