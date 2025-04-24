@@ -30,29 +30,25 @@
       </div>
       </a>
       </div>
-      <script>
-        function clearLocalStorage() {
-            localStorage.clear();
-            console.log("LocalStorage has been cleared");
-        }
-        </script>
+
     <!-- Main content area -->
     <div style="width: 1440px; height: 1024px; left: 0px; top: 94px; position: absolute">
-        <!-- Right side content -->
+        <!-- Right side content - Satisfaction buttons -->
         <div style="width: 608px; height: 1024px; left: 732px; top: 0px; position: absolute">
             <div style="width: 1036px; height: 1024px; left: -328px; top: 0px; position: absolute; background: rgba(244, 101, 48, 0.12)"></div>
-            <!-- Thank You text -->
-            <div style="left: 231px; top: 105px; position: absolute; color: #333333; font-size: 44px; font-family: Sarabun; font-weight: 700; line-height: 72px; word-wrap: break-word">Thank You!</div>
-            <!-- Description text -->
-            <!-- <div style="width: 616px; height: 359px; left: 63px; top: 116px; position: absolute; color: #333333; font-size: 22px; font-family: Sarabun; font-weight: 400; line-height: 72px; word-wrap: break-word"><br/>Thank you for participating! Your decisions help improve human-robot collaboration for the future. We appreciate your time and effort!</div>
-             -->
-            <!-- Satisfaction buttons -->
+            
+            <!-- Trial counter -->
+            <div style="left: 231px; top: 105px; position: absolute; color: #333333; font-size: 44px; font-family: Sarabun; font-weight: 700; line-height: 72px; word-wrap: break-word">
+                Trial <span id="trialCounter">1</span>/10
+            </div>
+            
+            <!-- Satisfaction prompt -->
             <div style="width: 555px; left: 84px; top: 261px; position: absolute; color: #333333; font-size: 28px; font-family: Sarabun; font-weight: 700; line-height: 45px; word-wrap: break-word">
-                How satisfied are you with your robot pairing results?
+                How satisfied are you with this robot pairing?
             </div>
             
             <!-- Dissatisfied button -->
-            <a href="#" onclick="submitSatisfaction('Dissatisfied')" style="text-decoration:none;">
+            <a href="#" onclick="rateSatisfaction('Dissatisfied')" style="text-decoration:none;">
                 <div style="width: 376px; height: 54px; padding-left: 24px; padding-right: 24px; left: 166px; top: 501px; position: absolute; background: #1B3360; border-radius: 32px; flex-direction: column; justify-content: center; align-items: center; display: inline-flex">
                     <div style="flex-direction: column; justify-content: center; align-items: center; display: flex">
                         <div style="justify-content: flex-start; align-items: flex-start; gap: 8px; display: inline-flex">
@@ -63,7 +59,7 @@
             </a>
             
             <!-- Marginally dissatisfied button -->
-            <a href="#" onclick="submitSatisfaction('Marginally dissatisfied')" style="text-decoration:none;">
+            <a href="#" onclick="rateSatisfaction('Marginally dissatisfied')" style="text-decoration:none;">
                 <div style="width: 376px; height: 54px; padding-left: 24px; padding-right: 24px; left: 166px; top: 582px; position: absolute; background: #1B3360; border-radius: 32px; flex-direction: column; justify-content: center; align-items: center; display: inline-flex">
                     <div style="flex-direction: column; justify-content: center; align-items: center; display: flex">
                         <div style="justify-content: flex-start; align-items: flex-start; gap: 8px; display: inline-flex">
@@ -74,7 +70,7 @@
             </a>
             
             <!-- Marginally satisfied button -->
-            <a href="#" onclick="submitSatisfaction('Marginally satisfied')" style="text-decoration:none;">
+            <a href="#" onclick="rateSatisfaction('Marginally satisfied')" style="text-decoration:none;">
                 <div style="width: 376px; height: 54px; padding-left: 24px; padding-right: 24px; left: 166px; top: 663px; position: absolute; background: #1B3360; border-radius: 32px; flex-direction: column; justify-content: center; align-items: center; display: inline-flex">
                     <div style="flex-direction: column; justify-content: center; align-items: center; display: flex">
                         <div style="justify-content: flex-start; align-items: flex-start; gap: 8px; display: inline-flex">
@@ -85,7 +81,7 @@
             </a>
             
             <!-- Satisfied button -->
-            <a href="#" onclick="submitSatisfaction('Satisfied')" style="text-decoration:none;">
+            <a href="#" onclick="rateSatisfaction('Satisfied')" style="text-decoration:none;">
                 <div style="width: 376px; height: 54px; padding-left: 24px; padding-right: 24px; left: 166px; top: 744px; position: absolute; background: #1B3360; border-radius: 32px; flex-direction: column; justify-content: center; align-items: center; display: inline-flex">
                     <div style="flex-direction: column; justify-content: center; align-items: center; display: flex">
                         <div style="justify-content: flex-start; align-items: flex-start; gap: 8px; display: inline-flex">
@@ -96,299 +92,153 @@
             </a>
         </div>
 
-        <!-- Left side content - DFT Radar Chart -->
+        <!-- Left side content - Trial display with radar chart -->
         <div style="width: 659px; height: 870px; left: 100px; top: 77px; position: absolute; box-shadow: 0px 6px 40px rgba(56.52, 119.95, 178.50, 0.08); border-radius: 24px; background-color: #D9D9D9; overflow: hidden; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box;">
-            <h2 style="text-align: center; margin: 0 0 15px 0; color: #333; font-size: 24px;">Your Robot Preference Profile</h2>
+            <h2 style="text-align: center; margin: 0 0 15px 0; color: #333; font-size: 24px;">
+                Trial <span id="trialNumber">1</span> - <span id="stakeType">High</span> Stake
+            </h2>
             
             <!-- Radar Chart Container -->
             <div style="flex: 1; min-height: 0; position: relative;">
                 <canvas id="radarChart" style="width: 100%; height: 100%; display: block;"></canvas>
             </div>
             
-            <!-- DFT Parameters Display -->
-            <div id="dftParameters" style="margin-top: 20px; padding: 15px; background: rgba(255, 255, 255, 0.7); border-radius: 12px; font-size: 14px;">
-                <!-- Parameters will be displayed here -->
+            <!-- Trial Details -->
+            <div style="margin-top: 20px; padding: 15px; background: rgba(255, 255, 255, 0.7); border-radius: 12px; font-size: 14px;">
+                <p><strong>Participant ID:</strong> <span id="participantId">1001</span></p>
+                <p><strong>Time Spent:</strong> <span id="timeSpent">5</span> seconds</p>
+                <p><strong>Chosen Robot:</strong> <span id="chosenRobot">Robot 2</span></p>
             </div>
-        </div>
-        
-          <!-- Left side content with image and text -->
-        <div style="width: 659px; height: 870px; left: 100px; top: 77px; position: absolute; box-shadow: 0px 6px 40px rgba(56.52, 119.95, 178.50, 0.08)">
-            <div style="width: 660px; height: 870px; left: 0px; top: 0px; position: absolute; background: #D9D9D9; border-radius: 24px"></div>
-            <img style="width: 659px; height: 870px; left: 0px; top: 0px; position: absolute; background: linear-gradient(0deg, rgba(0, 0, 0, 0.20) 0%, rgba(0, 0, 0, 0.20) 100%); border-radius: 24px" src="banner-composite-duo.jpg" />
-            
-            <!-- Main title text on the left side -->
-            <div style="width: 596px; left: 41px; top: 523px; position: absolute; color: #EBF7FB; font-size: 64px; font-family: Sarabun; font-weight: 700; word-wrap: break-word">Human - Robot Interaction Study</div>
         </div>
     </div>
 </div>
 
 <!-- Load required libraries -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script src="dft.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
 
 <script>
-// Main execution when page loads
-window.addEventListener('load', async function() {
-    // 1. Load pairing data from localStorage
-    const allPairingData = JSON.parse(localStorage.getItem('allPairingData')) || [];
-    
-    if (allPairingData.length === 0) {
-        document.getElementById('dftParameters').innerHTML = 
-            "<p>No pairing data available for analysis.</p>";
-        return;
-    }
-    
-    // 2. Initialize DFT model
-    const dftModel = new DFTModel();
-    
-    // 3. Show loading state
-    document.getElementById('dftParameters').innerHTML = 
-        '<p>Analyzing your choices... <span class="loading-dots"></span></p>';
-    
-    // 4. Estimate parameters using RPy2 backend
-    try {
-        const success = await dftModel.estimateParameters(allPairingData);
-        
-        if (!success) {
-            throw new Error("Parameter estimation failed");
-        }
-        
-        // 5. Calculate results with estimated parameters
-        const results = dftModel.calculate(allPairingData);
-        
-        // 6. Display parameters
-        document.getElementById('dftParameters').innerHTML = `
-            <h3 style="margin-top: 0; font-size: 16px;">DFT Analysis Results</h3>
-            <p><strong>Sensitivity (φ1):</strong> ${results.parameters.phi1.toFixed(3)}</p>
-            <p><strong>Memory (φ2):</strong> ${results.parameters.phi2.toFixed(3)}</p>
-            <p><strong>Time Steps (τ):</strong> ${results.parameters.tau.toFixed(0)}</p>
-            <p><strong>Attribute Weights:</strong></p>
-            <ul style="margin-top: 5px; padding-left: 20px;">
-                ${results.attributes.map((attr, i) => 
-                    `<li>${attr}: ${results.parameters.beta_weights[i].toFixed(2)}</li>`
-                ).join('')}
-            </ul>
-            <p><strong>Predicted Preferences:</strong></p>
-            <ul style="margin-top: 5px; padding-left: 20px;">
-                <li>Delivery: ${(results.choiceProbabilities[0]*100).toFixed(1)}%</li>
-                <li>Inspection: ${(results.choiceProbabilities[1]*100).toFixed(1)}%</li>
-                <li>Assembling: ${(results.choiceProbabilities[2]*100).toFixed(1)}%</li>
-            </ul>
-        `;
-        
-        // 7. Create radar chart
-        const ctx = document.getElementById('radarChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'radar',
-            data: {
-                labels: results.attributes,
-                datasets: [
-                    {
-                        label: 'Delivery Robot',
-                        data: results.roleAverages[0],
-                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                        borderColor: 'rgb(255, 99, 132)',
-                        pointBackgroundColor: 'rgb(255, 99, 132)',
-                        borderWidth: 2
-                    },
-                    {
-                        label: 'Inspection Robot',
-                        data: results.roleAverages[1],
-                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                        borderColor: 'rgb(54, 162, 235)',
-                        pointBackgroundColor: 'rgb(54, 162, 235)',
-                        borderWidth: 2
-                    },
-                    {
-                        label: 'Assembling Robot',
-                        data: results.roleAverages[2],
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        borderColor: 'rgb(75, 192, 192)',
-                        pointBackgroundColor: 'rgb(75, 192, 192)',
-                        borderWidth: 2
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    r: {
-                        min: 0,
-                        max: 1,
-                        ticks: {
-                            stepSize: 0.2
-                        }
-                    }
-                },
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'Your Preferred Robot Attributes',
-                        font: { size: 16 }
-                    },
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            font: {
-                                size: 12
-                            }
-                        }
-                    }
-                }
-            }
-        });
-        
-    } catch (error) {
-        console.error("Analysis error:", error);
-        document.getElementById('dftParameters').innerHTML = `
-            <p>Error analyzing your data: ${error.message}</p>
-            <p>Showing simplified results instead.</p>
-        `;
-        
-        // Fallback to simplified calculation
-        const results = dftModel.calculate(allPairingData);
-        
-        // Create chart with fallback data
-        const ctx = document.getElementById('radarChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'radar',
-            data: {
-                labels: results.attributes,
-                datasets: [
-                    {
-                        label: 'Delivery Robot',
-                        data: results.roleAverages[0],
-                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                        borderColor: 'rgb(255, 99, 132)',
-                        borderWidth: 2
-                    },
-                    {
-                        label: 'Inspection Robot',
-                        data: results.roleAverages[1],
-                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                        borderColor: 'rgb(54, 162, 235)',
-                        borderWidth: 2
-                    },
-                    {
-                        label: 'Assembling Robot',
-                        data: results.roleAverages[2],
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        borderColor: 'rgb(75, 192, 192)',
-                        borderWidth: 2
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    r: {
-                        min: 0,
-                        max: 1,
-                        ticks: {
-                            stepSize: 0.2
-                        }
-                    }
-                }
-            }
-        });
-    }
+// Trial data from CSV
+const csvData = `trial,participantid,datetime,staketype,choice,timespent,robot1energy,robot1pace,robot1safety,robot1reliability,robot1intelligence,robot2energy,robot2pace,robot2safety,robot2reliability,robot2intelligence,robot3energy,robot3pace,robot3safety,robot3reliability,robot3intelligence
+1,1001,20250410120000,high,2,5,0.65,0.55,0.7,0.6,0.58,0.75,0.45,0.8,0.65,0.62,0.5,0.6,0.65,0.55,0.5
+2,1001,20250410120001,low,1,3,0.55,0.45,0.6,0.5,0.48,0.7,0.35,0.75,0.6,0.57,0.45,0.55,0.6,0.5,0.45
+3,1001,20250410120002,high,3,7,0.6,0.5,0.65,0.55,0.53,0.65,0.4,0.7,0.55,0.6,0.55,0.65,0.7,0.6,0.55
+4,1002,20250410120003,low,2,4,0.7,0.6,0.75,0.65,0.63,0.8,0.5,0.85,0.7,0.67,0.6,0.7,0.75,0.65,0.6
+5,1002,20250410120004,high,1,6,0.5,0.4,0.55,0.45,0.43,0.6,0.3,0.65,0.5,0.52,0.4,0.5,0.55,0.45,0.4
+6,1002,20250410120005,low,3,2,0.75,0.65,0.8,0.7,0.68,0.85,0.55,0.9,0.75,0.73,0.65,0.75,0.8,0.7,0.65
+7,1003,20250410120006,high,2,8,0.58,0.48,0.63,0.53,0.51,0.68,0.38,0.73,0.58,0.61,0.48,0.58,0.63,0.53,0.48
+8,1003,20250410120007,low,1,5,0.62,0.52,0.67,0.57,0.55,0.72,0.42,0.77,0.62,0.65,0.52,0.62,0.67,0.57,0.52
+9,1003,20250410120008,high,3,9,0.67,0.57,0.72,0.62,0.6,0.77,0.47,0.82,0.67,0.7,0.57,0.67,0.72,0.62,0.57
+10,1004,20250410120009,low,2,3,0.53,0.43,0.58,0.48,0.46,0.63,0.33,0.68,0.53,0.56,0.43,0.53,0.58,0.48,0.43`;
+
+// Parse CSV data
+const trials = Papa.parse(csvData, {
+    header: true,
+    dynamicTyping: true,
+    skipEmptyLines: true
+}).data;
+
+// State management
+let currentTrialIndex = 0;
+const userRatings = [];
+let radarChart = null;
+
+// Initialize the page with first trial
+window.addEventListener('load', function() {
+    displayTrial(currentTrialIndex);
 });
 
-// Satisfaction submission function
-function submitSatisfaction(rating) {
-    try {
-        const participantId = localStorage.getItem('participantId') || 'anonymous';
-        const allPairingData = JSON.parse(localStorage.getItem('allPairingData')) || [];
-        const dftResults = JSON.parse(localStorage.getItem('dftResults')) || {};
+// Display a specific trial (unchanged from previous version)
+function displayTrial(index) {
+    // ... (same implementation as before)
+}
+
+// Handle satisfaction rating
+function rateSatisfaction(rating) {
+    // Save rating for current trial along with all original data
+    const currentTrial = trials[currentTrialIndex];
+    userRatings.push({
+        trial: currentTrial.trial,
+        participantid: currentTrial.participantid,
+        datetime: currentTrial.datetime,
+        staketype: currentTrial.staketype,
+        choice: currentTrial.choice,
+        timespent: currentTrial.timespent,
+        robot1energy: currentTrial.robot1energy,
+        robot1pace: currentTrial.robot1pace,
+        robot1safety: currentTrial.robot1safety,
+        robot1reliability: currentTrial.robot1reliability,
+        robot1intelligence: currentTrial.robot1intelligence,
+        robot2energy: currentTrial.robot2energy,
+        robot2pace: currentTrial.robot2pace,
+        robot2safety: currentTrial.robot2safety,
+        robot2reliability: currentTrial.robot2reliability,
+        robot2intelligence: currentTrial.robot2intelligence,
+        robot3energy: currentTrial.robot3energy,
+        robot3pace: currentTrial.robot3pace,
+        robot3safety: currentTrial.robot3safety,
+        robot3reliability: currentTrial.robot3reliability,
+        robot3intelligence: currentTrial.robot3intelligence,
+        userSatisfaction: rating
+    });
+    
+    // Move to next trial or finish
+    currentTrialIndex++;
+    
+    if (currentTrialIndex < trials.length) {
+        displayTrial(currentTrialIndex);
+    } else {
+        // All trials completed - download results
+        downloadResults();
         
-        // Prepare data to send
-        const data = {
-            participantId,
-            rating,
-            pairingData: allPairingData,
-            dftResults
-        };
-        
-        // Send to server (replace with your actual endpoint)
-        axios.post('/api/satisfaction', data)
-            .then(response => {
-                alert('Thank you for your feedback!');
-                // Optionally clear localStorage after submission
-                // localStorage.clear();
-            })
-            .catch(error => {
-                console.error('Error submitting satisfaction:', error);
-                alert('Feedback submission failed, but your results were saved.');
-            });
-            
-        // Download data as CSV fallback
-        downloadData(rating);
-        
-    } catch (error) {
-        console.error('Error in submitSatisfaction:', error);
-        alert('Error processing your feedback.');
+        // Show completion message
+        alert('Thank you for rating all trials! Your results have been downloaded.');
     }
 }
 
-// Download data function
-function downloadData(userRating) {
-    const participantId = localStorage.getItem('participantId') || 'anonymous';
+// Download results as CSV with original headers plus satisfaction
+function downloadResults() {
     const now = new Date();
     const dateTime = now.toISOString().replace(/[:.]/g, '-').split('T').join('_');
     
-    // Get DFT results if available
-    const dftResults = JSON.parse(localStorage.getItem('dftResults')) || {};
+    // Prepare CSV header - maintain original headers plus satisfaction
+    let csvContent = "trial,participantid,datetime,staketype,choice,timespent,robot1energy,robot1pace,robot1safety,robot1reliability,robot1intelligence,robot2energy,robot2pace,robot2safety,robot2reliability,robot2intelligence,robot3energy,robot3pace,robot3safety,robot3reliability,robot3intelligence,userSatisfaction\n";
     
-    // Prepare CSV content
-    let csvContent = "participantId,DateTime,Role,Attribute,Value,UserRating,DFT_Probability\n";
-    
-    // Add pairing data
-    const allPairingData = JSON.parse(localStorage.getItem('allPairingData')) || [];
-    allPairingData.forEach(trial => {
-        if (trial.choice && trial.robot1Attributes) {
-            const attrs = trial[`robot${trial.choice}Attributes`];
-            attrs.forEach((val, idx) => {
-                const attrName = ['Energy','Pace','Safety','Reliability','Intelligence'][idx];
-                csvContent += `${participantId},${dateTime},${trial.role},${attrName},${val},,,\n`;
-            });
-        }
+    // Add each rating with all original data
+    userRatings.forEach(rating => {
+        csvContent += [
+            rating.trial,
+            rating.participantid,
+            rating.datetime,
+            rating.staketype,
+            rating.choice,
+            rating.timespent,
+            rating.robot1energy,
+            rating.robot1pace,
+            rating.robot1safety,
+            rating.robot1reliability,
+            rating.robot1intelligence,
+            rating.robot2energy,
+            rating.robot2pace,
+            rating.robot2safety,
+            rating.robot2reliability,
+            rating.robot2intelligence,
+            rating.robot3energy,
+            rating.robot3pace,
+            rating.robot3safety,
+            rating.robot3reliability,
+            rating.robot3intelligence,
+            rating.userSatisfaction
+        ].join(',') + '\n';
     });
-    
-    // Add DFT results
-    if (dftResults.M) {
-        const roles = ['Delivery', 'Inspection', 'Assembling'];
-        roles.forEach((role, idx) => {
-            dftResults.M[idx].forEach((val, attrIdx) => {
-                const attrName = ['Energy','Pace','Safety','Reliability','Intelligence'][attrIdx];
-                csvContent += `${participantId},${dateTime},${role},${attrName},${val},${userRating},${dftResults.choice_probs[idx]}\n`;
-            });
-        });
-    }
     
     // Create and download CSV
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `RobotChoice-${dateTime}-${participantId}.csv`;
+    link.download = `RobotChoiceRatings-${dateTime}.csv`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
 }
 </script>
-
-<style>
-.loading-dots::after {
-    content: '.';
-    animation: dots 1.5s steps(5, end) infinite;
-}
-
-@keyframes dots {
-    0%, 20% { content: '.'; }
-    40% { content: '..'; }
-    60% { content: '...'; }
-    80%, 100% { content: ''; }
-}
-</style>

@@ -25,40 +25,33 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function solutions = solve_equilibrium(Ep_mins, Varp_mins, x_mins)
     % === Parameter settings ===
-    nx = 10; ny = 4;
+    nx = 10; ny = 5;  % ny changed from 4 to 5
+    
+    % === Input validation ===
+    assert(length(Ep_mins) == ny, 'Ep_mins must be 5x1');
+    assert(isequal(size(Varp_mins), [ny ny]), 'Varp_mins must be 5x5');
 
     % === Structural matrices ===
     barA = diag([1, 2, 1, 2, 1, 1, 2, 1, 2, -1]);
-    barB = diag([1, 2, 2, 1]);
-    L = [3 -1 -1 -1 0 0 0;
-         -1 4 -1 0 -1 -1 0;
-         -1 -1 5 -1 -1 0 -1;
-         -1 0 -1 3 0 0 -1;
-          0 -1 -1 0 4 -1 -1;
-          0 -1 0 0 -1 2 0;
-          0 0 -1 -1 -1 0 3];
-    I2 = eye(2);
-    barL = kron(L, I2);
-
+    barB = diag(ones(ny,1));  % ny x ny diagonal matrix
+    
     % === Symbolic variables ===
     syms x [nx 1] real
     syms x_plus [nx 1] real
     syms alpha_vec [nx+ny 1] real
     syms beta_vec [nx+ny 1] real
-    syms lambda [nx+ny 1] real
-    syms mu_vec [nx+ny 1] real
+    syms lambda [ny 1] real
+    syms mu_vec [ny 1] real
 
-   % === Define h(x, p) ===
+    % === Define h(x, p) ===
     % Define how robot states affect preferences
-    P1 = @(x) Ep_mins(1:2) + x(3:4) + x(9:10);  % P1 depends on robot states 3-4 and 9-10
-    P2 = @(x) Ep_mins(3:4) + x(5:6) + x(7:8) - 2*x(9:10);  % P2 depends on robot states 5-8 and 9-10
+    P1 = @(x) Ep_mins(1:2) + x(1:2);  % 2 elements + 2 elements
     
-    % Define the updated preferences after robot state changes
-    P1_plus = @(x) Ep_mins(1:2) + x(3:4) + x(9:10);
-    P2_plus = @(x) Ep_mins(3:4) + x(5:6) + x(7:8) - 2*x(9:10);
+    % Corrected P2 function - now properly handles 3 elements
+    P2 = @(x) Ep_mins(3:5) + x(3:5) - [x(6:7); 0];  % Pad with zero to make 3 elements
     
     % Define the human response function h(x,p)
-    h = @(x) [P1_plus(x); P2_plus(x)];
+    h = @(x) [P1(x); P2(x)]; % Output will be 5x1 (2+3)
     
     % Human output y is directly based on h(x,p)
     y = h;
@@ -66,6 +59,9 @@ function solutions = solve_equilibrium(Ep_mins, Varp_mins, x_mins)
     % Compute Jacobians for sensitivity analysis
     dh_dx = jacobian(h(x), x);
     dy_dx = dh_dx;
+    % After computing dy_dx:
+    assert(size(dy_dx,1) == ny && size(dy_dx,2) == nx, ...
+       'dy_dx should be %dx%d, is %dx%d', ny, nx, size(dy_dx));
 
     % === Cost functions ===
     F_x = @(x) [2 * x(1:2);
@@ -84,10 +80,10 @@ function solutions = solve_equilibrium(Ep_mins, Varp_mins, x_mins)
     gradG_r = G_r(y_value);
 
     % === Human preference uncertainty ===
-    Sigma_y = Varp_mins;
-    B = [1 1 2 1];
+    B = [1 1 2 1 1];  % Now 1x5
     quantile = norminv(0.95);
-    D_const = ([1 1 1 1] * sqrtm(B * Sigma_y * B') * [1 1 1 1]') * quantile - 200;
+    Sigma_y_aggregated = B * Varp_mins * B';
+    D_const = sqrt(Sigma_y_aggregated) * quantile - 200;
     D_tau = [D_const; zeros(nx+ny-1,1)];
     D_tau1 = D_tau;
 
@@ -100,8 +96,18 @@ function solutions = solve_equilibrium(Ep_mins, Varp_mins, x_mins)
     y_evaluated = y(x);
 
     % === ∇L multiplier block ===
-    block_top = [barA; zeros(nx, ny)']';
-    block_bot = [zeros(nx, nx); (barB * dy_dx)]';
+    % Corrected matrix construction
+    block_top = [barA; zeros(ny, nx)]';  % (nx+ny)×nx transposed -> nx×(nx+ny)
+    block_bot = [zeros(ny, nx); barB * dy_dx]'; % (nx+ny)×nx transposed -> nx×(nx+ny)
+    
+    % Verify dimensions
+    assert(size(block_top,1) == nx && size(block_top,2) == nx+ny, ...
+           'block_top should be %dx%d, is %dx%d', nx, nx+ny, size(block_top));
+    assert(size(block_bot,1) == nx && size(block_bot,2) == nx+ny, ...
+           'block_bot should be %dx%d, is %dx%d', nx, nx+ny, size(block_bot));
+    assert(length(lambda) == nx+ny, 'lambda should be %dx1', nx+ny);
+    assert(length(mu_vec) == nx+ny, 'mu_vec should be %dx1', nx+ny);
+    
     gradL = block_top * lambda + block_bot * mu_vec;
 
     % === KKT equations ===
@@ -114,20 +120,15 @@ function solutions = solve_equilibrium(Ep_mins, Varp_mins, x_mins)
     eq6 = [barA * x_plus; barB * y_evaluated] + barL * beta_vec + D_tau1;
 
     % === Solve ===
-    sol = solve([eq1 == 0;
-                       eq2 == 0;
-                       eq3 == 0;
-                       eq4 == 0;
-                       eq5 == 0;
-                       eq6 == 0], ...
-                       [x; x_plus; alpha_vec; beta_vec; lambda; mu_vec], ...
-                       'Real', true);
+    sol = vpasolve([eq1 == 0; eq2 == 0; eq3 == 0; eq4 == 0; eq5 == 0; eq6 == 0], ...
+                  [x; x_plus; alpha_vec; beta_vec; lambda; mu_vec]);
 
-% Convert symbolic solutions to numeric
-solutions = struct();
-solutions.P_final = double([sol.x1; sol.x2; sol.x3; sol.x4; sol.x5; 
-                          sol.x6; sol.x7; sol.x8; sol.x9; sol.x10]);
-solutions.E_P_eq = double([sol.lambda1; sol.lambda2; sol.lambda3; sol.lambda4]);
-solutions.V_P_eq = diag(double([sol.mu_vec1; sol.mu_vec2; sol.mu_vec3; sol.mu_vec4]));
-
+    % Convert symbolic solutions to numeric
+    solutions = struct();
+    solutions.P_final = double([sol.x1; sol.x2; sol.x3; sol.x4; sol.x5; 
+                                  sol.x6; sol.x7; sol.x8; sol.x9; sol.x10]);
+    solutions.E_P_eq = double([sol.lambda1; sol.lambda2; sol.lambda3; 
+                                 sol.lambda4; sol.lambda5]);
+    solutions.V_P_eq = diag(double([sol.mu_vec1; sol.mu_vec2; sol.mu_vec3;
+                                      sol.mu_vec4; sol.mu_vec5]));
 end
