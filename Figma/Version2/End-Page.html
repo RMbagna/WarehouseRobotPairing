@@ -117,6 +117,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
 
+<!-- Previous HTML content remains the same until the script section -->
 <script>
 // Trial data from CSV
 const csvData = `trial,participantid,datetime,staketype,choice,timespent,robot1energy,robot1pace,robot1safety,robot1reliability,robot1intelligence,robot2energy,robot2pace,robot2safety,robot2reliability,robot2intelligence,robot3energy,robot3pace,robot3safety,robot3reliability,robot3intelligence
@@ -142,28 +143,167 @@ const trials = Papa.parse(csvData, {
 let currentTrialIndex = 0;
 const userRatings = [];
 let radarChart = null;
+let trialStartTime = null;
 
 // Initialize the page with first trial
 window.addEventListener('load', function() {
     displayTrial(currentTrialIndex);
 });
 
-// Display a specific trial (unchanged from previous version)
+// Display a specific trial
 function displayTrial(index) {
-    // ... (same implementation as before)
+    const trial = trials[index];
+    trialStartTime = new Date(); // Record when the trial was displayed
+    
+    // Update trial info
+    document.getElementById('trialNumber').textContent = trial.trial;
+    document.getElementById('trialCounter').textContent = `${index + 1}/${trials.length}`;
+    document.getElementById('stakeType').textContent = trial.staketype.charAt(0).toUpperCase() + trial.staketype.slice(1);
+    document.getElementById('participantId').textContent = trial.participantid;
+    document.getElementById('timeSpent').textContent = trial.timespent;
+    document.getElementById('chosenRobot').textContent = `Robot ${trial.choice}`;
+    
+    // Prepare radar chart data
+    const attributes = ['Energy', 'Pace', 'Safety', 'Reliability', 'Intelligence'];
+    
+    // Get data for all three robots
+    const robotData = [1, 2, 3].map(robotNum => {
+        return attributes.map(attr => {
+            const attrKey = `robot${robotNum}${attr.toLowerCase()}`;
+            return trial[attrKey];
+        });
+    });
+    
+    // Highlight the chosen robot with a different color
+    const backgroundColors = [
+        'rgba(255, 99, 132, 0.2)',
+        'rgba(54, 162, 235, 0.2)',
+        'rgba(75, 192, 192, 0.2)'
+    ];
+    
+    const borderColors = [
+        'rgb(255, 99, 132)',
+        'rgb(54, 162, 235)',
+        'rgb(75, 192, 192)'
+    ];
+    
+    // Make the chosen robot more prominent
+    backgroundColors[trial.choice - 1] = 'rgba(153, 102, 255, 0.5)';
+    borderColors[trial.choice - 1] = 'rgb(153, 102, 255)';
+    
+    // Create or update radar chart
+    const ctx = document.getElementById('radarChart').getContext('2d');
+    
+    if (radarChart) {
+        radarChart.destroy();
+    }
+    
+    radarChart = new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: attributes,
+            datasets: [
+                {
+                    label: 'Robot 1',
+                    data: robotData[0],
+                    backgroundColor: backgroundColors[0],
+                    borderColor: borderColors[0],
+                    pointBackgroundColor: borderColors[0],
+                    borderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                },
+                {
+                    label: 'Robot 2',
+                    data: robotData[1],
+                    backgroundColor: backgroundColors[1],
+                    borderColor: borderColors[1],
+                    pointBackgroundColor: borderColors[1],
+                    borderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                },
+                {
+                    label: 'Robot 3',
+                    data: robotData[2],
+                    backgroundColor: backgroundColors[2],
+                    borderColor: borderColors[2],
+                    pointBackgroundColor: borderColors[2],
+                    borderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    min: 0,
+                    max: 1,
+                    ticks: {
+                        stepSize: 0.2,
+                        backdropColor: 'rgba(0, 0, 0, 0)'
+                    },
+                    angleLines: {
+                        color: 'rgba(0, 0, 0, 0.1)'
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.1)'
+                    },
+                    pointLabels: {
+                        font: {
+                            size: 12,
+                            weight: 'bold'
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        font: {
+                            size: 12,
+                            weight: 'bold'
+                        },
+                        padding: 20
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.dataset.label + ': ' + context.raw.toFixed(2);
+                        }
+                    }
+                }
+            },
+            elements: {
+                line: {
+                    tension: 0.1
+                }
+            }
+        }
+    });
 }
 
 // Handle satisfaction rating
 function rateSatisfaction(rating) {
-    // Save rating for current trial along with all original data
     const currentTrial = trials[currentTrialIndex];
+    
+    // Calculate actual elapsed time in seconds
+    const trialEndTime = new Date();
+    const elapsedTime = Math.round((trialEndTime - trialStartTime) / 1000);
+    
+    // Save rating for current trial along with all original data
     userRatings.push({
         trial: currentTrial.trial,
         participantid: currentTrial.participantid,
         datetime: currentTrial.datetime,
         staketype: currentTrial.staketype,
         choice: currentTrial.choice,
-        timespent: currentTrial.timespent,
+        timespent: elapsedTime, // Use actual elapsed time instead of original
         robot1energy: currentTrial.robot1energy,
         robot1pace: currentTrial.robot1pace,
         robot1safety: currentTrial.robot1safety,
