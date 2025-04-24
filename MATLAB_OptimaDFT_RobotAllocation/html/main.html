@@ -1,0 +1,591 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>main</title><meta name="generator" content="MATLAB 9.13"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2025-04-24"><meta name="DC.source" content="main.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">Step 1: Import CSV Data</a></li><li><a href="#3">Step 2: R Bridge Implementation</a></li><li><a href="#4">Step 3: MDFT Formulation to Calculate Preference Dynamics</a></li><li><a href="#5">Step 4: Solve Equilibrium Function</a></li><li><a href="#6">Step 5: Output Results</a></li><li><a href="#7">Helper Functions</a></li></ul></div><pre class="codeinput"><span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+<span class="comment">% Main Simulation Script for Resource Allocation Project with R Integration</span>
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+clc;
+clear <span class="string">all</span>;
+</pre><h2 id="2">Step 1: Import CSV Data</h2><p>(reference apolloMain_5 amd apolloMain_6 as example for data manipulation) biasData = readtable('user_choices.csv'); % Replace with the path to your data file disp('User bias data imported successfully.'); taskChoice_Data = readtable('user_choices.csv'); % Replace with the path to your data file disp('User task choice data imported successfully.');</p><pre class="codeinput">robotChoice_Data = readtable(<span class="string">'G:\My Drive\myResearch\Research Experimentation\Apollo\apollo\data\WarehouseRobot_Pairing_Data\test_pairing_data.csv'</span>);
+disp(<span class="string">'User robot choice data imported successfully.'</span>);
+
+<span class="comment">% Extract relevant data (modify based on your CSV structure)</span>
+<span class="comment">% task_attributes = data{:, {'efficiency', 'speed', 'safety', 'durability', 'skill'}};</span>
+
+<span class="comment">% Extract and organize robot states for all three alternatives</span>
+robot_states = struct();
+attributes = {<span class="string">'energy'</span>,<span class="string">'pace'</span>,<span class="string">'safety'</span>,<span class="string">'reliability'</span>,<span class="string">'intelligence'</span>};
+<span class="keyword">for</span> i = 1:3
+    <span class="keyword">for</span> attr = attributes
+        robot_states.([<span class="string">'robot'</span> num2str(i)]).(attr{1}) = <span class="keyword">...</span>
+            robotChoice_Data.([<span class="string">'robot'</span> num2str(i) attr{1}]);
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="comment">% Extract choice data and other metadata</span>
+choices = robotChoice_Data.choice;
+participant_ids = robotChoice_Data.participantid;
+trial_numbers = robotChoice_Data.trial;
+stake_types = robotChoice_Data.staketype;
+time_spent = robotChoice_Data.timespent;
+</pre><pre class="codeoutput">User robot choice data imported successfully.
+</pre><h2 id="3">Step 2: R Bridge Implementation</h2><pre class="codeinput">disp(<span class="string">'Initializing R bridge...'</span>);
+
+<span class="comment">% Configure paths</span>
+rscript_path = <span class="string">'C:\Program Files\R\R-4.4.2\bin\x64\Rscript.exe'</span>;
+r_script = <span class="string">'G:\My Drive\myResearch\Research Experimentation\Apollo\apollo\example\DFT_Resource_Allocation.R'</span>;
+csvFile = <span class="string">'G:\My Drive\myResearch\Research Experimentation\Apollo\apollo\data\WarehouseRobot_Pairing_Data\test_pairing_data.csv'</span>;
+outputDir = <span class="string">'G:\My Drive\myResearch\Research Experimentation\Apollo\apollo\ResourceAllocation_Output'</span>;
+
+<span class="comment">% Verify installations</span>
+<span class="keyword">if</span> ~isfile(rscript_path)
+    error(<span class="string">'Rscript.exe not found at: %s'</span>, rscript_path);
+<span class="keyword">elseif</span> ~isfile(r_script)
+    error(<span class="string">'R script not found at: %s'</span>, r_script);
+<span class="keyword">elseif</span> ~isfile(csvFile)
+    error(<span class="string">'Input CSV not found at: %s'</span>, csvFile);
+<span class="keyword">elseif</span> ~isfolder(outputDir)
+    warning(<span class="string">'Output folder does not exist, creating: %s'</span>, outputDir);
+    mkdir(outputDir);
+<span class="keyword">end</span>
+
+<span class="comment">% Execute R with JSON output</span>
+<span class="keyword">try</span>
+    <span class="comment">% Use proper argument formatting</span>
+    cmd = sprintf([<span class="string">'"%s" "%s" '</span>, <span class="keyword">...</span>
+               <span class="string">'-i "%s" -o "%s"'</span>], <span class="keyword">...</span>
+               rscript_path, r_script, csvFile, outputDir);
+
+[status,result] = system(cmd);
+
+    <span class="keyword">if</span> status == 0
+        <span class="comment">% Handle output path (whether directory or file)</span>
+        <span class="keyword">if</span> isfolder(outputDir)
+            jsonFile = fullfile(outputDir, <span class="string">'DFT_output.json'</span>);
+        <span class="keyword">else</span>
+            jsonFile = outputDir;
+        <span class="keyword">end</span>
+
+        <span class="comment">% Parse JSON output</span>
+        <span class="keyword">if</span> exist(jsonFile, <span class="string">'file'</span>)
+            jsonText = fileread(jsonFile);
+            params = jsondecode(jsonText);
+
+            <span class="comment">% Extract parameters with validation</span>
+            phi1 = validateParam(params, <span class="string">'phi1'</span>, 0.5);
+            phi2 = validateParam(params, <span class="string">'phi2'</span>, 0.8);
+            tau = 1 + exp(validateParam(params, <span class="string">'timesteps'</span>, 0.5));
+            error_sd = validateParam(params, <span class="string">'error_sd'</span>, 0.1);
+
+            <span class="comment">% Extract attribute weights</span>
+            beta_weights = [
+                params.b_energy;
+                params.b_pace;
+                params.b_safety;
+                params.b_reliability;
+                params.b_intelligence
+            ];
+
+            <span class="comment">% Get initial preferences from ASCs</span>
+            initial_P = [
+                params.asc_1;
+                params.asc_2;
+                params.asc_3;
+                0  <span class="comment">% Neutral alternative has 0 initial preference</span>
+            ];
+
+            disp(<span class="string">'Estimated Parameters:'</span>);
+            disp([<span class="string">'phi1: '</span>, num2str(phi1)]);
+            disp([<span class="string">'phi2: '</span>, num2str(phi2)]);
+            disp([<span class="string">'tau: '</span>, num2str(tau)]);
+            disp([<span class="string">'error_sd: '</span>, num2str(error_sd)]);
+            disp(<span class="string">'Initial Preferences (from ASCs):'</span>);
+            disp(initial_P');
+        <span class="keyword">else</span>
+            error(<span class="string">'R output file not found'</span>);
+        <span class="keyword">end</span>
+    <span class="keyword">else</span>
+        error(<span class="string">'R execution failed: %s'</span>, result);
+    <span class="keyword">end</span>
+<span class="keyword">catch</span> ME
+    disp(<span class="string">'Error during R execution:'</span>);
+    disp(getReport(ME, <span class="string">'extended'</span>));
+    [phi1, phi2, tau, error_sd] = getFallbackParams();
+    beta_weights = [0.3; 0.2; 0.4; 0; 0.5]; <span class="comment">% Default weights</span>
+    initial_P = zeros(4,1); <span class="comment">% Neutral initial preferences</span>
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">Initializing R bridge...
+</pre><h2 id="4">Step 3: MDFT Formulation to Calculate Preference Dynamics</h2><p>(MDFT calculations based on estimated parameters)</p><pre class="codeinput">current_trial = 1; <span class="comment">% Analyze first trial (can be looped later)</span>
+
+<span class="comment">% Create M matrix from current trial's attributes</span>
+M = [
+    robotChoice_Data.robot1energy(current_trial), <span class="keyword">...</span>
+    robotChoice_Data.robot1pace(current_trial), <span class="keyword">...</span>
+    robotChoice_Data.robot1safety(current_trial), <span class="keyword">...</span>
+    robotChoice_Data.robot1reliability(current_trial), <span class="keyword">...</span>
+    robotChoice_Data.robot1intelligence(current_trial);
+
+    robotChoice_Data.robot2energy(current_trial), <span class="keyword">...</span>
+    robotChoice_Data.robot2pace(current_trial), <span class="keyword">...</span>
+    robotChoice_Data.robot2safety(current_trial), <span class="keyword">...</span>
+    robotChoice_Data.robot2reliability(current_trial), <span class="keyword">...</span>
+    robotChoice_Data.robot2intelligence(current_trial);
+
+    robotChoice_Data.robot3energy(current_trial), <span class="keyword">...</span>
+    robotChoice_Data.robot3pace(current_trial), <span class="keyword">...</span>
+    robotChoice_Data.robot3safety(current_trial), <span class="keyword">...</span>
+    robotChoice_Data.robot3reliability(current_trial), <span class="keyword">...</span>
+    robotChoice_Data.robot3intelligence(current_trial);
+
+    0.5*ones(1,5) <span class="comment">% Neutral alternative</span>
+];
+
+<span class="comment">% Normalize beta weights</span>
+beta = beta_weights ./ sum(abs(beta_weights));
+
+<span class="comment">% Calculate DFT dynamics with initial preferences</span>
+[E_P, V_P, probs, P_tau] = calculateDFTdynamics(<span class="keyword">...</span>
+    phi1, phi2, tau, error_sd, beta, M, initial_P);
+
+<span class="comment">% Display results</span>
+disp(<span class="string">'=== Current Trial Analysis ==='</span>);
+disp([<span class="string">'Trial: '</span>, num2str(current_trial)]);
+disp([<span class="string">'Participant: '</span>, num2str(participant_ids(current_trial))]);
+disp([<span class="string">'Actual Choice: Robot '</span>, num2str(choices(current_trial))]);
+
+disp(<span class="string">'M matrix (alternatives &times; attributes):'</span>);
+disp(array2table(M, <span class="keyword">...</span>
+    <span class="string">'RowNames'</span>, {<span class="string">'Robot1'</span>,<span class="string">'Robot2'</span>,<span class="string">'Robot3'</span>,<span class="string">'Neutral'</span>}, <span class="keyword">...</span>
+    <span class="string">'VariableNames'</span>, attributes));
+
+disp(<span class="string">'DFT Results:'</span>);
+disp([<span class="string">'E_P: '</span>, num2str(E_P')]);
+disp([<span class="string">'V_P: '</span>, num2str(V_P')]);
+disp([<span class="string">'P_tau: '</span>, num2str(P_tau')]);
+disp([<span class="string">'Choice probabilities: '</span>, num2str(probs')]);
+disp([<span class="string">'Actual choice: Robot '</span>, num2str(choices(current_trial))]);
+
+<span class="comment">% Plot preference evolution</span>
+figure;
+plot(0:tau, P_tau);
+xlabel(<span class="string">'Preference Step (\tau)'</span>);
+ylabel(<span class="string">'Preference Strength'</span>);
+legend({<span class="string">'Robot1'</span>,<span class="string">'Robot2'</span>,<span class="string">'Robot3'</span>,<span class="string">'Neutral'</span>});
+title(sprintf(<span class="string">'Preference Evolution (Trial %d)'</span>, current_trial));
+grid <span class="string">on</span>;
+</pre><pre class="codeoutput">=== Current Trial Analysis ===
+Trial: 1
+Participant: 1001
+Actual Choice: Robot 2
+M matrix (alternatives &times; attributes):
+               energy    pace    safety    reliability    intelligence
+               ______    ____    ______    ___________    ____________
+
+    Robot1      0.65     0.55      0.7         0.6            0.58    
+    Robot2      0.75     0.45      0.8        0.65            0.62    
+    Robot3       0.5      0.6     0.65        0.55             0.5    
+    Neutral      0.5      0.5      0.5         0.5             0.5    
+
+DFT Results:
+E_P: 9924.519       9924.428      9924.9269      9922.6933
+</pre><pre class="codeoutput error">Error using horzcat
+Dimensions of arrays being concatenated are not consistent.
+
+Error in main (line 170)
+disp(['V_P: ', num2str(V_P')]);
+
+Error in evalmxdom&gt;instrumentAndRun (line 116)
+text = evalc(evalstr);
+
+Error in evalmxdom (line 21)
+[data,text,laste] = instrumentAndRun(file,cellBoundaries,imageDir,imagePrefix,options);
+
+Error in publish
+
+Error in connector.internal.fevalMatlab
+
+Error in connector.internal.fevalJSON
+
+Error in internal.matlab.publish.captureFigures (line 14)
+drawnow;
+
+Error in internal.matlab.publish.PublishFigures (line 44)
+            obj.savedState = internal.matlab.publish.captureFigures;
+
+Error in snapnow&gt;enteringCell (line 187)
+                data.plugins(iPlugins).instance = feval(data.plugins(iPlugins).classname,data.options);
+
+Error in snapnow (line 147)
+                        data = enteringCell(iCell(k), data, doCapture(k));
+
+Error in main (line 4)
+clc;
+</pre><h2 id="5">Step 4: Solve Equilibrium Function</h2><p>Example robot states (10-dimensional vector, nx=10) where each xi &#8712; [0,1]</p><pre class="codeinput"><span class="comment">% Use DFT outputs for equilibrium calculation</span>
+Ep_mins = E_P;       <span class="comment">% 4&times;1 expected preferences from DFT</span>
+Varp_mins = V_P;     <span class="comment">% 4&times;4 preference covariance from DFT</span>
+<span class="comment">% using robot attribute to map to product the robot can build type A vs</span>
+<span class="comment">% type B. this is made using robot attribute.</span>
+<span class="comment">% 5 robot produce 2 things. each trial outputs x_mins as 8x1</span>
+
+x_mins = robot_states.robot2.energy; <span class="comment">% 10&times;1 robot state vector could recursive for each neighboring robot</span>
+
+<span class="comment">% Call equilibrium solver</span>
+solutions = solve_equilibrium(Ep_mins, Varp_mins, x_mins);
+
+<span class="comment">% Extract solutions (works with both old and new versions)</span>
+<span class="keyword">if</span> isfield(solutions, <span class="string">'x'</span>)
+    <span class="comment">% Old version field names</span>
+    P_final = solutions.x;
+    E_P_eq = solutions.lambda;
+    V_P_eq = solutions.mu_vec;
+<span class="keyword">else</span>
+    <span class="comment">% New version field names</span>
+    P_final = solutions.P_final;
+    E_P_eq = solutions.E_P_eq;
+    V_P_eq = solutions.V_P_eq;
+<span class="keyword">end</span>
+
+<span class="comment">% Display results</span>
+disp(<span class="string">'=== Equilibrium Results ==='</span>);
+disp([<span class="string">'Final Preferences (P_final): '</span>, num2str(P_final')]);
+disp([<span class="string">'Expected Preferences (E_P_eq): '</span>, num2str(E_P_eq')]);
+disp([<span class="string">'Preference Variance (V_P_eq diagonal): '</span>, num2str(V_P_eq')]);
+</pre><h2 id="6">Step 5: Output Results</h2><pre class="codeinput">disp(<span class="string">'Saving results to CSV...'</span>);
+output_table = table(E_P, V_P, P_final, <span class="keyword">...</span>
+                     <span class="string">'VariableNames'</span>, {<span class="string">'ExpectedPreference'</span>, <span class="string">'VariancePreference'</span>, <span class="string">'FinalPreferences'</span>});
+writetable(output_table, <span class="string">'results.csv'</span>);
+disp(<span class="string">'Results saved successfully!'</span>);
+</pre><h2 id="7">Helper Functions</h2><pre class="codeinput"><span class="keyword">function</span> param = validateParam(params, name, default)
+    <span class="keyword">if</span> isfield(params, name) &amp;&amp; isnumeric(params.(name))
+        param = params.(name);
+    <span class="keyword">else</span>
+        warning(<span class="string">'Using default for %s'</span>, name);
+        param = default;
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="keyword">function</span> [phi1, phi2, tau, error_sd] = getFallbackParams()
+    phi1 = 0.5 + 0.1*randn();
+    phi2 = 0.8 + 0.1*randn();
+    tau = 10 + randi(5);
+    error_sd = 0.1 + 0.05*rand();
+    warning(<span class="string">'Using randomized default parameters'</span>);
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">Estimated Parameters:
+phi1: 0.0876
+phi2: -0.0389
+tau: 95.0287
+error_sd: 0.0326
+Initial Preferences (from ASCs):
+   -0.9454    0.9886         0         0
+
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2022b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Main Simulation Script for Resource Allocation Project with R Integration
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+clc;
+clear all;
+
+%% Step 1: Import CSV Data
+% (reference apolloMain_5 amd apolloMain_6 as example for data manipulation)
+% biasData = readtable('user_choices.csv'); % Replace with the path to your data file
+% disp('User bias data imported successfully.');
+% taskChoice_Data = readtable('user_choices.csv'); % Replace with the path to your data file
+% disp('User task choice data imported successfully.');
+robotChoice_Data = readtable('G:\My Drive\myResearch\Research Experimentation\Apollo\apollo\data\WarehouseRobot_Pairing_Data\test_pairing_data.csv');
+disp('User robot choice data imported successfully.');
+
+% Extract relevant data (modify based on your CSV structure)
+% task_attributes = data{:, {'efficiency', 'speed', 'safety', 'durability', 'skill'}};
+
+% Extract and organize robot states for all three alternatives
+robot_states = struct();
+attributes = {'energy','pace','safety','reliability','intelligence'};
+for i = 1:3
+    for attr = attributes
+        robot_states.(['robot' num2str(i)]).(attr{1}) = ...
+            robotChoice_Data.(['robot' num2str(i) attr{1}]);
+    end
+end
+
+% Extract choice data and other metadata
+choices = robotChoice_Data.choice;
+participant_ids = robotChoice_Data.participantid;
+trial_numbers = robotChoice_Data.trial;
+stake_types = robotChoice_Data.staketype;
+time_spent = robotChoice_Data.timespent;
+
+%% Step 2: R Bridge Implementation
+disp('Initializing R bridge...');
+
+% Configure paths
+rscript_path = 'C:\Program Files\R\R-4.4.2\bin\x64\Rscript.exe';
+r_script = 'G:\My Drive\myResearch\Research Experimentation\Apollo\apollo\example\DFT_Resource_Allocation.R';
+csvFile = 'G:\My Drive\myResearch\Research Experimentation\Apollo\apollo\data\WarehouseRobot_Pairing_Data\test_pairing_data.csv';
+outputDir = 'G:\My Drive\myResearch\Research Experimentation\Apollo\apollo\ResourceAllocation_Output';
+
+% Verify installations
+if ~isfile(rscript_path)
+    error('Rscript.exe not found at: %s', rscript_path); 
+elseif ~isfile(r_script)
+    error('R script not found at: %s', r_script);
+elseif ~isfile(csvFile)
+    error('Input CSV not found at: %s', csvFile);
+elseif ~isfolder(outputDir)
+    warning('Output folder does not exist, creating: %s', outputDir);
+    mkdir(outputDir);
+end
+
+% Execute R with JSON output
+try
+    % Use proper argument formatting
+    cmd = sprintf(['"%s" "%s" ', ...
+               '-i "%s" -o "%s"'], ...
+               rscript_path, r_script, csvFile, outputDir);
+
+[status,result] = system(cmd);
+    
+    if status == 0
+        % Handle output path (whether directory or file)
+        if isfolder(outputDir)
+            jsonFile = fullfile(outputDir, 'DFT_output.json');
+        else
+            jsonFile = outputDir;
+        end
+        
+        % Parse JSON output
+        if exist(jsonFile, 'file')
+            jsonText = fileread(jsonFile);
+            params = jsondecode(jsonText);
+            
+            % Extract parameters with validation
+            phi1 = validateParam(params, 'phi1', 0.5);
+            phi2 = validateParam(params, 'phi2', 0.8);
+            tau = 1 + exp(validateParam(params, 'timesteps', 0.5));
+            error_sd = validateParam(params, 'error_sd', 0.1);
+            
+            % Extract attribute weights
+            beta_weights = [
+                params.b_energy;
+                params.b_pace;
+                params.b_safety;
+                params.b_reliability;
+                params.b_intelligence
+            ];
+            
+            % Get initial preferences from ASCs
+            initial_P = [
+                params.asc_1;
+                params.asc_2;
+                params.asc_3;
+                0  % Neutral alternative has 0 initial preference
+            ];
+            
+            disp('Estimated Parameters:');
+            disp(['phi1: ', num2str(phi1)]);
+            disp(['phi2: ', num2str(phi2)]);
+            disp(['tau: ', num2str(tau)]);
+            disp(['error_sd: ', num2str(error_sd)]);
+            disp('Initial Preferences (from ASCs):');
+            disp(initial_P');
+        else
+            error('R output file not found');
+        end
+    else
+        error('R execution failed: %s', result);
+    end
+catch ME
+    disp('Error during R execution:');
+    disp(getReport(ME, 'extended'));
+    [phi1, phi2, tau, error_sd] = getFallbackParams();
+    beta_weights = [0.3; 0.2; 0.4; 0; 0.5]; % Default weights
+    initial_P = zeros(4,1); % Neutral initial preferences
+end
+
+%% Step 3: MDFT Formulation to Calculate Preference Dynamics
+% (MDFT calculations based on estimated parameters)
+current_trial = 1; % Analyze first trial (can be looped later)
+
+% Create M matrix from current trial's attributes
+M = [
+    robotChoice_Data.robot1energy(current_trial), ...
+    robotChoice_Data.robot1pace(current_trial), ...
+    robotChoice_Data.robot1safety(current_trial), ...
+    robotChoice_Data.robot1reliability(current_trial), ...
+    robotChoice_Data.robot1intelligence(current_trial);
+    
+    robotChoice_Data.robot2energy(current_trial), ...
+    robotChoice_Data.robot2pace(current_trial), ...
+    robotChoice_Data.robot2safety(current_trial), ...
+    robotChoice_Data.robot2reliability(current_trial), ...
+    robotChoice_Data.robot2intelligence(current_trial);
+    
+    robotChoice_Data.robot3energy(current_trial), ...
+    robotChoice_Data.robot3pace(current_trial), ...
+    robotChoice_Data.robot3safety(current_trial), ...
+    robotChoice_Data.robot3reliability(current_trial), ...
+    robotChoice_Data.robot3intelligence(current_trial);
+    
+    0.5*ones(1,5) % Neutral alternative
+];
+
+% Normalize beta weights
+beta = beta_weights ./ sum(abs(beta_weights));
+
+% Calculate DFT dynamics with initial preferences
+[E_P, V_P, probs, P_tau] = calculateDFTdynamics(...
+    phi1, phi2, tau, error_sd, beta, M, initial_P);
+
+% Display results
+disp('=== Current Trial Analysis ===');
+disp(['Trial: ', num2str(current_trial)]);
+disp(['Participant: ', num2str(participant_ids(current_trial))]);
+disp(['Actual Choice: Robot ', num2str(choices(current_trial))]);
+
+disp('M matrix (alternatives × attributes):');
+disp(array2table(M, ...
+    'RowNames', {'Robot1','Robot2','Robot3','Neutral'}, ...
+    'VariableNames', attributes));
+
+disp('DFT Results:');
+disp(['E_P: ', num2str(E_P')]);
+disp(['V_P: ', num2str(V_P')]);
+disp(['P_tau: ', num2str(P_tau')]);
+disp(['Choice probabilities: ', num2str(probs')]);
+disp(['Actual choice: Robot ', num2str(choices(current_trial))]);
+
+% Plot preference evolution
+figure;
+plot(0:tau, P_tau);
+xlabel('Preference Step (\tau)');
+ylabel('Preference Strength');
+legend({'Robot1','Robot2','Robot3','Neutral'});
+title(sprintf('Preference Evolution (Trial %d)', current_trial));
+grid on;
+
+%% Step 4: Solve Equilibrium Function
+% Example robot states (10-dimensional vector, nx=10) where each xi ∈ [0,1]
+
+% Use DFT outputs for equilibrium calculation
+Ep_mins = E_P;       % 4×1 expected preferences from DFT
+Varp_mins = V_P;     % 4×4 preference covariance from DFT
+% using robot attribute to map to product the robot can build type A vs
+% type B. this is made using robot attribute. 
+% 5 robot produce 2 things. each trial outputs x_mins as 8x1
+
+x_mins = robot_states.robot2.energy; % 10×1 robot state vector could recursive for each neighboring robot
+
+% Call equilibrium solver
+solutions = solve_equilibrium(Ep_mins, Varp_mins, x_mins);
+
+% Extract solutions (works with both old and new versions)
+if isfield(solutions, 'x')
+    % Old version field names
+    P_final = solutions.x;
+    E_P_eq = solutions.lambda;
+    V_P_eq = solutions.mu_vec;
+else
+    % New version field names
+    P_final = solutions.P_final;
+    E_P_eq = solutions.E_P_eq;
+    V_P_eq = solutions.V_P_eq;
+end
+
+% Display results
+disp('=== Equilibrium Results ===');
+disp(['Final Preferences (P_final): ', num2str(P_final')]);
+disp(['Expected Preferences (E_P_eq): ', num2str(E_P_eq')]);
+disp(['Preference Variance (V_P_eq diagonal): ', num2str(V_P_eq')]);
+
+%% Step 5: Output Results
+disp('Saving results to CSV...');
+output_table = table(E_P, V_P, P_final, ...
+                     'VariableNames', {'ExpectedPreference', 'VariancePreference', 'FinalPreferences'});
+writetable(output_table, 'results.csv');
+disp('Results saved successfully!');
+%% Helper Functions
+function param = validateParam(params, name, default)
+    if isfield(params, name) && isnumeric(params.(name))
+        param = params.(name);
+    else
+        warning('Using default for %s', name);
+        param = default;
+    end
+end
+
+function [phi1, phi2, tau, error_sd] = getFallbackParams()
+    phi1 = 0.5 + 0.1*randn();
+    phi2 = 0.8 + 0.1*randn();
+    tau = 10 + randi(5);
+    error_sd = 0.1 + 0.05*rand();
+    warning('Using randomized default parameters');
+end
+##### SOURCE END #####
+--></body></html>
