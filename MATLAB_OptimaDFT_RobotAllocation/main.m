@@ -185,7 +185,7 @@ grid on;
 % Use DFT outputs for equilibrium calculation
 Ep_mins = E_P;       % 4×1 expected preferences from DFT
 Varp_mins = V_P;     % 4×4 preference covariance from DFT
-x_mins = robot_states.robot2.intelligence; % 10×1 robot state vector
+x_mins = robot_states.robot2.energy; % 10×1 robot state vector
 
 % Call equilibrium solver
 solutions = solve_equilibrium(Ep_mins, Varp_mins, x_mins);

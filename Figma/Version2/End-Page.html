@@ -94,3 +94,79 @@
         </div>
     </div>
 </div>
+<!-- Add this script section to your End-Page.html -->
+<script>
+window.addEventListener('load', async function() {
+    // 1. Load pairing data
+    const allPairingData = JSON.parse(localStorage.getItem('allPairingData')) || [];
+    
+    if (allPairingData.length === 0) {
+        document.getElementById('dftResults').innerHTML = 
+            "<p>No pairing data available for analysis.</p>";
+        return;
+    }
+    
+    // 2. Initialize DFT model
+    const dftModel = new DFTModel();
+    
+    // 3. Estimate parameters using RPy2 backend
+    const loadingElement = document.createElement('div');
+    loadingElement.innerHTML = '<p>Analyzing your choices... <span class="loading-dots"></span></p>';
+    document.getElementById('dftResults').appendChild(loadingElement);
+    
+    try {
+        const success = await dftModel.estimateParameters(allPairingData);
+        
+        if (!success) {
+            throw new Error("Parameter estimation failed");
+        }
+        
+        // 4. Calculate results with estimated parameters
+        const results = dftModel.calculate(allPairingData);
+        
+        // 5. Display results
+        document.getElementById('dftResults').innerHTML = `
+            <h3 style="margin-top: 0;">Your Preference Analysis</h3>
+            <p>Based on ${allPairingData.length} pairing decisions:</p>
+            <ul>
+                <li>Delivery Preference: ${(results.choiceProbabilities[0]*100).toFixed(1)}%</li>
+                <li>Inspection Preference: ${(results.choiceProbabilities[1]*100).toFixed(1)}%</li>
+                <li>Assembling Preference: ${(results.choiceProbabilities[2]*100).toFixed(1)}%</li>
+            </ul>
+            <p>Key attributes influencing your choices:</p>
+            <ul>
+                ${results.attributes.map((attr, i) => 
+                    `<li>${attr}: Weight ${results.parameters.beta_weights[i].toFixed(2)}</li>`
+                ).join('')}
+            </ul>
+        `;
+        
+        // 6. Create radar chart (same as before)
+        // ... your existing chart code ...
+        
+    } catch (error) {
+        document.getElementById('dftResults').innerHTML = `
+            <p>Error analyzing your data: ${error.message}</p>
+            <p>Showing simplified results instead.</p>
+        `;
+        
+        // Fallback to simplified calculation
+        const results = dftModel.calculate(allPairingData);
+        // ... display fallback results ...
+    }
+});
+</script>
+
+<style>
+.loading-dots::after {
+    content: '.';
+    animation: dots 1.5s steps(5, end) infinite;
+}
+
+@keyframes dots {
+    0%, 20% { content: '.'; }
+    40% { content: '..'; }
+    60% { content: '...'; }
+    80%, 100% { content: ''; }
+}
+</style>
