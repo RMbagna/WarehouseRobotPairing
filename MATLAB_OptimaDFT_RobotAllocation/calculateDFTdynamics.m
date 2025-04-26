@@ -1,4 +1,4 @@
-function [E_P, V_P, choice_probs, P_tau] = calculateDFTdynamics(phi1, phi2, tau, epsilon, beta, M, initial_P, w)
+function [E_P, V_P, choice_probs, P_tau] = calculateDFTdynamics(phi1, phi2, tau, epsilon, beta, M, initial_P)
     % Inputs:
     % phi1 - sensitivity parameter
     % phi2 - memory parameter

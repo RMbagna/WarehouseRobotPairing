@@ -77,8 +77,8 @@ try
             params = jsondecode(jsonText);
             
             % Extract parameters with validation
-            phi1 = validateParam(params, 'phi1', 0.5);
-            phi2 = validateParam(params, 'phi2', 0.8);
+            phi1 = max(0, validateParam(params, 'phi1', 0.5)); % Ensure non-negative
+            phi2 = min(max(0, validateParam(params, 'phi2', 0.8)), 1); % Constrain 0-1
             tau = 1 + exp(validateParam(params, 'timesteps', 0.5));
             error_sd = validateParam(params, 'error_sd', 0.1);
             
@@ -199,7 +199,7 @@ ylabel('Preference Strength');
 legend({'Robot1','Robot2','Robot3','C.Alt1', 'C.Alt2'});
 title(sprintf('Preference Evolution (Trial %d)', current_trial));
 grid on;
-
+%{
 %% Step 4: Solve Equilibrium Function
 % Ensure DFT outputs match expected dimensions
 assert(length(E_P) == 5, 'DFT must return 5 alternatives');
@@ -241,6 +241,7 @@ output_table = table(E_P, V_P, P_final, ...
                      'VariableNames', {'ExpectedPreference', 'VariancePreference', 'FinalPreferences'});
 writetable(output_table, 'results.csv');
 disp('Results saved successfully!');
+%}
 %% Helper Functions
 function param = validateParam(params, name, default)
     if isfield(params, name) && isnumeric(params.(name))

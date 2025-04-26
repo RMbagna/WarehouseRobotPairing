@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>main</title><meta name="generator" content="MATLAB 9.13"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2025-04-24"><meta name="DC.source" content="main.m"><style type="text/css">
+      --><title>main</title><meta name="generator" content="MATLAB 9.13"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2025-04-25"><meta name="DC.source" content="main.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -67,7 +67,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">Step 1: Import CSV Data</a></li><li><a href="#3">Step 2: R Bridge Implementation</a></li><li><a href="#4">Step 3: MDFT Formulation to Calculate Preference Dynamics</a></li><li><a href="#5">Step 4: Solve Equilibrium Function</a></li><li><a href="#6">Step 5: Output Results</a></li><li><a href="#7">Helper Functions</a></li></ul></div><pre class="codeinput"><span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">Step 1: Import CSV Data</a></li><li><a href="#3">Step 2: R Bridge Implementation</a></li><li><a href="#4">Step 3: MDFT Formulation to Calculate Preference Dynamics</a></li><li><a href="#5">Helper Functions</a></li></ul></div><pre class="codeinput"><span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
 <span class="comment">% Main Simulation Script for Resource Allocation Project with R Integration</span>
 <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
 clc;
@@ -138,8 +138,8 @@ outputDir = <span class="string">'G:\My Drive\myResearch\Research Experimentatio
             params = jsondecode(jsonText);
 
             <span class="comment">% Extract parameters with validation</span>
-            phi1 = validateParam(params, <span class="string">'phi1'</span>, 0.5);
-            phi2 = validateParam(params, <span class="string">'phi2'</span>, 0.8);
+            phi1 = max(0, validateParam(params, <span class="string">'phi1'</span>, 0.5)); <span class="comment">% Ensure non-negative</span>
+            phi2 = min(max(0, validateParam(params, <span class="string">'phi2'</span>, 0.8)), 1); <span class="comment">% Constrain 0-1</span>
             tau = 1 + exp(validateParam(params, <span class="string">'timesteps'</span>, 0.5));
             error_sd = validateParam(params, <span class="string">'error_sd'</span>, 0.1);
 
@@ -157,7 +157,8 @@ outputDir = <span class="string">'G:\My Drive\myResearch\Research Experimentatio
                 params.asc_1;
                 params.asc_2;
                 params.asc_3;
-                0  <span class="comment">% Neutral alternative has 0 initial preference</span>
+                0  <span class="comment">% Control alternative1 has 0 initial preference</span>
+                0  <span class="comment">% Control alternative2 has 0 initial preference</span>
             ];
 
             disp(<span class="string">'Estimated Parameters:'</span>);
@@ -177,8 +178,8 @@ outputDir = <span class="string">'G:\My Drive\myResearch\Research Experimentatio
     disp(<span class="string">'Error during R execution:'</span>);
     disp(getReport(ME, <span class="string">'extended'</span>));
     [phi1, phi2, tau, error_sd] = getFallbackParams();
-    beta_weights = [0.3; 0.2; 0.4; 0; 0.5]; <span class="comment">% Default weights</span>
-    initial_P = zeros(4,1); <span class="comment">% Neutral initial preferences</span>
+    beta_weights = [0.3; 0.2; 0.4; 0.1; 0.5]; <span class="comment">% Default weights</span>
+    initial_P = zeros(5,1); <span class="comment">% Neutral initial preferences</span>
 <span class="keyword">end</span>
 </pre><pre class="codeoutput">Initializing R bridge...
 </pre><h2 id="4">Step 3: MDFT Formulation to Calculate Preference Dynamics</h2><p>(MDFT calculations based on estimated parameters)</p><pre class="codeinput">current_trial = 1; <span class="comment">% Analyze first trial (can be looped later)</span>
@@ -203,7 +204,9 @@ M = [
     robotChoice_Data.robot3reliability(current_trial), <span class="keyword">...</span>
     robotChoice_Data.robot3intelligence(current_trial);
 
-    0.5*ones(1,5) <span class="comment">% Neutral alternative</span>
+    0.1*ones(1,5) <span class="comment">% Control alternative1</span>
+
+    0.9*ones(1,5) <span class="comment">% Control alternative2</span>
 ];
 
 <span class="comment">% Normalize beta weights</span>
@@ -221,107 +224,115 @@ disp([<span class="string">'Actual Choice: Robot '</span>, num2str(choices(curre
 
 disp(<span class="string">'M matrix (alternatives &times; attributes):'</span>);
 disp(array2table(M, <span class="keyword">...</span>
-    <span class="string">'RowNames'</span>, {<span class="string">'Robot1'</span>,<span class="string">'Robot2'</span>,<span class="string">'Robot3'</span>,<span class="string">'Neutral'</span>}, <span class="keyword">...</span>
+    <span class="string">'RowNames'</span>, {<span class="string">'Robot1'</span>,<span class="string">'Robot2'</span>,<span class="string">'Robot3'</span>,<span class="string">'Control Alt1'</span>,<span class="string">'Control Alt2'</span>}, <span class="keyword">...</span>
     <span class="string">'VariableNames'</span>, attributes));
 
+<span class="comment">% Create comparison table</span>
+result_table = table(probs, <span class="string">'VariableNames'</span>, {<span class="string">'Probability'</span>}, <span class="keyword">...</span>
+                    <span class="string">'RowNames'</span>, {<span class="string">'Robot1'</span>,<span class="string">'Robot2'</span>,<span class="string">'Robot3'</span>,<span class="string">'Control1'</span>,<span class="string">'Control2'</span>});
+disp(<span class="string">'Choice Probability Distribution:'</span>);
+disp(result_table);
+
+<span class="comment">% Display DFT results with prediction</span>
 disp(<span class="string">'DFT Results:'</span>);
-disp([<span class="string">'E_P: '</span>, num2str(E_P')]);
-disp([<span class="string">'V_P: '</span>, num2str(V_P')]);
-disp([<span class="string">'P_tau: '</span>, num2str(P_tau')]);
-disp([<span class="string">'Choice probabilities: '</span>, num2str(probs')]);
+disp([<span class="string">'E_P: '</span>, num2str(E_P', <span class="string">'%.2f  '</span>)]);
+disp([<span class="string">'Choice probabilities: '</span>, num2str(probs', <span class="string">'%.3f  '</span>)]);
+[~, predicted_choice] = max(probs); <span class="comment">% Get index of highest probability</span>
+disp([<span class="string">'Predicted choice: Robot '</span>, num2str(predicted_choice)]);
 disp([<span class="string">'Actual choice: Robot '</span>, num2str(choices(current_trial))]);
+disp(<span class="string">' '</span>);
+
+<span class="comment">% Display match/mismatch</span>
+<span class="keyword">if</span> predicted_choice == choices(current_trial)
+    disp(<span class="string">'&#10003; Prediction matches actual choice'</span>);
+<span class="keyword">else</span>
+    disp(<span class="string">'&#10007; Prediction differs from actual choice'</span>);
+<span class="keyword">end</span>
+
 
 <span class="comment">% Plot preference evolution</span>
 figure;
 plot(0:tau, P_tau);
 xlabel(<span class="string">'Preference Step (\tau)'</span>);
 ylabel(<span class="string">'Preference Strength'</span>);
-legend({<span class="string">'Robot1'</span>,<span class="string">'Robot2'</span>,<span class="string">'Robot3'</span>,<span class="string">'Neutral'</span>});
+legend({<span class="string">'Robot1'</span>,<span class="string">'Robot2'</span>,<span class="string">'Robot3'</span>,<span class="string">'C.Alt1'</span>, <span class="string">'C.Alt2'</span>});
 title(sprintf(<span class="string">'Preference Evolution (Trial %d)'</span>, current_trial));
 grid <span class="string">on</span>;
+<span class="comment">%{
+</span><span class="comment">%% Step 4: Solve Equilibrium Function
+</span><span class="comment">% Ensure DFT outputs match expected dimensions
+</span><span class="comment">assert(length(E_P) == 5, 'DFT must return 5 alternatives');
+</span><span class="comment">assert(isequal(size(V_P), [5 5]), 'DFT covariance must be 5x5');
+</span><span class="comment">
+</span><span class="comment">% Use DFT outputs for equilibrium calculation
+</span><span class="comment">Ep_mins = E_P;       % 4&times;1 expected preferences from DFT
+</span><span class="comment">Varp_mins = V_P;     % 4&times;4 preference covariance from DFT
+</span><span class="comment">% using robot attribute to map to product the robot can build type A vs
+</span><span class="comment">% type B. this is made using each robot attribute.
+</span><span class="comment">% 5 robot produce 2 things. each trial outputs x_mins as 10x1
+</span><span class="comment">x_mins = robot_production_capacity(M); % 10&times;1 robot state vector could recursive for each neighboring robot
+</span><span class="comment">
+</span><span class="comment">% Call equilibrium solver
+</span><span class="comment">solutions = solve_equilibrium(Ep_mins, Varp_mins, x_mins);
+</span><span class="comment">
+</span><span class="comment">% Extract solutions (works with both old and new versions)
+</span><span class="comment">if isfield(solutions, 'x')
+</span><span class="comment">    % Old version field names
+</span><span class="comment">    P_final = solutions.x;
+</span><span class="comment">    E_P_eq = solutions.lambda;
+</span><span class="comment">    V_P_eq = solutions.mu_vec;
+</span><span class="comment">else
+</span><span class="comment">    % New version field names
+</span><span class="comment">    P_final = solutions.P_final;
+</span><span class="comment">    E_P_eq = solutions.E_P_eq;
+</span><span class="comment">    V_P_eq = solutions.V_P_eq;
+</span><span class="comment">end
+</span><span class="comment">
+</span><span class="comment">% Display results
+</span><span class="comment">disp('=== Equilibrium Results ===');
+</span><span class="comment">disp(['Final Preferences (P_final): ', num2str(P_final')]);
+</span><span class="comment">disp(['Expected Preferences (E_P_eq): ', num2str(E_P_eq')]);
+</span><span class="comment">disp(['Preference Variance (V_P_eq diagonal): ', num2str(V_P_eq')]);
+</span><span class="comment">
+</span><span class="comment">%% Step 5: Output Results
+</span><span class="comment">disp('Saving results to CSV...');
+</span><span class="comment">output_table = table(E_P, V_P, P_final, ...
+</span><span class="comment">                     'VariableNames', {'ExpectedPreference', 'VariancePreference', 'FinalPreferences'});
+</span><span class="comment">writetable(output_table, 'results.csv');
+</span><span class="comment">disp('Results saved successfully!');
+</span><span class="comment">%}</span>
 </pre><pre class="codeoutput">=== Current Trial Analysis ===
 Trial: 1
 Participant: 1001
 Actual Choice: Robot 2
 M matrix (alternatives &times; attributes):
-               energy    pace    safety    reliability    intelligence
-               ______    ____    ______    ___________    ____________
+                    energy    pace    safety    reliability    intelligence
+                    ______    ____    ______    ___________    ____________
 
-    Robot1      0.65     0.55      0.7         0.6            0.58    
-    Robot2      0.75     0.45      0.8        0.65            0.62    
-    Robot3       0.5      0.6     0.65        0.55             0.5    
-    Neutral      0.5      0.5      0.5         0.5             0.5    
+    Robot1           0.65     0.55      0.7         0.6            0.58    
+    Robot2           0.75     0.45      0.8        0.65            0.62    
+    Robot3            0.5      0.6     0.65        0.55             0.5    
+    Control Alt1      0.1      0.1      0.1         0.1             0.1    
+    Control Alt2      0.9      0.9      0.9         0.9             0.9    
+
+Choice Probability Distribution:
+                Probability
+                ___________
+
+    Robot1        0.11063  
+    Robot2        0.04412  
+    Robot3        0.07568  
+    Control1            0  
+    Control2      0.76957  
 
 DFT Results:
-E_P: 9924.519       9924.428      9924.9269      9922.6933
-</pre><pre class="codeoutput error">Error using horzcat
-Dimensions of arrays being concatenated are not consistent.
-
-Error in main (line 170)
-disp(['V_P: ', num2str(V_P')]);
-
-Error in evalmxdom&gt;instrumentAndRun (line 116)
-text = evalc(evalstr);
-
-Error in evalmxdom (line 21)
-[data,text,laste] = instrumentAndRun(file,cellBoundaries,imageDir,imagePrefix,options);
-
-Error in publish
-
-Error in connector.internal.fevalMatlab
-
-Error in connector.internal.fevalJSON
-
-Error in internal.matlab.publish.captureFigures (line 14)
-drawnow;
-
-Error in internal.matlab.publish.PublishFigures (line 44)
-            obj.savedState = internal.matlab.publish.captureFigures;
-
-Error in snapnow&gt;enteringCell (line 187)
-                data.plugins(iPlugins).instance = feval(data.plugins(iPlugins).classname,data.options);
-
-Error in snapnow (line 147)
-                        data = enteringCell(iCell(k), data, doCapture(k));
-
-Error in main (line 4)
-clc;
-</pre><h2 id="5">Step 4: Solve Equilibrium Function</h2><p>Example robot states (10-dimensional vector, nx=10) where each xi &#8712; [0,1]</p><pre class="codeinput"><span class="comment">% Use DFT outputs for equilibrium calculation</span>
-Ep_mins = E_P;       <span class="comment">% 4&times;1 expected preferences from DFT</span>
-Varp_mins = V_P;     <span class="comment">% 4&times;4 preference covariance from DFT</span>
-<span class="comment">% using robot attribute to map to product the robot can build type A vs</span>
-<span class="comment">% type B. this is made using robot attribute.</span>
-<span class="comment">% 5 robot produce 2 things. each trial outputs x_mins as 8x1</span>
-
-x_mins = robot_states.robot2.energy; <span class="comment">% 10&times;1 robot state vector could recursive for each neighboring robot</span>
-
-<span class="comment">% Call equilibrium solver</span>
-solutions = solve_equilibrium(Ep_mins, Varp_mins, x_mins);
-
-<span class="comment">% Extract solutions (works with both old and new versions)</span>
-<span class="keyword">if</span> isfield(solutions, <span class="string">'x'</span>)
-    <span class="comment">% Old version field names</span>
-    P_final = solutions.x;
-    E_P_eq = solutions.lambda;
-    V_P_eq = solutions.mu_vec;
-<span class="keyword">else</span>
-    <span class="comment">% New version field names</span>
-    P_final = solutions.P_final;
-    E_P_eq = solutions.E_P_eq;
-    V_P_eq = solutions.V_P_eq;
-<span class="keyword">end</span>
-
-<span class="comment">% Display results</span>
-disp(<span class="string">'=== Equilibrium Results ==='</span>);
-disp([<span class="string">'Final Preferences (P_final): '</span>, num2str(P_final')]);
-disp([<span class="string">'Expected Preferences (E_P_eq): '</span>, num2str(E_P_eq')]);
-disp([<span class="string">'Preference Variance (V_P_eq diagonal): '</span>, num2str(V_P_eq')]);
-</pre><h2 id="6">Step 5: Output Results</h2><pre class="codeinput">disp(<span class="string">'Saving results to CSV...'</span>);
-output_table = table(E_P, V_P, P_final, <span class="keyword">...</span>
-                     <span class="string">'VariableNames'</span>, {<span class="string">'ExpectedPreference'</span>, <span class="string">'VariancePreference'</span>, <span class="string">'FinalPreferences'</span>});
-writetable(output_table, <span class="string">'results.csv'</span>);
-disp(<span class="string">'Results saved successfully!'</span>);
-</pre><h2 id="7">Helper Functions</h2><pre class="codeinput"><span class="keyword">function</span> param = validateParam(params, name, default)
+E_P: 0.92   0.24   0.66  -4.65   2.72
+Choice probabilities: 0.111  0.044  0.076  0.000  0.770
+Predicted choice: Robot 5
+Actual choice: Robot 2
+ 
+&#10007; Prediction differs from actual choice
+</pre><img vspace="5" hspace="5" src="main_01.png" alt=""> <h2 id="5">Helper Functions</h2><pre class="codeinput"><span class="keyword">function</span> param = validateParam(params, name, default)
     <span class="keyword">if</span> isfield(params, name) &amp;&amp; isnumeric(params.(name))
         param = params.(name);
     <span class="keyword">else</span>
@@ -331,19 +342,19 @@ disp(<span class="string">'Results saved successfully!'</span>);
 <span class="keyword">end</span>
 
 <span class="keyword">function</span> [phi1, phi2, tau, error_sd] = getFallbackParams()
-    phi1 = 0.5 + 0.1*randn();
-    phi2 = 0.8 + 0.1*randn();
-    tau = 10 + randi(5);
-    error_sd = 0.1 + 0.05*rand();
-    warning(<span class="string">'Using randomized default parameters'</span>);
+    phi1 = 0.5;
+    phi2 = 0.8;
+    tau = 10;
+    error_sd = 0.1;
+    warning(<span class="string">'Using default parameters'</span>);
 <span class="keyword">end</span>
 </pre><pre class="codeoutput">Estimated Parameters:
-phi1: 0.0876
-phi2: -0.0389
-tau: 95.0287
-error_sd: 0.0326
+phi1: 0.2602
+phi2: 0
+tau: 149.3093
+error_sd: 0.0973
 Initial Preferences (from ASCs):
-   -0.9454    0.9886         0         0
+    0.2804   -0.3938         0         0         0
 
 </pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2022b</a><br></p></div><!--
 ##### SOURCE BEGIN #####
@@ -426,8 +437,8 @@ try
             params = jsondecode(jsonText);
             
             % Extract parameters with validation
-            phi1 = validateParam(params, 'phi1', 0.5);
-            phi2 = validateParam(params, 'phi2', 0.8);
+            phi1 = max(0, validateParam(params, 'phi1', 0.5)); % Ensure non-negative
+            phi2 = min(max(0, validateParam(params, 'phi2', 0.8)), 1); % Constrain 0-1
             tau = 1 + exp(validateParam(params, 'timesteps', 0.5));
             error_sd = validateParam(params, 'error_sd', 0.1);
             
@@ -445,7 +456,8 @@ try
                 params.asc_1;
                 params.asc_2;
                 params.asc_3;
-                0  % Neutral alternative has 0 initial preference
+                0  % Control alternative1 has 0 initial preference
+                0  % Control alternative2 has 0 initial preference
             ];
             
             disp('Estimated Parameters:');
@@ -465,8 +477,8 @@ catch ME
     disp('Error during R execution:');
     disp(getReport(ME, 'extended'));
     [phi1, phi2, tau, error_sd] = getFallbackParams();
-    beta_weights = [0.3; 0.2; 0.4; 0; 0.5]; % Default weights
-    initial_P = zeros(4,1); % Neutral initial preferences
+    beta_weights = [0.3; 0.2; 0.4; 0.1; 0.5]; % Default weights
+    initial_P = zeros(5,1); % Neutral initial preferences
 end
 
 %% Step 3: MDFT Formulation to Calculate Preference Dynamics
@@ -493,7 +505,9 @@ M = [
     robotChoice_Data.robot3reliability(current_trial), ...
     robotChoice_Data.robot3intelligence(current_trial);
     
-    0.5*ones(1,5) % Neutral alternative
+    0.1*ones(1,5) % Control alternative1
+
+    0.9*ones(1,5) % Control alternative2
 ];
 
 % Normalize beta weights
@@ -511,36 +525,53 @@ disp(['Actual Choice: Robot ', num2str(choices(current_trial))]);
 
 disp('M matrix (alternatives × attributes):');
 disp(array2table(M, ...
-    'RowNames', {'Robot1','Robot2','Robot3','Neutral'}, ...
+    'RowNames', {'Robot1','Robot2','Robot3','Control Alt1','Control Alt2'}, ...
     'VariableNames', attributes));
 
+% Create comparison table
+result_table = table(probs, 'VariableNames', {'Probability'}, ...
+                    'RowNames', {'Robot1','Robot2','Robot3','Control1','Control2'});
+disp('Choice Probability Distribution:');
+disp(result_table);
+
+% Display DFT results with prediction
 disp('DFT Results:');
-disp(['E_P: ', num2str(E_P')]);
-disp(['V_P: ', num2str(V_P')]);
-disp(['P_tau: ', num2str(P_tau')]);
-disp(['Choice probabilities: ', num2str(probs')]);
+disp(['E_P: ', num2str(E_P', '%.2f  ')]);
+disp(['Choice probabilities: ', num2str(probs', '%.3f  ')]);
+[~, predicted_choice] = max(probs); % Get index of highest probability
+disp(['Predicted choice: Robot ', num2str(predicted_choice)]);
 disp(['Actual choice: Robot ', num2str(choices(current_trial))]);
+disp(' ');
+
+% Display match/mismatch
+if predicted_choice == choices(current_trial)
+    disp('✓ Prediction matches actual choice');
+else
+    disp('✗ Prediction differs from actual choice');
+end
+
 
 % Plot preference evolution
 figure;
 plot(0:tau, P_tau);
 xlabel('Preference Step (\tau)');
 ylabel('Preference Strength');
-legend({'Robot1','Robot2','Robot3','Neutral'});
+legend({'Robot1','Robot2','Robot3','C.Alt1', 'C.Alt2'});
 title(sprintf('Preference Evolution (Trial %d)', current_trial));
 grid on;
-
+%{
 %% Step 4: Solve Equilibrium Function
-% Example robot states (10-dimensional vector, nx=10) where each xi ∈ [0,1]
+% Ensure DFT outputs match expected dimensions
+assert(length(E_P) == 5, 'DFT must return 5 alternatives');
+assert(isequal(size(V_P), [5 5]), 'DFT covariance must be 5x5');
 
 % Use DFT outputs for equilibrium calculation
 Ep_mins = E_P;       % 4×1 expected preferences from DFT
 Varp_mins = V_P;     % 4×4 preference covariance from DFT
 % using robot attribute to map to product the robot can build type A vs
-% type B. this is made using robot attribute. 
-% 5 robot produce 2 things. each trial outputs x_mins as 8x1
-
-x_mins = robot_states.robot2.energy; % 10×1 robot state vector could recursive for each neighboring robot
+% type B. this is made using each robot attribute. 
+% 5 robot produce 2 things. each trial outputs x_mins as 10x1
+x_mins = robot_production_capacity(M); % 10×1 robot state vector could recursive for each neighboring robot
 
 % Call equilibrium solver
 solutions = solve_equilibrium(Ep_mins, Varp_mins, x_mins);
@@ -570,6 +601,7 @@ output_table = table(E_P, V_P, P_final, ...
                      'VariableNames', {'ExpectedPreference', 'VariancePreference', 'FinalPreferences'});
 writetable(output_table, 'results.csv');
 disp('Results saved successfully!');
+%}
 %% Helper Functions
 function param = validateParam(params, name, default)
     if isfield(params, name) && isnumeric(params.(name))
@@ -581,11 +613,11 @@ function param = validateParam(params, name, default)
 end
 
 function [phi1, phi2, tau, error_sd] = getFallbackParams()
-    phi1 = 0.5 + 0.1*randn();
-    phi2 = 0.8 + 0.1*randn();
-    tau = 10 + randi(5);
-    error_sd = 0.1 + 0.05*rand();
-    warning('Using randomized default parameters');
+    phi1 = 0.5;
+    phi2 = 0.8;
+    tau = 10;
+    error_sd = 0.1;
+    warning('Using default parameters');
 end
 ##### SOURCE END #####
 --></body></html>
