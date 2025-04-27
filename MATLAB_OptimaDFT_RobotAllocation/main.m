@@ -96,8 +96,8 @@ try
                 params.asc_1;
                 params.asc_2;
                 params.asc_3;
-                0  % Control alternative1 has 0 initial preference
-                0  % Control alternative2 has 0 initial preference
+              %  0  % Control alternative1 has 0 initial preference
+               % 0  % Control alternative2 has 0 initial preference
             ];
             
             disp('Estimated Parameters:');
@@ -117,13 +117,20 @@ catch ME
     disp('Error during R execution:');
     disp(getReport(ME, 'extended'));
     [phi1, phi2, tau, error_sd] = getFallbackParams();
-    beta_weights = [0.3; 0.2; 0.4; 0.1; 0.5]; % Default weights
-    initial_P = zeros(5,1); % Neutral initial preferences
+    beta_weights = [0.3; 0.2; 0.4]; % Default weights ; 0.1; 0.5
+    initial_P = zeros(3,1); % Neutral initial preferences
 end
 
 %% Step 3: MDFT Formulation to Calculate Preference Dynamics
 % (MDFT calculations based on estimated parameters)
-current_trial = 1; % Analyze first trial (can be looped later)
+%current_trial = 1; % Analyze first trial (can be looped later)
+
+num_trials = size(robotChoice_Data, 1);  % Assuming each row is a trial
+for current_trial = 1:num_trials
+    % Extract data for the current trial
+    trial_data = robotChoice_Data(current_trial, :);
+
+
 
 % Create M matrix from current trial's attributes
 M = [
@@ -145,9 +152,9 @@ M = [
     robotChoice_Data.robot3reliability(current_trial), ...
     robotChoice_Data.robot3intelligence(current_trial);
     
-    0.1*ones(1,5) % Control alternative1
+  %  0.1*ones(1,5) % Control alternative1
 
-    0.9*ones(1,5) % Control alternative2
+   % 0.9*ones(1,5) % Control alternative2
 ];
 
 % Normalize beta weights
@@ -165,13 +172,13 @@ disp(['Actual Choice: Robot ', num2str(choices(current_trial))]);
 
 disp('M matrix (alternatives × attributes):');
 disp(array2table(M, ...
-    'RowNames', {'Robot1','Robot2','Robot3','Control Alt1','Control Alt2'}, ...
-    'VariableNames', attributes));
+    'RowNames', {'Robot1','Robot2','Robot3'}, ...
+    'VariableNames', attributes)); %,'Control Alt1','Control Alt2'
 
 % Create comparison table
 result_table = table(probs, 'VariableNames', {'Probability'}, ...
-                    'RowNames', {'Robot1','Robot2','Robot3','Control1','Control2'});
-disp('Choice Probability Distribution:');
+                    'RowNames', {'Robot1','Robot2','Robot3'});
+disp('Choice Probability Distribution:'); %,'Control1','Control2'
 disp(result_table);
 
 % Display DFT results with prediction
@@ -196,9 +203,11 @@ figure;
 plot(0:tau, P_tau);
 xlabel('Preference Step (\tau)');
 ylabel('Preference Strength');
-legend({'Robot1','Robot2','Robot3','C.Alt1', 'C.Alt2'});
+legend({'Robot1','Robot2','Robot3'}); %,'C.Alt1', 'C.Alt2'
 title(sprintf('Preference Evolution (Trial %d)', current_trial));
 grid on;
+
+end
 %{
 %% Step 4: Solve Equilibrium Function
 % Ensure DFT outputs match expected dimensions
