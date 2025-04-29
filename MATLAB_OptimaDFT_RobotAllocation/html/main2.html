@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>main</title><meta name="generator" content="MATLAB 9.13"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2025-04-29"><meta name="DC.source" content="main.m"><style type="text/css">
+      --><title>main2</title><meta name="generator" content="MATLAB 9.13"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2025-04-29"><meta name="DC.source" content="main2.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -69,9 +69,9 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
   </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">Step 1: Import CSV Data</a></li><li><a href="#3">Step 2: R Bridge Implementation</a></li><li><a href="#4">Step 3: MDFT Formulation to Calculate Preference Dynamics</a></li><li><a href="#5">Helper Functions</a></li></ul></div><pre class="codeinput"><span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
 <span class="comment">% Main Simulation Script for Resource Allocation Project with R Integration</span>
-<span class="comment">% Using Human data to estimate parameters and compare to synthetic data</span>
-<span class="comment">% The choice predictions from human parameters is used to update survey GUI</span>
-<span class="comment">% inputs. This helps us validate human-centric choice predictions</span>
+<span class="comment">% Using synthetic data to estimate parameters and compare to synthetic data</span>
+<span class="comment">% The choice predictions is used to update survey inputs.</span>
+<span class="comment">% This helps us validate initial human-centric choice predictions.</span>
 <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
 clc;
 clear <span class="string">all</span>;
@@ -103,7 +103,7 @@ time_spent = robotChoice_Data.timespent;
 <span class="comment">% Configure paths</span>
 rscript_path = <span class="string">'C:\Program Files\R\R-4.4.2\bin\x64\Rscript.exe'</span>;
 r_script = <span class="string">'G:\My Drive\myResearch\Research Experimentation\Apollo\apollo\example\DFT_Resource_Allocation.R'</span>;
-csvFile = <span class="string">'G:\My Drive\myResearch\Research Experimentation\Apollo\apollo\data\WarehouseRobot_Pairing_Data\HumanData_Resource_Allocation.csv'</span>;
+csvFile = <span class="string">'G:\My Drive\myResearch\Research Experimentation\Apollo\apollo\data\WarehouseRobot_Pairing_Data\test_pairing_data.csv'</span>;
 outputDir = <span class="string">'G:\My Drive\myResearch\Research Experimentation\Apollo\apollo\ResourceAllocation_Output'</span>;
 
 <span class="comment">% Verify installations</span>
@@ -257,23 +257,20 @@ disp(<span class="string">' '</span>);
 
 <span class="comment">% Display match/mismatch</span>
 <span class="keyword">if</span> predicted_choice == choices(current_trial)
-    disp(<span class="string">'&#10003; Prediction stayed the same'</span>);
+    disp(<span class="string">'&#10003; Prediction matches actual choice'</span>);
 <span class="keyword">else</span>
-    disp(<span class="string">'&#10007; Prediction changed'</span>);
+    disp(<span class="string">'&#10007; Prediction differs from actual choice'</span>);
 <span class="keyword">end</span>
 
 
 <span class="comment">% Plot preference evolution</span>
 figure;
-time_steps = 0:size(P_tau, 2)-1;
-h = plot(time_steps, P_tau', <span class="string">'LineWidth'</span>, 2);
-
-legend(h, {<span class="string">'Robot 1'</span>, <span class="string">'Robot 2'</span>, <span class="string">'Robot 3'</span>}, <span class="string">'Location'</span>, <span class="string">'best'</span>);
-xlabel(<span class="string">'Time Step (\tau)'</span>);
+plot(0:tau, P_tau);
+xlabel(<span class="string">'Preference Step (\tau)'</span>);
 ylabel(<span class="string">'Preference Strength'</span>);
+legend({<span class="string">'Robot1'</span>,<span class="string">'Robot2'</span>,<span class="string">'Robot3'</span>}); <span class="comment">%,'C.Alt1', 'C.Alt2'</span>
 title(sprintf(<span class="string">'Preference Evolution (Trial %d)'</span>, current_trial));
 grid <span class="string">on</span>;
-
 
 <span class="keyword">end</span>
 <span class="comment">%{
@@ -335,17 +332,17 @@ Choice Probability Distribution:
               Probability
               ___________
 
-    Robot1      0.27897  
-    Robot2      0.35085  
-    Robot3      0.37018  
+    Robot1    0.00086705 
+    Robot2       0.99913 
+    Robot3    1.6559e-06 
 
 DFT Results:
-E_P: -0.18  -0.04  -0.01
-Choice probabilities: 0.279  0.351  0.370
-Predicted choice: Robot 3
+E_P: -0.03   0.67  -0.66
+Choice probabilities: 0.001  0.999  0.000
+Predicted choice: Robot 2
 Actual choice: Robot 2
  
-&#10007; Prediction changed
+&#10003; Prediction matches actual choice
 === Current Trial Analysis ===
 Trial: 2
 Participant: 1001
@@ -362,17 +359,17 @@ Choice Probability Distribution:
               Probability
               ___________
 
-    Robot1       0.2705  
-    Robot2      0.35231  
-    Robot3      0.37718  
+    Robot1    4.7386e-08 
+    Robot2        0.9996 
+    Robot3    0.00039935 
 
 DFT Results:
-E_P: -0.20  -0.04   0.00
-Choice probabilities: 0.271  0.352  0.377
-Predicted choice: Robot 3
+E_P: -0.87   0.82   0.04
+Choice probabilities: 0.000  1.000  0.000
+Predicted choice: Robot 2
 Actual choice: Robot 1
  
-&#10007; Prediction changed
+&#10007; Prediction differs from actual choice
 === Current Trial Analysis ===
 Trial: 3
 Participant: 1001
@@ -389,17 +386,17 @@ Choice Probability Distribution:
               Probability
               ___________
 
-    Robot1         0.27  
-    Robot2      0.33438  
-    Robot3      0.39561  
+    Robot1     2.689e-11 
+    Robot2    1.7535e-12 
+    Robot3             1 
 
 DFT Results:
-E_P: -0.20  -0.07   0.03
-Choice probabilities: 0.270  0.334  0.396
+E_P: -0.73  -1.00   1.71
+Choice probabilities: 0.000  0.000  1.000
 Predicted choice: Robot 3
 Actual choice: Robot 3
  
-&#10003; Prediction stayed the same
+&#10003; Prediction matches actual choice
 === Current Trial Analysis ===
 Trial: 4
 Participant: 1002
@@ -416,17 +413,17 @@ Choice Probability Distribution:
               Probability
               ___________
 
-    Robot1      0.27382  
-    Robot2      0.34437  
-    Robot3      0.38181  
+    Robot1    0.00010438 
+    Robot2       0.12028 
+    Robot3       0.87962 
 
 DFT Results:
-E_P: -0.19  -0.05   0.01
-Choice probabilities: 0.274  0.344  0.382
+E_P: -0.54   0.16   0.36
+Choice probabilities: 0.000  0.120  0.880
 Predicted choice: Robot 3
 Actual choice: Robot 2
  
-&#10007; Prediction changed
+&#10007; Prediction differs from actual choice
 === Current Trial Analysis ===
 Trial: 5
 Participant: 1002
@@ -443,17 +440,17 @@ Choice Probability Distribution:
               Probability
               ___________
 
-    Robot1      0.27267  
-    Robot2      0.34714  
-    Robot3       0.3802  
+    Robot1     0.0001041 
+    Robot2       0.12263 
+    Robot3       0.87727 
 
 DFT Results:
-E_P: -0.20  -0.05   0.01
-Choice probabilities: 0.273  0.347  0.380
+E_P: -0.54   0.16   0.36
+Choice probabilities: 0.000  0.123  0.877
 Predicted choice: Robot 3
 Actual choice: Robot 1
  
-&#10007; Prediction changed
+&#10007; Prediction differs from actual choice
 === Current Trial Analysis ===
 Trial: 6
 Participant: 1002
@@ -470,17 +467,17 @@ Choice Probability Distribution:
               Probability
               ___________
 
-    Robot1      0.27359  
-    Robot2      0.34493  
-    Robot3      0.38148  
+    Robot1    0.00010432 
+    Robot2       0.12074 
+    Robot3       0.87915 
 
 DFT Results:
-E_P: -0.19  -0.05   0.01
-Choice probabilities: 0.274  0.345  0.381
+E_P: -0.54   0.16   0.36
+Choice probabilities: 0.000  0.121  0.879
 Predicted choice: Robot 3
 Actual choice: Robot 3
  
-&#10003; Prediction stayed the same
+&#10003; Prediction matches actual choice
 === Current Trial Analysis ===
 Trial: 7
 Participant: 1003
@@ -497,17 +494,17 @@ Choice Probability Distribution:
               Probability
               ___________
 
-    Robot1      0.27243  
-    Robot2      0.34769  
-    Robot3      0.37987  
+    Robot1    0.00010404 
+    Robot2        0.1231 
+    Robot3       0.87679 
 
 DFT Results:
-E_P: -0.20  -0.05   0.00
-Choice probabilities: 0.272  0.348  0.380
+E_P: -0.54   0.17   0.36
+Choice probabilities: 0.000  0.123  0.877
 Predicted choice: Robot 3
 Actual choice: Robot 2
  
-&#10007; Prediction changed
+&#10007; Prediction differs from actual choice
 === Current Trial Analysis ===
 Trial: 8
 Participant: 1003
@@ -524,17 +521,17 @@ Choice Probability Distribution:
               Probability
               ___________
 
-    Robot1      0.27243  
-    Robot2      0.34769  
-    Robot3      0.37987  
+    Robot1    0.00010404 
+    Robot2        0.1231 
+    Robot3       0.87679 
 
 DFT Results:
-E_P: -0.20  -0.05   0.00
-Choice probabilities: 0.272  0.348  0.380
+E_P: -0.54   0.17   0.36
+Choice probabilities: 0.000  0.123  0.877
 Predicted choice: Robot 3
 Actual choice: Robot 1
  
-&#10007; Prediction changed
+&#10007; Prediction differs from actual choice
 === Current Trial Analysis ===
 Trial: 9
 Participant: 1003
@@ -551,17 +548,17 @@ Choice Probability Distribution:
               Probability
               ___________
 
-    Robot1      0.27243  
-    Robot2      0.34769  
-    Robot3      0.37987  
+    Robot1    0.00010404 
+    Robot2        0.1231 
+    Robot3       0.87679 
 
 DFT Results:
-E_P: -0.20  -0.05   0.00
-Choice probabilities: 0.272  0.348  0.380
+E_P: -0.54   0.17   0.36
+Choice probabilities: 0.000  0.123  0.877
 Predicted choice: Robot 3
 Actual choice: Robot 3
  
-&#10003; Prediction stayed the same
+&#10003; Prediction matches actual choice
 === Current Trial Analysis ===
 Trial: 10
 Participant: 1004
@@ -578,18 +575,18 @@ Choice Probability Distribution:
               Probability
               ___________
 
-    Robot1      0.27243  
-    Robot2      0.34769  
-    Robot3      0.37987  
+    Robot1    0.00010404 
+    Robot2        0.1231 
+    Robot3       0.87679 
 
 DFT Results:
-E_P: -0.20  -0.05   0.00
-Choice probabilities: 0.272  0.348  0.380
+E_P: -0.54   0.17   0.36
+Choice probabilities: 0.000  0.123  0.877
 Predicted choice: Robot 3
 Actual choice: Robot 2
  
-&#10007; Prediction changed
-</pre><img vspace="5" hspace="5" src="main_01.png" alt=""> <img vspace="5" hspace="5" src="main_02.png" alt=""> <img vspace="5" hspace="5" src="main_03.png" alt=""> <img vspace="5" hspace="5" src="main_04.png" alt=""> <img vspace="5" hspace="5" src="main_05.png" alt=""> <img vspace="5" hspace="5" src="main_06.png" alt=""> <img vspace="5" hspace="5" src="main_07.png" alt=""> <img vspace="5" hspace="5" src="main_08.png" alt=""> <img vspace="5" hspace="5" src="main_09.png" alt=""> <img vspace="5" hspace="5" src="main_10.png" alt=""> <h2 id="5">Helper Functions</h2><pre class="codeinput"><span class="keyword">function</span> param = validateParam(params, name, default)
+&#10007; Prediction differs from actual choice
+</pre><img vspace="5" hspace="5" src="main2_01.png" alt=""> <img vspace="5" hspace="5" src="main2_02.png" alt=""> <img vspace="5" hspace="5" src="main2_03.png" alt=""> <img vspace="5" hspace="5" src="main2_04.png" alt=""> <img vspace="5" hspace="5" src="main2_05.png" alt=""> <img vspace="5" hspace="5" src="main2_06.png" alt=""> <img vspace="5" hspace="5" src="main2_07.png" alt=""> <img vspace="5" hspace="5" src="main2_08.png" alt=""> <img vspace="5" hspace="5" src="main2_09.png" alt=""> <img vspace="5" hspace="5" src="main2_10.png" alt=""> <h2 id="5">Helper Functions</h2><pre class="codeinput"><span class="keyword">function</span> param = validateParam(params, name, default)
     <span class="keyword">if</span> isfield(params, name) &amp;&amp; isnumeric(params.(name))
         param = params.(name);
     <span class="keyword">else</span>
@@ -606,20 +603,20 @@ Actual choice: Robot 2
     warning(<span class="string">'Using default parameters'</span>);
 <span class="keyword">end</span>
 </pre><pre class="codeoutput">Estimated Parameters:
-phi1: 3.1285
+phi1: 0.3708
 phi2: 0
-tau: 3.273
-error_sd: 0.6053
+tau: 153.1703
+error_sd: 0.1
 Initial Preferences (from ASCs):
-   -0.1880   -0.0522         0
+    0.0312   -0.0471         0
 
 </pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2022b</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Main Simulation Script for Resource Allocation Project with R Integration
-% Using Human data to estimate parameters and compare to synthetic data
-% The choice predictions from human parameters is used to update survey GUI
-% inputs. This helps us validate human-centric choice predictions
+% Using synthetic data to estimate parameters and compare to synthetic data
+% The choice predictions is used to update survey inputs. 
+% This helps us validate initial human-centric choice predictions.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clc;
 clear all;
@@ -659,7 +656,7 @@ disp('Initializing R bridge...');
 % Configure paths
 rscript_path = 'C:\Program Files\R\R-4.4.2\bin\x64\Rscript.exe';
 r_script = 'G:\My Drive\myResearch\Research Experimentation\Apollo\apollo\example\DFT_Resource_Allocation.R';
-csvFile = 'G:\My Drive\myResearch\Research Experimentation\Apollo\apollo\data\WarehouseRobot_Pairing_Data\HumanData_Resource_Allocation.csv';
+csvFile = 'G:\My Drive\myResearch\Research Experimentation\Apollo\apollo\data\WarehouseRobot_Pairing_Data\test_pairing_data.csv';
 outputDir = 'G:\My Drive\myResearch\Research Experimentation\Apollo\apollo\ResourceAllocation_Output';
 
 % Verify installations
@@ -700,7 +697,7 @@ try
             %Boundedphi1, phi2 parameters
             phi1 = max(0, validateParam(params, 'phi1', 0.5)); % Ensure non-negative
             phi2 = min(max(0, validateParam(params, 'phi2', 0.8)), 1); % Constrain 0-1
-
+            
             %Raw phi1, phi2 parameters
             %phi1 = validateParam(params, 'phi1', 0.5);
             %phi2 = validateParam(params, 'phi2', 0.8);
@@ -815,23 +812,20 @@ disp(' ');
 
 % Display match/mismatch
 if predicted_choice == choices(current_trial)
-    disp('✓ Prediction stayed the same');
+    disp('✓ Prediction matches actual choice');
 else
-    disp('✗ Prediction changed');
+    disp('✗ Prediction differs from actual choice');
 end
 
 
 % Plot preference evolution
-figure; 
-time_steps = 0:size(P_tau, 2)-1;
-h = plot(time_steps, P_tau', 'LineWidth', 2);
-
-legend(h, {'Robot 1', 'Robot 2', 'Robot 3'}, 'Location', 'best');
-xlabel('Time Step (\tau)');
+figure;
+plot(0:tau, P_tau);
+xlabel('Preference Step (\tau)');
 ylabel('Preference Strength');
+legend({'Robot1','Robot2','Robot3'}); %,'C.Alt1', 'C.Alt2'
 title(sprintf('Preference Evolution (Trial %d)', current_trial));
 grid on;
-
 
 end
 %{

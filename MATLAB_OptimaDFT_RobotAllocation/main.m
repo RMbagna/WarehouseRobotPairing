@@ -1,5 +1,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Main Simulation Script for Resource Allocation Project with R Integration
+% Using Human data to estimate parameters and compare to synthetic data
+% The choice predictions from human parameters is used to update survey GUI
+% inputs. This helps us validate human-centric choice predictions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clc;
 clear all;
@@ -39,7 +42,7 @@ disp('Initializing R bridge...');
 % Configure paths
 rscript_path = 'C:\Program Files\R\R-4.4.2\bin\x64\Rscript.exe';
 r_script = 'G:\My Drive\myResearch\Research Experimentation\Apollo\apollo\example\DFT_Resource_Allocation.R';
-csvFile = 'G:\My Drive\myResearch\Research Experimentation\Apollo\apollo\data\WarehouseRobot_Pairing_Data\test_pairing_data.csv';
+csvFile = 'G:\My Drive\myResearch\Research Experimentation\Apollo\apollo\data\WarehouseRobot_Pairing_Data\HumanData_Resource_Allocation.csv';
 outputDir = 'G:\My Drive\myResearch\Research Experimentation\Apollo\apollo\ResourceAllocation_Output';
 
 % Verify installations
@@ -77,19 +80,24 @@ try
             params = jsondecode(jsonText);
             
             % Extract parameters with validation
+            %Boundedphi1, phi2 parameters
             phi1 = max(0, validateParam(params, 'phi1', 0.5)); % Ensure non-negative
             phi2 = min(max(0, validateParam(params, 'phi2', 0.8)), 1); % Constrain 0-1
+
+            %Raw phi1, phi2 parameters
+            %phi1 = validateParam(params, 'phi1', 0.5);
+            %phi2 = validateParam(params, 'phi2', 0.8);
             tau = 1 + exp(validateParam(params, 'timesteps', 0.5));
-            error_sd = validateParam(params, 'error_sd', 0.1);
-            
+            error_sd = min(max(0.1, validateParam(params, 'error_sd', 0.1)), 1); % still clip here
+           
             % Extract attribute weights
-            beta_weights = [
+            beta_weights = exp([
                 params.b_energy;
                 params.b_pace;
                 params.b_safety;
                 params.b_reliability;
                 params.b_intelligence
-            ];
+            ]);
             
             % Get initial preferences from ASCs
             initial_P = [
@@ -129,8 +137,6 @@ num_trials = size(robotChoice_Data, 1);  % Assuming each row is a trial
 for current_trial = 1:num_trials
     % Extract data for the current trial
     trial_data = robotChoice_Data(current_trial, :);
-
-
 
 % Create M matrix from current trial's attributes
 M = [
@@ -192,20 +198,23 @@ disp(' ');
 
 % Display match/mismatch
 if predicted_choice == choices(current_trial)
-    disp('✓ Prediction matches actual choice');
+    disp('✓ Prediction stayed the same');
 else
-    disp('✗ Prediction differs from actual choice');
+    disp('✗ Prediction changed');
 end
 
 
 % Plot preference evolution
-figure;
-plot(0:tau, P_tau);
-xlabel('Preference Step (\tau)');
+figure; 
+time_steps = 0:size(P_tau, 2)-1;
+h = plot(time_steps, P_tau', 'LineWidth', 2);
+
+legend(h, {'Robot 1', 'Robot 2', 'Robot 3'}, 'Location', 'best');
+xlabel('Time Step (\tau)');
 ylabel('Preference Strength');
-legend({'Robot1','Robot2','Robot3'}); %,'C.Alt1', 'C.Alt2'
 title(sprintf('Preference Evolution (Trial %d)', current_trial));
 grid on;
+
 
 end
 %{

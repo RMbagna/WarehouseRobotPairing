@@ -1,8 +1,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Main Simulation Script for Resource Allocation Project with R Integration
 % Using synthetic data to estimate parameters and compare to synthetic data
-% The choice predictions is used to update survey inputs. 
-% This helps us validate initial human-centric choice predictions.
+% The choice predictions from human parameters is used to update survey GUI
+% inputs. This helps us validate human-centric choice predictions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clc;
 clear all;
