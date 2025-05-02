@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>main</title><meta name="generator" content="MATLAB 9.13"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2025-04-29"><meta name="DC.source" content="main.m"><style type="text/css">
+      --><title>main</title><meta name="generator" content="MATLAB 9.13"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2025-05-02"><meta name="DC.source" content="main.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -142,12 +142,12 @@ outputDir = <span class="string">'G:\My Drive\myResearch\Research Experimentatio
 
             <span class="comment">% Extract parameters with validation</span>
             <span class="comment">%Boundedphi1, phi2 parameters</span>
-            phi1 = max(0, validateParam(params, <span class="string">'phi1'</span>, 0.5)); <span class="comment">% Ensure non-negative</span>
-            phi2 = min(max(0, validateParam(params, <span class="string">'phi2'</span>, 0.8)), 1); <span class="comment">% Constrain 0-1</span>
+            <span class="comment">%phi1 = max(0, validateParam(params, 'phi1', 0.5)); % Ensure non-negative</span>
+            <span class="comment">%phi2 = min(max(0, validateParam(params, 'phi2', 0.8)), 1); % Constrain 0-1</span>
 
             <span class="comment">%Raw phi1, phi2 parameters</span>
-            <span class="comment">%phi1 = validateParam(params, 'phi1', 0.5);</span>
-            <span class="comment">%phi2 = validateParam(params, 'phi2', 0.8);</span>
+            phi1 = validateParam(params, <span class="string">'phi1'</span>, 0.5);
+            phi2 = validateParam(params, <span class="string">'phi2'</span>, 0.8);
             tau = 1 + exp(validateParam(params, <span class="string">'timesteps'</span>, 0.5));
             error_sd = min(max(0.1, validateParam(params, <span class="string">'error_sd'</span>, 0.1)), 1); <span class="comment">% still clip here</span>
 
@@ -335,14 +335,14 @@ Choice Probability Distribution:
               Probability
               ___________
 
-    Robot1      0.27897  
-    Robot2      0.35085  
-    Robot3      0.37018  
+    Robot1             1 
+    Robot2    1.9187e-08 
+    Robot3    1.3114e-09 
 
 DFT Results:
-E_P: -0.18  -0.04  -0.01
-Choice probabilities: 0.279  0.351  0.370
-Predicted choice: Robot 3
+E_P: 7.32  -2.90  -4.45
+Choice probabilities: 1.000  0.000  0.000
+Predicted choice: Robot 1
 Actual choice: Robot 2
  
 &#10007; Prediction changed
@@ -362,13 +362,13 @@ Choice Probability Distribution:
               Probability
               ___________
 
-    Robot1       0.2705  
-    Robot2      0.35231  
-    Robot3      0.37718  
+    Robot1    5.3399e-06 
+    Robot2        0.1321 
+    Robot3        0.8679 
 
 DFT Results:
-E_P: -0.20  -0.04   0.00
-Choice probabilities: 0.271  0.352  0.377
+E_P: -4.23   1.59   2.67
+Choice probabilities: 0.000  0.132  0.868
 Predicted choice: Robot 3
 Actual choice: Robot 1
  
@@ -389,13 +389,13 @@ Choice Probability Distribution:
               Probability
               ___________
 
-    Robot1         0.27  
-    Robot2      0.33438  
-    Robot3      0.39561  
+    Robot1    2.3863e-06 
+    Robot2       0.42845 
+    Robot3       0.57155 
 
 DFT Results:
-E_P: -0.20  -0.07   0.03
-Choice probabilities: 0.270  0.334  0.396
+E_P: -4.69   2.28   2.44
+Choice probabilities: 0.000  0.428  0.572
 Predicted choice: Robot 3
 Actual choice: Robot 3
  
@@ -416,13 +416,13 @@ Choice Probability Distribution:
               Probability
               ___________
 
-    Robot1      0.27382  
-    Robot2      0.34437  
-    Robot3      0.38181  
+    Robot1    1.3757e-08 
+    Robot2       0.15431 
+    Robot3       0.84569 
 
 DFT Results:
-E_P: -0.19  -0.05   0.01
-Choice probabilities: 0.274  0.344  0.382
+E_P: -6.54   2.80   3.78
+Choice probabilities: 0.000  0.154  0.846
 Predicted choice: Robot 3
 Actual choice: Robot 2
  
@@ -443,13 +443,13 @@ Choice Probability Distribution:
               Probability
               ___________
 
-    Robot1      0.27267  
-    Robot2      0.34714  
-    Robot3       0.3802  
+    Robot1    3.7396e-09 
+    Robot2        0.1114 
+    Robot3        0.8886 
 
 DFT Results:
-E_P: -0.20  -0.05   0.01
-Choice probabilities: 0.273  0.347  0.380
+E_P: -6.99   2.91   4.11
+Choice probabilities: 0.000  0.111  0.889
 Predicted choice: Robot 3
 Actual choice: Robot 1
  
@@ -470,13 +470,13 @@ Choice Probability Distribution:
               Probability
               ___________
 
-    Robot1      0.27359  
-    Robot2      0.34493  
-    Robot3      0.38148  
+    Robot1    5.6415e-09 
+    Robot2       0.14451 
+    Robot3       0.85549 
 
 DFT Results:
-E_P: -0.19  -0.05   0.01
-Choice probabilities: 0.274  0.345  0.381
+E_P: -6.87   2.94   3.96
+Choice probabilities: 0.000  0.145  0.855
 Predicted choice: Robot 3
 Actual choice: Robot 3
  
@@ -497,13 +497,13 @@ Choice Probability Distribution:
               Probability
               ___________
 
-    Robot1      0.27243  
-    Robot2      0.34769  
-    Robot3      0.37987  
+    Robot1    5.8231e-09 
+    Robot2        0.1059 
+    Robot3        0.8941 
 
 DFT Results:
-E_P: -0.20  -0.05   0.00
-Choice probabilities: 0.272  0.348  0.380
+E_P: -6.81   2.81   4.04
+Choice probabilities: 0.000  0.106  0.894
 Predicted choice: Robot 3
 Actual choice: Robot 2
  
@@ -524,13 +524,13 @@ Choice Probability Distribution:
               Probability
               ___________
 
-    Robot1      0.27243  
-    Robot2      0.34769  
-    Robot3      0.37987  
+    Robot1    5.8231e-09 
+    Robot2        0.1059 
+    Robot3        0.8941 
 
 DFT Results:
-E_P: -0.20  -0.05   0.00
-Choice probabilities: 0.272  0.348  0.380
+E_P: -6.81   2.81   4.04
+Choice probabilities: 0.000  0.106  0.894
 Predicted choice: Robot 3
 Actual choice: Robot 1
  
@@ -551,13 +551,13 @@ Choice Probability Distribution:
               Probability
               ___________
 
-    Robot1      0.27243  
-    Robot2      0.34769  
-    Robot3      0.37987  
+    Robot1    5.8231e-09 
+    Robot2        0.1059 
+    Robot3        0.8941 
 
 DFT Results:
-E_P: -0.20  -0.05   0.00
-Choice probabilities: 0.272  0.348  0.380
+E_P: -6.81   2.81   4.04
+Choice probabilities: 0.000  0.106  0.894
 Predicted choice: Robot 3
 Actual choice: Robot 3
  
@@ -578,13 +578,13 @@ Choice Probability Distribution:
               Probability
               ___________
 
-    Robot1      0.27243  
-    Robot2      0.34769  
-    Robot3      0.37987  
+    Robot1    5.8231e-09 
+    Robot2        0.1059 
+    Robot3        0.8941 
 
 DFT Results:
-E_P: -0.20  -0.05   0.00
-Choice probabilities: 0.272  0.348  0.380
+E_P: -6.81   2.81   4.04
+Choice probabilities: 0.000  0.106  0.894
 Predicted choice: Robot 3
 Actual choice: Robot 2
  
@@ -606,12 +606,12 @@ Actual choice: Robot 2
     warning(<span class="string">'Using default parameters'</span>);
 <span class="keyword">end</span>
 </pre><pre class="codeoutput">Estimated Parameters:
-phi1: 3.1285
-phi2: 0
-tau: 3.273
-error_sd: 0.6053
+phi1: 4.4752
+phi2: 0.5253
+tau: 22027.4658
+error_sd: 0.5754
 Initial Preferences (from ASCs):
-   -0.1880   -0.0522         0
+    0.2449   -0.1397         0
 
 </pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2022b</a><br></p></div><!--
 ##### SOURCE BEGIN #####
@@ -698,12 +698,12 @@ try
             
             % Extract parameters with validation
             %Boundedphi1, phi2 parameters
-            phi1 = max(0, validateParam(params, 'phi1', 0.5)); % Ensure non-negative
-            phi2 = min(max(0, validateParam(params, 'phi2', 0.8)), 1); % Constrain 0-1
+            %phi1 = max(0, validateParam(params, 'phi1', 0.5)); % Ensure non-negative
+            %phi2 = min(max(0, validateParam(params, 'phi2', 0.8)), 1); % Constrain 0-1
 
             %Raw phi1, phi2 parameters
-            %phi1 = validateParam(params, 'phi1', 0.5);
-            %phi2 = validateParam(params, 'phi2', 0.8);
+            phi1 = validateParam(params, 'phi1', 0.5);
+            phi2 = validateParam(params, 'phi2', 0.8);
             tau = 1 + exp(validateParam(params, 'timesteps', 0.5));
             error_sd = min(max(0.1, validateParam(params, 'error_sd', 0.1)), 1); % still clip here
            

@@ -81,12 +81,12 @@ try
             
             % Extract parameters with validation
             %Boundedphi1, phi2 parameters
-            phi1 = max(0, validateParam(params, 'phi1', 0.5)); % Ensure non-negative
-            phi2 = min(max(0, validateParam(params, 'phi2', 0.8)), 1); % Constrain 0-1
+            %phi1 = max(0, validateParam(params, 'phi1', 0.5)); % Ensure non-negative
+            %phi2 = min(max(0, validateParam(params, 'phi2', 0.8)), 1); % Constrain 0-1
 
             %Raw phi1, phi2 parameters
-            %phi1 = validateParam(params, 'phi1', 0.5);
-            %phi2 = validateParam(params, 'phi2', 0.8);
+            phi1 = validateParam(params, 'phi1', 0.5);
+            phi2 = validateParam(params, 'phi2', 0.8);
             tau = 1 + exp(validateParam(params, 'timesteps', 0.5));
             error_sd = min(max(0.1, validateParam(params, 'error_sd', 0.1)), 1); % still clip here
            
