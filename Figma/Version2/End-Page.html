@@ -43,7 +43,7 @@
             </div>
             
             <!-- Satisfaction prompt -->
-            <div style="width: 555px; left: 84px; top: 261px; position: absolute; color: #333333; font-size: 28px; font-family: Sarabun; font-weight: 700; line-height: 45px; word-wrap: break-word">
+            <div id="satisfactionPrompt" style="width: 555px; left: 84px; top: 261px; position: absolute; color: #333333; font-size: 28px; font-family: Sarabun; font-weight: 700; line-height: 45px; word-wrap: break-word">
                 How satisfied are you with this robot pairing?
             </div>
             
@@ -162,6 +162,7 @@ function displayTrial(index) {
     document.getElementById('participantId').textContent = trial.participantid;
     document.getElementById('timeSpent').textContent = trial.timespent;
     document.getElementById('chosenRobot').textContent = `Robot ${trial.choice}`;
+    document.getElementById('satisfactionPrompt').textContent = `How satisfied are you with this ${trial.staketype.toUpperCase()} stake robot pairing? Consider how well it fits your decision in this context.`;
     
     // Prepare radar chart data
     const attributes = ['Energy', 'Pace', 'Safety', 'Reliability', 'Intelligence'];
