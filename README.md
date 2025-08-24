@@ -52,7 +52,7 @@ This repository hosts the **Warehouse Multi-Robot GUI Experiment**, a research p
 
 ---
 
-## 📂 Repository Structure
+## Repository Structure
 
 ```
 ├── GUI/                  # Experiment interface for human–robot decision study
@@ -65,7 +65,7 @@ This repository hosts the **Warehouse Multi-Robot GUI Experiment**, a research p
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 1. **Clone the Repository**
 
@@ -88,14 +88,14 @@ This repository hosts the **Warehouse Multi-Robot GUI Experiment**, a research p
 
 ---
 
-## 🧠 Research Context
+## Research Context
 
 This project is part of ongoing research in **human–robot collaboration** and **cognitive modeling**.
 It leverages **Decision Field Theory (DFT)** to provide a process-level understanding of human preferences under uncertainty and task complexity.
 
 ---
 
-## 📖 References
+## References
 
 * Busemeyer, J. R., & Townsend, J. T. (1993). Decision field theory: A dynamic-cognitive approach to decision making in an uncertain environment. Psychological Review, 100(3), 432–459.
 * Hess, S., Palma, D., & Daly, A. (2018). Apollo: A flexible, powerful and customisable freeware package for choice model estimation and application. Journal of Choice Modelling, 28, 100170. https://doi.org/10.1016/j.jocm.2018.100170
@@ -103,7 +103,7 @@ It leverages **Decision Field Theory (DFT)** to provide a process-level understa
 
 ---
 
-## 📑 Citation
+## Citation
 
 If you use this project in your research, please cite:
 
@@ -126,7 +126,7 @@ If you use this project in your research, please cite:
 
 ---
 
-## 👨‍💻 Author
+## Author
 
 **Ryan Mbagna Nanko**
 *Clemson University – I²R Lab (Interdisciplinary & Intelligent Research)*
@@ -134,11 +134,7 @@ If you use this project in your research, please cite:
 For questions or collaborations, reach out:
 📧 \[[ryanmbagna@gmail.com](mailto:ryanmbagna@gmail.com)] | \[[rmbagna@clemson.edu](mailto:rmbagna@clemson.edu)]
 
----
 
-```
-
----
 
 
 
