@@ -4,11 +4,11 @@ This repository hosts the **Warehouse Multi-Robot GUI Experiment**, a research p
 
 ---
 
-## 📌 Project Overview
+## Project Overview
 
 * **Goal:**
-  To investigate how humans form and evolve preferences when interacting with multiple robots in a warehouse task environment.
-
+  Given the production demands and time constraints, this study examines how human operators perceive different roles—delivering, inspection and assembling—when robotic assistance is introduced. This study explores bias in operator task preferences when working alone vs. alongside a robot in a manufacturing warehouse setting. The goal is to identify where robots can enhance productivity, while understanding the conditions under which workers prefer or reject automation in collaborative tasks.
+  
 * **Key Features:**
  
   * Human-in-the-loop decision-making experiment design
@@ -19,7 +19,7 @@ This repository hosts the **Warehouse Multi-Robot GUI Experiment**, a research p
   * Integration with **Apollo.R** to estimate DFT-related parameters from human choice data.
   * **MATLAB parsing** of estimated parameters to simulate preference dynamics and project decision evolution over time.
  
-## ⚙️ Setup Requirements
+## Setup Requirements
 
 * MATLAB (for Apollo-DFT integration)
 * R Software Program (for Apollo-DFT integration)
@@ -29,7 +29,7 @@ This repository hosts the **Warehouse Multi-Robot GUI Experiment**, a research p
 
 ---
 
-## ⚙️ Workflow
+## Workflow
 
 1. **Experiment Execution**
 
