@@ -102,18 +102,19 @@ It leverages **Decision Field Theory (DFT)** to provide a process-level understa
 * Hancock, T. O., Choudhury, C. F., Hess, S., & Stathopoulos, A. (2021). An accumulation of preference: Two alternative dynamic models for understanding transport choices. Transportation Research Part B: Methodological, 149, 250–282. https://doi.org/10.1016/j.trb.2021.04.001
 
 ---
+
 ## 📑 Citation
 
 If you use this project in your research, please cite:
 
-```
+```bibtex
 @misc{warehouse-multi-robot,
   author       = {Ryan Mbagna Nanko},
   title        = {Warehouse Multi-Robot Pairing},
   year         = {2025},
   howpublished = {\url{https://github.com/RMbagna/WarehouseRobotPairing}}
 }
-```
+
 @misc{nanko2025thesis,
   author       = {Ryan Mbagna Nanko},
   title        = {Decision Field Theory for Human-Multi-robot Collaboration: Human-centric Decision-making for Multi-robot Systems},
@@ -121,16 +122,24 @@ If you use this project in your research, please cite:
   howpublished = {\url{https://open.clemson.edu/cgi/viewcontent.cgi?article=5648&context=all_theses}},
   note         = {Master's thesis, Clemson University}
 }
-```
+````
 
 ---
+
 ## 👨‍💻 Author
 
 **Ryan Mbagna Nanko**
-Clemson University – I²R Lab (Interdisciplinary & Intelligent Research)
+*Clemson University – I²R Lab (Interdisciplinary & Intelligent Research)*
+
 For questions or collaborations, reach out:
-📧 \[ryanmbagna@gmail.com] or [rmbagna@clemson.edu]
+📧 \[[ryanmbagna@gmail.com](mailto:ryanmbagna@gmail.com)] | \[[rmbagna@clemson.edu](mailto:rmbagna@clemson.edu)]
 
 ---
+
+```
+
+---
+
+
 
 
